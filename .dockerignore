@@ -1,0 +1,12 @@
+node_modules
+.next
+.git
+.github
+coverage
+npm-debug.log
+Dockerfile
+.dockerignore
+.env
+.env*.local
+README.md
+*.md
