@@ -1,6 +1,7 @@
 import type { Block } from '@/lib/content/types';
 import { renderMath } from '@/lib/math';
 import { InlineText } from './InlineText';
+import { Diagram } from './Diagram';
 import { Info, Lightbulb, AlertTriangle, Sparkles, FlaskConical } from 'lucide-react';
 
 /** Slugify a heading into an anchor id. */
@@ -88,6 +89,19 @@ function BlockView({ block }: { block: Block }) {
       );
     case 'note':
       return <Note block={block} />;
+    case 'diagram':
+      return (
+        <figure className="my-6">
+          <div className="rounded-xl border border-app bg-zinc-50/60 px-4 py-5 dark:bg-zinc-900/40">
+            <Diagram kind={block.kind} />
+          </div>
+          {block.caption && (
+            <figcaption className="mt-2 text-center text-xs text-muted">
+              <InlineText text={block.caption} />
+            </figcaption>
+          )}
+        </figure>
+      );
     case 'code':
       return (
         <figure className="my-5">

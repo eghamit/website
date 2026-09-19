@@ -54,6 +54,25 @@ describe('content integrity', () => {
     expect(withExample.length).toBeGreaterThanOrEqual(Math.ceil(totalLessons() * 0.75));
   });
 
+  it('includes many figures across the course, all with known kinds', () => {
+    const KNOWN = new Set([
+      'neuron', 'mlp-2-2-1', 'sigmoid', 'tanh', 'relu', 'sigmoid-derivative',
+      'gradient-descent', 'backprop-flow', 'linear-fit', 'knn', 'bias-variance',
+      'fit-trio', 'kmeans', 'confusion-matrix', 'linearly-separable', 'xor',
+      'distance-measures', 'pca', 'ml-taxonomy', 'ml-pipeline', 'design-matrix',
+    ]);
+    let count = 0;
+    for (const { lesson } of allLessons()) {
+      for (const block of everyBlock(lesson.blocks)) {
+        if (block.type === 'diagram') {
+          count += 1;
+          expect(KNOWN.has(block.kind), `unknown diagram kind: ${block.kind}`).toBe(true);
+        }
+      }
+    }
+    expect(count).toBeGreaterThanOrEqual(15);
+  });
+
   it('renders every LaTeX formula without KaTeX throwing', () => {
     for (const { lesson } of allLessons()) {
       for (const block of everyBlock(lesson.blocks)) {

@@ -77,6 +77,7 @@ function blockText(block: Block): string {
     case 'steps':
       return block.items.join(' ');
     case 'code':
+    case 'diagram':
       return block.caption ?? '';
     case 'note':
       return `${block.title ?? ''} ${block.text}`;

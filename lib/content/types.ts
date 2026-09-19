@@ -19,6 +19,7 @@ export type Block =
   | { type: 'note'; variant?: 'info' | 'tip' | 'warning' | 'intuition'; title?: string; text: string }
   | { type: 'table'; headers: string[]; rows: string[][]; caption?: string }
   | { type: 'code'; language?: string; code: string; caption?: string }
+  | { type: 'diagram'; kind: string; caption?: string }
   | { type: 'steps'; items: string[] }
   | {
       type: 'example';

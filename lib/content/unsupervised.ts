@@ -40,6 +40,11 @@ export const unsupervised: Module = {
         { type: 'math', tex: r`d_{\text{Manhattan}}(\mathbf{a},\mathbf{b}) = \sum_{j}|a_j-b_j| \quad\text{(city-block / L1)}` },
         { type: 'math', tex: r`\text{cosine sim}(\mathbf{a},\mathbf{b}) = \frac{\mathbf{a}\cdot\mathbf{b}}{\lVert\mathbf{a}\rVert\,\lVert\mathbf{b}\rVert} \quad\text{(angle, ignores magnitude)}` },
         {
+          type: 'diagram',
+          kind: 'distance-measures',
+          caption: 'Euclidean (straight-line) vs Manhattan (city-block) distance between two points.',
+        },
+        {
           type: 'note',
           variant: 'tip',
           title: 'Which to use',
@@ -90,6 +95,11 @@ export const unsupervised: Module = {
           text: r`It minimises the **within-cluster sum of squares** (inertia), where $\boldsymbol\mu_{c}$ is the centroid of cluster $C_c$:`,
         },
         { type: 'math', tex: r`J = \sum_{c=1}^{k}\sum_{\mathbf{x}\in C_c} \lVert \mathbf{x} - \boldsymbol\mu_c \rVert^2` },
+        {
+          type: 'diagram',
+          kind: 'kmeans',
+          caption: 'k-Means assigns each point to its nearest centroid (◆); k = 3 clusters shown.',
+        },
         { type: 'heading', text: 'Choosing k' },
         {
           type: 'p',
@@ -308,6 +318,11 @@ export const unsupervised: Module = {
           ],
         },
         { type: 'math', tex: r`\boldsymbol\Sigma\,\mathbf{v}_k = \lambda_k\,\mathbf{v}_k` },
+        {
+          type: 'diagram',
+          kind: 'pca',
+          caption: 'PCA finds orthogonal axes of maximum variance: PC1 (most spread), then PC2.',
+        },
         {
           type: 'p',
           text: r`The eigenvector $\mathbf{v}_1$ with the largest eigenvalue $\lambda_1$ is the direction of greatest variance (PC1); $\mathbf{v}_2$ is the next, orthogonal to it, and so on. The **explained variance ratio** of keeping $d$ components is:`,

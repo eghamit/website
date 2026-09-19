@@ -39,6 +39,11 @@ export const mlp: Module = {
         },
         { type: 'math', tex: r`z = \sum_{k} w_k x_k + b = \mathbf{w}^\top\mathbf{x} + b, \qquad a = \varphi(z)` },
         {
+          type: 'diagram',
+          kind: 'neuron',
+          caption: 'The neuron: weighted sum of inputs + bias → net input z → activation a = φ(z).',
+        },
+        {
           type: 'table',
           headers: ['Symbol', 'Name', 'Role'],
           rows: [
@@ -111,15 +116,25 @@ export const mlp: Module = {
         { type: 'heading', text: 'What — the common activations' },
         {
           type: 'table',
-          headers: ['Name', 'φ(z)', 'φ′(z)', 'Range'],
+          headers: ['Name', '$\\varphi(z)$', "$\\varphi'(z)$", 'Range'],
           rows: [
-            ['Sigmoid', '1 / (1 + e⁻ᶻ)', 'σ(z)(1 − σ(z)) = a(1 − a)', '(0, 1)'],
-            ['Tanh', '(eᶻ − e⁻ᶻ)/(eᶻ + e⁻ᶻ)', '1 − tanh²(z)', '(−1, 1)'],
-            ['ReLU', 'max(0, z)', '1 if z > 0, else 0', '[0, ∞)'],
-            ['Leaky ReLU', 'max(αz, z)', '1 if z > 0, else α', '(−∞, ∞)'],
+            ['Sigmoid', r`$\frac{1}{1+e^{-z}}$`, r`$\sigma(z)\big(1-\sigma(z)\big) = a(1-a)$`, r`$(0,\,1)$`],
+            ['Tanh', r`$\frac{e^{z}-e^{-z}}{e^{z}+e^{-z}}$`, r`$1-\tanh^2(z)$`, r`$(-1,\,1)$`],
+            ['ReLU', r`$\max(0,\,z)$`, r`$1$ if $z>0$, else $0$`, r`$[0,\,\infty)$`],
+            ['Leaky ReLU', r`$\max(\alpha z,\,z)$`, r`$1$ if $z>0$, else $\alpha$`, r`$(-\infty,\,\infty)$`],
           ],
         },
         { type: 'math', tex: r`\sigma(z) = \frac{1}{1+e^{-z}} \quad\Longrightarrow\quad \sigma'(z) = \sigma(z)\big(1-\sigma(z)\big) = a\,(1-a)` },
+        {
+          type: 'diagram',
+          kind: 'sigmoid-derivative',
+          caption: 'Sigmoid and its derivative. σ′ peaks at only 0.25 and vanishes for large |z|.',
+        },
+        {
+          type: 'diagram',
+          kind: 'relu',
+          caption: 'ReLU passes positive inputs unchanged and clips negatives to 0 — derivative 1 for z > 0.',
+        },
         {
           type: 'note',
           variant: 'tip',
@@ -183,6 +198,11 @@ export const mlp: Module = {
         {
           type: 'p',
           text: r`An MLP has an **input layer**, one or more **hidden layers**, and an **output layer**. Every neuron in one layer connects to every neuron in the next ("**fully connected**"), and each hidden/output neuron has its own bias. A network written **2–2–1** has 2 inputs, one hidden layer of 2 neurons, and 1 output.`,
+        },
+        {
+          type: 'diagram',
+          kind: 'mlp-2-2-1',
+          caption: 'A fully-connected 2–2–1 MLP: every neuron connects to every neuron in the next layer.',
         },
         { type: 'heading', text: 'Notation' },
         {
@@ -329,6 +349,11 @@ export const mlp: Module = {
           text: r`Substituting gives the **backward recursion** — the heart of backpropagation:`,
         },
         { type: 'math', tex: r`\boxed{\;\delta^{l}_{j} = \Big(\sum_{i} w^{l+1}_{ij}\,\delta^{l+1}_{i}\Big)\,\varphi'(z^{l}_{j})\;}` },
+        {
+          type: 'diagram',
+          kind: 'backprop-flow',
+          caption: 'Errors propagate backward through the same weights used in the forward pass.',
+        },
         {
           type: 'note',
           variant: 'intuition',

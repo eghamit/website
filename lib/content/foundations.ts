@@ -180,6 +180,11 @@ export const foundations: Module = {
             ['Reinforcement', 'Rewards from actions', 'Learn a policy', 'Game playing, robotics'],
           ],
         },
+        {
+          type: 'diagram',
+          kind: 'ml-taxonomy',
+          caption: 'The three main paradigms of machine learning and their sub-tasks.',
+        },
         { type: 'heading', text: 'Supervised learning' },
         {
           type: 'p',
@@ -260,6 +265,11 @@ export const foundations: Module = {
           text: r`Stacking the $m$ feature vectors as rows gives the **design (data) matrix** $\mathbf{X}$, and the targets form a **column vector** $\mathbf{y}$:`,
         },
         { type: 'math', tex: r`\mathbf{X} = \begin{bmatrix} x_1^{(1)} & x_2^{(1)} & \cdots & x_n^{(1)} \\ x_1^{(2)} & x_2^{(2)} & \cdots & x_n^{(2)} \\ \vdots & \vdots & \ddots & \vdots \\ x_1^{(m)} & x_2^{(m)} & \cdots & x_n^{(m)} \end{bmatrix} \in \mathbb{R}^{m \times n}, \qquad \mathbf{y} = \begin{bmatrix} y^{(1)} \\ y^{(2)} \\ \vdots \\ y^{(m)} \end{bmatrix} \in \mathbb{R}^{m}` },
+        {
+          type: 'diagram',
+          kind: 'design-matrix',
+          caption: 'The design matrix: each row is one instance x⁽ⁱ⁾, each column one feature.',
+        },
         {
           type: 'note',
           variant: 'tip',
@@ -500,6 +510,11 @@ export const foundations: Module = {
           title: 'Why the minus sign in gradient descent',
           text: r`The gradient points **uphill**; to *minimise* a loss we step in the **opposite** direction, $\theta \leftarrow \theta - \eta\,\nabla J$. That single idea trains almost every model in this course.`,
         },
+        {
+          type: 'diagram',
+          kind: 'gradient-descent',
+          caption: 'Gradient descent: each step moves the parameter downhill toward the minimum.',
+        },
         { type: 'heading', text: 'The chain rule' },
         {
           type: 'p',
@@ -634,6 +649,11 @@ export const foundations: Module = {
           variant: 'warning',
           title: 'Where the time goes',
           text: r`In practice, steps 2–4 (getting and preparing good data) dominate the effort. A great model on bad data loses to a simple model on good data.`,
+        },
+        {
+          type: 'diagram',
+          kind: 'ml-pipeline',
+          caption: 'The end-to-end ML workflow — and the loop back to iterate.',
         },
         { type: 'heading', text: 'Parameters vs hyperparameters' },
         {
