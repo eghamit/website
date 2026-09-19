@@ -3,7 +3,8 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { allLessons, getLesson, neighbors } from '@/lib/content';
 import { Blocks } from '@/components/BlockRenderer';
-import { ArrowLeft, ArrowRight, Target } from 'lucide-react';
+import { InlineText } from '@/components/InlineText';
+import { ArrowLeft, ArrowRight, Target, BookMarked, Sparkles, CheckCircle2, Ban } from 'lucide-react';
 
 export function generateStaticParams() {
   return allLessons().map(({ lesson }) => ({ slug: lesson.slug }));
@@ -42,6 +43,62 @@ export default function LessonPage({ params }: { params: { slug: string } }) {
         </p>
         <h1 className="mt-1 text-3xl font-extrabold tracking-tight sm:text-4xl">{lesson.title}</h1>
         <p className="mt-2 text-lg text-muted">{lesson.summary}</p>
+
+        {lesson.intro && (
+          <div className="mt-5 overflow-hidden rounded-xl border border-app">
+            <div className="flex items-center gap-2 border-b border-app bg-gradient-to-r from-brand-50 to-transparent px-4 py-2.5 dark:from-brand-900/20">
+              <BookMarked size={16} className="text-brand-600 dark:text-brand-300" />
+              <span className="text-sm font-semibold">At a glance</span>
+            </div>
+            <div className="space-y-4 p-4">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wide text-muted">Definition</p>
+                <p className="mt-1 leading-7">
+                  <InlineText text={lesson.intro.definition} />
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <Sparkles size={16} className="mt-1 shrink-0 text-violet-500" />
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-wide text-muted">
+                    Why it matters
+                  </p>
+                  <p className="mt-1 leading-7">
+                    <InlineText text={lesson.intro.whyItMatters} />
+                  </p>
+                </div>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="rounded-lg bg-emerald-50 p-3 dark:bg-emerald-500/10">
+                  <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
+                    <CheckCircle2 size={14} /> When to use
+                  </p>
+                  <ul className="mt-1.5 ml-4 list-disc space-y-1 text-sm leading-6 marker:text-emerald-500">
+                    {lesson.intro.whenToUse.map((it, i) => (
+                      <li key={i}>
+                        <InlineText text={it} />
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                {lesson.intro.whenNotToUse && lesson.intro.whenNotToUse.length > 0 && (
+                  <div className="rounded-lg bg-rose-50 p-3 dark:bg-rose-500/10">
+                    <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-rose-700 dark:text-rose-300">
+                      <Ban size={14} /> When to avoid
+                    </p>
+                    <ul className="mt-1.5 ml-4 list-disc space-y-1 text-sm leading-6 marker:text-rose-400">
+                      {lesson.intro.whenNotToUse.map((it, i) => (
+                        <li key={i}>
+                          <InlineText text={it} />
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         {lesson.objectives && lesson.objectives.length > 0 && (
           <div className="mt-5 rounded-xl border border-app bg-zinc-50 p-4 dark:bg-zinc-900/50">

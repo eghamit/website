@@ -30,6 +30,15 @@ describe('content integrity', () => {
     }
   });
 
+  it('every lesson has a complete "At a glance" background card', () => {
+    for (const { lesson } of allLessons()) {
+      expect(lesson.intro, `intro missing for ${lesson.slug}`).toBeDefined();
+      expect(lesson.intro!.definition.length).toBeGreaterThan(20);
+      expect(lesson.intro!.whyItMatters.length).toBeGreaterThan(20);
+      expect(lesson.intro!.whenToUse.length).toBeGreaterThan(0);
+    }
+  });
+
   it('has a solved example in most lessons', () => {
     const withExample = allLessons().filter(({ lesson }) =>
       lesson.blocks.some((b) => b.type === 'example'),

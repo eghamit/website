@@ -3,8 +3,20 @@ import { supervised } from './supervised';
 import { unsupervised } from './unsupervised';
 import { perceptron } from './perceptron';
 import { mlp } from './mlp';
+import { intros } from './intros';
 
-export const modules: Module[] = [supervised, unsupervised, perceptron, mlp];
+/** Attach the shared "At a glance" background card to each lesson by slug. */
+function withIntros(module: Module): Module {
+  return {
+    ...module,
+    lessons: module.lessons.map((lesson) => ({
+      ...lesson,
+      intro: lesson.intro ?? intros[lesson.slug],
+    })),
+  };
+}
+
+export const modules: Module[] = [supervised, unsupervised, perceptron, mlp].map(withIntros);
 
 export type { Block, Lesson, Module };
 export * from './types';
