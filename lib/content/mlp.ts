@@ -7,140 +7,470 @@ export const mlp: Module = {
   title: 'Multilayer Perceptron (MLP)',
   icon: '🕸️',
   description:
-    'Stack neurons into hidden layers to learn non-linear functions: activation functions, forward propagation, and the backpropagation algorithm that trains the whole network.',
+    'From a single artificial neuron to a full multilayer network: activation functions, forward propagation, and the complete chain-rule derivation of backpropagation — with a step-by-step worked example.',
   lessons: [
-    // ------------------------------------------------------------------
+    // ================================================================
     {
-      slug: 'mlp-architecture-and-activations',
-      title: 'MLP Architecture & Activation Functions',
+      slug: 'artificial-neuron',
+      title: 'The Single Artificial Neuron',
       summary:
-        'Hidden layers, the sigmoid/tanh/ReLU activations, and forward propagation through the network.',
+        'The building block of every neural network: a weighted sum of inputs plus a bias, passed through a non-linear activation.',
+      intro: {
+        definition:
+          'An artificial neuron computes a weighted sum of its inputs, adds a bias to form the net input z, and passes z through a non-linear activation φ to produce its output a = φ(z).',
+        whyItMatters:
+          'It is the atomic unit of every neural network; understanding one neuron precisely makes the whole multilayer network — and backpropagation — just repetition and bookkeeping.',
+        whenToUse: [
+          'As the foundation before assembling any neural network',
+          'To see how weights, bias and activation combine into one output',
+          'To connect the perceptron to the multilayer perceptron',
+        ],
+      },
       objectives: [
-        'Describe the layered architecture of an MLP',
-        'Compare sigmoid, tanh and ReLU',
-        'Run forward propagation by hand',
+        'Write a neuron as a = φ(wᵀx + b)',
+        'Distinguish the net input z from the activation a',
+        'Explain why a single neuron is not enough',
       ],
       blocks: [
+        { type: 'heading', text: 'One neuron, one formula' },
         {
           type: 'p',
-          text: r`A **Multilayer Perceptron** stacks neurons into layers: an **input layer**, one or more **hidden layers**, and an **output layer**. Every neuron connects to all neurons in the next layer (fully connected). The hidden layers are what let an MLP learn **non-linear** functions — including XOR.`,
+          text: r`A single artificial neuron takes inputs $x_1,\dots,x_n$, multiplies each by a **weight** $w_k$, adds a **bias** $b$ to form the **net input** $z$, and passes it through a non-linear **activation function** $\varphi$ to produce the **output** (activation) $a$:`,
+        },
+        { type: 'math', tex: r`z = \sum_{k} w_k x_k + b = \mathbf{w}^\top\mathbf{x} + b, \qquad a = \varphi(z)` },
+        {
+          type: 'table',
+          headers: ['Symbol', 'Name', 'Role'],
+          rows: [
+            ['xₖ', 'Input', 'A feature fed to the neuron'],
+            ['wₖ', 'Weight', 'Importance of that input (learned)'],
+            ['b', 'Bias', 'A learned offset / threshold'],
+            ['z', 'Net input (pre-activation)', 'Weighted sum + bias'],
+            ['φ', 'Activation function', 'Adds non-linearity'],
+            ['a', 'Activation (output)', 'a = φ(z), sent onward'],
+          ],
         },
         {
           type: 'note',
           variant: 'intuition',
-          title: 'Why non-linear activations are essential',
-          text: r`Without a non-linear activation, stacking layers just composes linear maps into one linear map — no more powerful than a single perceptron. The non-linearity is what gives depth its power.`,
+          title: 'Weighted sum, then a squash',
+          text: r`Think of $z$ as the neuron "adding up the evidence" (each input scaled by how much it trusts it, plus a baseline bias), and $\varphi$ as deciding **how strongly to fire** given that evidence.`,
         },
-        { type: 'heading', text: 'Activation functions' },
-        { type: 'math', tex: r`\sigma(z) = \frac{1}{1+e^{-z}} \in (0,1) \qquad \tanh(z) = \frac{e^{z}-e^{-z}}{e^{z}+e^{-z}} \in (-1,1)` },
-        { type: 'math', tex: r`\text{ReLU}(z) = \max(0,\,z)` },
+        { type: 'heading', text: 'Why one neuron is not enough' },
         {
-          type: 'table',
-          headers: ['Activation', 'Range', 'Pros', 'Cons'],
-          rows: [
-            ['Sigmoid', '(0, 1)', 'Smooth, probability-like', 'Vanishing gradients, not zero-centred'],
-            ['Tanh', '(−1, 1)', 'Zero-centred', 'Still saturates at extremes'],
-            ['ReLU', '[0, ∞)', 'Fast, no saturation for z>0', 'Can "die" for z<0'],
-          ],
+          type: 'p',
+          text: r`A single neuron with a step or sigmoid activation is just a **linear classifier** — its decision boundary $\mathbf{w}^\top\mathbf{x}+b=0$ is a straight line/hyperplane. It cannot solve problems that are not linearly separable, the classic example being **XOR**.`,
         },
         {
           type: 'note',
-          variant: 'tip',
-          title: 'Default choices',
-          text: r`Use **ReLU** (or variants like Leaky ReLU) in hidden layers. Use **sigmoid** for a binary-classification output and **softmax** for multi-class.`,
-        },
-        { type: 'heading', text: 'Forward propagation' },
-        {
-          type: 'p',
-          text: r`**Forward propagation** passes the input through the layers to produce a prediction. For layer $\ell$ with weight matrix $\mathbf{W}^{[\ell]}$, bias $\mathbf{b}^{[\ell]}$ and activation $g$:`,
-        },
-        { type: 'math', tex: r`\mathbf{z}^{[\ell]} = \mathbf{W}^{[\ell]}\mathbf{a}^{[\ell-1]} + \mathbf{b}^{[\ell]}, \qquad \mathbf{a}^{[\ell]} = g\big(\mathbf{z}^{[\ell]}\big)` },
-        {
-          type: 'p',
-          text: r`with $\mathbf{a}^{[0]}=\mathbf{x}$ the input and $\mathbf{a}^{[L]}=\hat{\mathbf y}$ the final output.`,
+          variant: 'info',
+          title: 'The fix: stack neurons into layers',
+          text: r`Connecting many neurons into **layers** — a **multilayer perceptron** — and using **non-linear** activations lets the network represent arbitrarily complex functions. The rest of this module builds exactly that, and shows how such a network learns its weights.`,
         },
         {
           type: 'example',
-          title: 'Forward pass through one neuron',
-          problem: r`A hidden neuron has weights $\mathbf{w}=(0.5,-0.4)$, bias $b=0.1$, and sigmoid activation. For input $\mathbf{x}=(2,3)$, compute its output.`,
+          title: 'Compute a neuron’s output',
+          problem: r`A sigmoid neuron has weights $\mathbf{w}=(0.5,-0.4)$, bias $b=0.1$ and input $\mathbf{x}=(2,3)$. Find $z$ and $a$.`,
           solution: [
             { type: 'p', text: r`**Net input.** $z = 0.5(2) + (-0.4)(3) + 0.1 = 1.0 - 1.2 + 0.1 = -0.1.$` },
-            { type: 'p', text: r`**Activation.** $a = \sigma(-0.1) = \dfrac{1}{1+e^{0.1}} = \dfrac{1}{1+1.105} \approx 0.475.$` },
+            { type: 'p', text: r`**Activation.** $a = \sigma(-0.1) = \dfrac{1}{1+e^{0.1}} \approx 0.475.$` },
           ],
-          answer: 'Neuron output ≈ 0.475',
+          answer: 'z = −0.1, a ≈ 0.475',
         },
       ],
     },
 
-    // ------------------------------------------------------------------
+    // ================================================================
     {
-      slug: 'backpropagation-and-gradient-descent',
-      title: 'Backpropagation & Gradient Descent',
+      slug: 'activation-functions',
+      title: 'Activation Functions: What, When & Why',
       summary:
-        'The loss, the chain rule flowing backward, and how weights and biases are updated to train a network.',
+        'Why non-linearity is essential, the sigmoid/tanh/ReLU/leaky-ReLU functions and their derivatives, when to use each, and the vanishing-gradient problem.',
+      intro: {
+        definition:
+          'An activation function φ is the non-linear function applied to a neuron’s net input; it decides the neuron’s output and, crucially, its derivative drives learning during backpropagation.',
+        whyItMatters:
+          'Without a non-linear activation, stacking layers collapses into a single linear map — no more powerful than one neuron. The choice of activation also governs training speed and the vanishing-gradient problem.',
+        whenToUse: [
+          'Choosing hidden-layer activations (ReLU by default)',
+          'Choosing an output activation (sigmoid/softmax for classification)',
+          'Diagnosing slow or stalled training (saturation)',
+        ],
+      },
       objectives: [
-        'Compute the output error and loss',
-        'Apply the chain rule to propagate gradients backward',
-        'Update weights and biases with gradient descent',
+        'Explain WHY non-linearity is required',
+        'State sigmoid, tanh, ReLU and leaky ReLU with their derivatives',
+        'Choose WHEN to use each and recognise vanishing gradients',
       ],
       blocks: [
+        { type: 'heading', text: 'Why — non-linearity is the whole point' },
         {
           type: 'p',
-          text: r`Training an MLP means finding the weights and biases that minimise a **loss**. **Backpropagation** is the efficient algorithm that computes the gradient of the loss with respect to *every* parameter, by applying the **chain rule** layer by layer from the output backward.`,
+          text: r`If every neuron were linear ($\varphi(z)=z$), a stack of layers would compose linear maps into **one** linear map — the network could only draw straight boundaries. The **non-linear** activation is what lets depth build up complex, curved functions. Its **derivative** $\varphi'$ also appears at every step of backpropagation.`,
         },
-        { type: 'heading', text: 'Step 1 — Loss' },
+        { type: 'heading', text: 'What — the common activations' },
         {
-          type: 'p',
-          text: r`Measure the error between prediction $\hat{\mathbf y}$ and target $\mathbf y$. For regression, squared error; for classification, cross-entropy:`,
+          type: 'table',
+          headers: ['Name', 'φ(z)', 'φ′(z)', 'Range'],
+          rows: [
+            ['Sigmoid', '1 / (1 + e⁻ᶻ)', 'σ(z)(1 − σ(z)) = a(1 − a)', '(0, 1)'],
+            ['Tanh', '(eᶻ − e⁻ᶻ)/(eᶻ + e⁻ᶻ)', '1 − tanh²(z)', '(−1, 1)'],
+            ['ReLU', 'max(0, z)', '1 if z > 0, else 0', '[0, ∞)'],
+            ['Leaky ReLU', 'max(αz, z)', '1 if z > 0, else α', '(−∞, ∞)'],
+          ],
         },
-        { type: 'math', tex: r`\mathcal{L} = \tfrac{1}{2}\lVert \hat{\mathbf y} - \mathbf y \rVert^2` },
-        { type: 'heading', text: 'Step 2 — Backpropagate the error' },
-        {
-          type: 'p',
-          text: r`Define the error signal $\boldsymbol\delta^{[\ell]} = \partial\mathcal{L}/\partial\mathbf{z}^{[\ell]}$. It starts at the output and flows backward, where $\odot$ is elementwise product and $g'$ the activation's derivative:`,
-        },
-        { type: 'math', tex: r`\boldsymbol\delta^{[L]} = (\hat{\mathbf y}-\mathbf y)\odot g'\big(\mathbf{z}^{[L]}\big)` },
-        { type: 'math', tex: r`\boldsymbol\delta^{[\ell]} = \big(\mathbf{W}^{[\ell+1]\top}\boldsymbol\delta^{[\ell+1]}\big)\odot g'\big(\mathbf{z}^{[\ell]}\big)` },
-        {
-          type: 'p',
-          text: r`The gradients for each layer's parameters then follow directly:`,
-        },
-        { type: 'math', tex: r`\frac{\partial\mathcal{L}}{\partial\mathbf{W}^{[\ell]}} = \boldsymbol\delta^{[\ell]}\,\mathbf{a}^{[\ell-1]\top}, \qquad \frac{\partial\mathcal{L}}{\partial\mathbf{b}^{[\ell]}} = \boldsymbol\delta^{[\ell]}` },
+        { type: 'math', tex: r`\sigma(z) = \frac{1}{1+e^{-z}} \quad\Longrightarrow\quad \sigma'(z) = \sigma(z)\big(1-\sigma(z)\big) = a\,(1-a)` },
         {
           type: 'note',
           variant: 'tip',
-          title: 'Handy derivatives',
-          text: r`$\sigma'(z) = \sigma(z)\big(1-\sigma(z)\big)$, $\;\tanh'(z) = 1-\tanh^2(z)$, and $\;\text{ReLU}'(z)=1$ if $z>0$ else $0$. These plug straight into the $g'$ terms above.`,
+          title: 'A gift for hand computation',
+          text: r`The sigmoid derivative is **self-referential**: once you know $a=\sigma(z)$ from the forward pass, $\sigma'(z)=a(1-a)$ needs no re-evaluation. This is why sigmoid networks are convenient to work by hand.`,
         },
-        { type: 'heading', text: 'Step 3 — Update the parameters' },
+        { type: 'heading', text: 'When — which to use where' },
         {
-          type: 'p',
-          text: r`Take a gradient-descent step against each gradient, scaled by the learning rate $\eta$:`,
+          type: 'list',
+          items: [
+            r`**Hidden layers → ReLU** (or Leaky ReLU). It is fast, does not saturate for $z>0$, and its derivative of 1 on the positive side keeps gradients healthy in deep networks.`,
+            r`**Binary output → Sigmoid**, so the output reads as a probability in $(0,1)$.`,
+            r`**Multi-class output → Softmax**, giving a probability per class that sums to 1.`,
+            r`**Tanh** — a zero-centred alternative to sigmoid for hidden units (older networks); still saturates.`,
+            r`**Leaky ReLU** — use when plain ReLU units "die" (get stuck outputting 0).`,
+          ],
         },
-        { type: 'math', tex: r`\mathbf{W}^{[\ell]} \leftarrow \mathbf{W}^{[\ell]} - \eta\,\frac{\partial\mathcal{L}}{\partial\mathbf{W}^{[\ell]}}, \qquad \mathbf{b}^{[\ell]} \leftarrow \mathbf{b}^{[\ell]} - \eta\,\frac{\partial\mathcal{L}}{\partial\mathbf{b}^{[\ell]}}` },
+        { type: 'heading', text: 'The vanishing-gradient problem' },
         {
           type: 'note',
-          variant: 'info',
-          title: 'The training loop',
-          text: r`Forward propagate → compute loss → backpropagate gradients → update weights → repeat for many mini-batches and epochs. This single loop trains networks from a 2-neuron XOR solver to billion-parameter models.`,
+          variant: 'warning',
+          title: 'Why sigmoids struggle in deep nets',
+          text: r`The sigmoid derivative peaks at only $0.25$ (at $z=0$) and is $\approx 0$ for large $|z|$. In a deep sigmoid/tanh network, backpropagation multiplies many such small numbers, so gradients in early layers **vanish** and those layers barely learn. **ReLU** (derivative 1 on the positive side) is the standard remedy.`,
         },
         {
           type: 'example',
-          title: 'Output-layer gradient and update',
-          problem: r`A linear output neuron predicts $\hat y = 0.8$ for a target $y = 1$. Its input activation from the previous layer is $a = 0.5$. With loss $\tfrac12(\hat y - y)^2$ and $\eta = 0.1$, find the weight gradient and the updated weight (current $w = 0.4$).`,
+          title: 'Sigmoid derivative from the activation',
+          problem: r`A sigmoid neuron output is $a=\sigma(z)=0.75$. Find $\sigma'(z)$.`,
           solution: [
-            { type: 'p', text: r`**Output error.** For a linear output, $\delta = \hat y - y = 0.8 - 1 = -0.2.$` },
-            { type: 'p', text: r`**Weight gradient.** $\dfrac{\partial\mathcal L}{\partial w} = \delta\cdot a = (-0.2)(0.5) = -0.1.$` },
-            { type: 'p', text: r`**Update.** $w \leftarrow 0.4 - 0.1(-0.1) = 0.4 + 0.01 = 0.41.$` },
-            { type: 'p', text: r`The weight increased slightly, pushing the next prediction from 0.8 toward the target 1. Repeated over many examples, this is how the network learns.` },
+            { type: 'p', text: r`$\sigma'(z) = a(1-a) = 0.75(1-0.75) = 0.75 \times 0.25 = 0.1875.$` },
           ],
-          answer: 'gradient −0.1 → w updates 0.4 → 0.41',
+          answer: "σ′(z) = 0.1875",
+        },
+      ],
+    },
+
+    // ================================================================
+    {
+      slug: 'mlp-forward-propagation',
+      title: 'The MLP: Architecture & Forward Propagation',
+      summary:
+        'Fully-connected layers, the layer-indexed notation (Wˡ, bˡ, zˡ, aˡ), forward propagation in vector form, and the loss functions that measure error.',
+      intro: {
+        definition:
+          'A multilayer perceptron (MLP) is a fully-connected feedforward network of neurons arranged in an input layer, one or more hidden layers and an output layer; forward propagation evaluates it layer by layer.',
+        whyItMatters:
+          'Hidden layers with non-linear activations overcome the single neuron’s linear limit, making the MLP a universal function approximator and the foundation of deep learning.',
+        whenToUse: [
+          'Modelling non-linear input–output relationships',
+          'Understanding the notation used by backpropagation',
+          'Computing a network’s prediction (the forward pass)',
+        ],
+      },
+      objectives: [
+        'Describe the layered, fully-connected architecture',
+        'Read the layer-indexed weight/bias/activation notation',
+        'Run forward propagation and state the loss functions',
+      ],
+      blocks: [
+        { type: 'heading', text: 'Architecture' },
+        {
+          type: 'p',
+          text: r`An MLP has an **input layer**, one or more **hidden layers**, and an **output layer**. Every neuron in one layer connects to every neuron in the next ("**fully connected**"), and each hidden/output neuron has its own bias. A network written **2–2–1** has 2 inputs, one hidden layer of 2 neurons, and 1 output.`,
+        },
+        { type: 'heading', text: 'Notation' },
+        {
+          type: 'p',
+          text: r`Index layers by $l = 1,\dots,L$ (with $l=L$ the output layer). For layer $l$:`,
+        },
+        {
+          type: 'list',
+          items: [
+            r`$w^{l}_{jk}$ — weight from the $k$-th neuron in layer $l-1$ to the $j$-th neuron in layer $l$.`,
+            r`$b^{l}_{j}$ — bias of the $j$-th neuron in layer $l$.`,
+            r`$z^{l}_{j} = \sum_{k} w^{l}_{jk}\,a^{l-1}_{k} + b^{l}_{j}$ — the **net input** (pre-activation).`,
+            r`$a^{l}_{j} = \varphi(z^{l}_{j})$ — the **activation**, with $a^{0}_{k} = x_k$ (the inputs).`,
+          ],
+        },
+        {
+          type: 'p',
+          text: r`In **vector form**, with weight matrix $\mathbf{W}^{l}$ and bias vector $\mathbf{b}^{l}$:`,
+        },
+        { type: 'math', tex: r`\mathbf{z}^{l} = \mathbf{W}^{l}\mathbf{a}^{l-1} + \mathbf{b}^{l}, \qquad \mathbf{a}^{l} = \varphi(\mathbf{z}^{l})` },
+        { type: 'heading', text: 'Forward propagation' },
+        {
+          type: 'p',
+          text: r`**Forward propagation** evaluates the network layer by layer: start with $\mathbf{a}^{0}=\mathbf{x}$, compute $\mathbf{z}^{1},\mathbf{a}^{1}$, then $\mathbf{z}^{2},\mathbf{a}^{2}$, and so on to the output $\mathbf{a}^{L}$. This produces the prediction and — crucially — **stores every $z^{l}_{j}$ and $a^{l}_{j}$**, which backpropagation will reuse.`,
+        },
+        { type: 'heading', text: 'Loss functions' },
+        {
+          type: 'p',
+          text: r`A **loss** $E$ measures how wrong the outputs are. For **regression**, the mean squared error (the $\tfrac12$ is a convenience that cancels the exponent on differentiation):`,
+        },
+        { type: 'math', tex: r`E = \frac{1}{2}\sum_{j}\big(a^{L}_{j} - y_{j}\big)^2` },
+        {
+          type: 'p',
+          text: r`For **classification** the outputs are probabilities and the natural loss is **cross-entropy** — small when the predicted probability of the correct class is near 1, and unbounded as it approaches 0 (a confident wrong answer is punished heavily):`,
+        },
+        { type: 'math', tex: r`\text{binary: } E = -\big[y\log\hat y + (1-y)\log(1-\hat y)\big], \qquad \text{multi-class: } E = -\sum_{c=1}^{C} y_c \log \hat y_c` },
+        {
+          type: 'note',
+          variant: 'tip',
+          title: 'A neat pairing',
+          text: r`Cross-entropy pairs beautifully with sigmoid/softmax outputs: the output error simplifies to the same clean form $\delta^{L} = \hat{\mathbf y} - \mathbf y$ that squared error gives — which the next lesson derives.`,
+        },
+        {
+          type: 'example',
+          title: 'Forward pass through a 2–2–1 network',
+          problem: r`Inputs $x_1=0.05,\ x_2=0.10$; hidden weights $w_1{=}0.15, w_2{=}0.20$ (to $h_1$), $w_3{=}0.25, w_4{=}0.30$ (to $h_2$); hidden biases $b_{h}=0.35$; output weights $w_5{=}0.40, w_6{=}0.45$; output bias $b_o=0.60$; sigmoid activation. Compute $h_1,h_2,o$.`,
+          solution: [
+            {
+              type: 'table',
+              headers: ['Neuron', 'Net input z', 'Activation a = σ(z)'],
+              rows: [
+                ['h₁', '0.15(0.05)+0.20(0.10)+0.35 = 0.3775', '0.593270'],
+                ['h₂', '0.25(0.05)+0.30(0.10)+0.35 = 0.3925', '0.596884'],
+                ['o', '0.40(0.593270)+0.45(0.596884)+0.60 = 1.105906', '0.751365'],
+              ],
+            },
+            { type: 'p', text: r`With target $t=0.01$, the loss is $E=\tfrac12(0.751365-0.01)^2 = 0.274811$. These stored values feed directly into backpropagation.` },
+          ],
+          answer: 'h₁ = 0.593270, h₂ = 0.596884, o = 0.751365',
+        },
+      ],
+    },
+
+    // ================================================================
+    {
+      slug: 'backpropagation',
+      title: 'Backpropagation: Derivation & Worked Example',
+      summary:
+        'The full chain-rule derivation — the error signal δ, the weight-gradient rule, the output error, and the backward recursion for hidden layers — the algorithm, its variants, and a complete worked example in tables.',
+      intro: {
+        definition:
+          'Backpropagation is the algorithm that computes the gradient of the loss with respect to every weight and bias in one backward sweep, by applying the chain rule from the output layer inward.',
+        whyItMatters:
+          'It makes training deep networks feasible: all gradients cost about one extra forward pass, versus one forward pass per weight for naive finite differences. It is the workhorse behind essentially all modern deep learning.',
+        whenToUse: [
+          'Training any differentiable neural network',
+          'Deriving the gradient for a weight buried deep in a network',
+          'Understanding why gradients shrink toward early layers',
+        ],
+        whenNotToUse: [
+          'Non-differentiable activations or losses',
+          'When a simpler model with a closed-form solution suffices',
+        ],
+      },
+      objectives: [
+        'Define the error signal δ and the weight-gradient rule',
+        'Derive the output error and the hidden-layer backward recursion',
+        'Execute one full backprop update by hand',
+      ],
+      blocks: [
+        { type: 'heading', text: 'Learning as optimisation' },
+        {
+          type: 'p',
+          text: r`Training is supervised: given inputs with known targets and a loss $E$, we adjust every weight and bias by **gradient descent**, $\;w \leftarrow w - \eta\,\frac{\partial E}{\partial w}$. This needs $\frac{\partial E}{\partial w}$ for **every** weight — possibly millions, buried several layers deep. **Backpropagation** computes all of them efficiently in one backward sweep using the chain rule.`,
         },
         {
           type: 'note',
+          variant: 'info',
+          title: 'Parameters vs hyperparameters',
+          text: r`Backprop updates the **parameters** — the weights $w$ and biases $b$. Quantities you fix beforehand — the learning rate $\eta$, the number of layers/neurons, the activation choice — are **hyperparameters**. Backprop computes gradients; gradient descent uses them (and $\eta$) to move the parameters.`,
+        },
+        { type: 'heading', text: 'The key idea: the error signal δ' },
+        {
+          type: 'p',
+          text: r`The loss depends on a weight only through its neuron's net input, which feeds its activation, which feeds the next layer, and so on. The chain rule threads the derivative back along this path. Define, for each neuron, the **error signal** — the sensitivity of the loss to that neuron's net input:`,
+        },
+        { type: 'math', tex: r`\delta^{l}_{j} := \frac{\partial E}{\partial z^{l}_{j}}` },
+        { type: 'heading', text: '1 · Gradient of a weight in terms of δ' },
+        {
+          type: 'p',
+          text: r`Because $z^{l}_{j} = \sum_{k} w^{l}_{jk} a^{l-1}_{k} + b^{l}_{j}$ depends on $w^{l}_{jk}$ directly, the chain rule gives:`,
+        },
+        { type: 'math', tex: r`\frac{\partial E}{\partial w^{l}_{jk}} = \frac{\partial E}{\partial z^{l}_{j}}\,\frac{\partial z^{l}_{j}}{\partial w^{l}_{jk}} = \delta^{l}_{j}\,a^{l-1}_{k}, \qquad \frac{\partial E}{\partial b^{l}_{j}} = \delta^{l}_{j}` },
+        {
+          type: 'note',
           variant: 'intuition',
+          title: 'Read it in words',
+          text: r`Every weight gradient is **(error signal at its head)** $\times$ **(activation at its tail)**. The bias gradient is just the error signal. So once we have every $\delta$, all gradients follow immediately.`,
+        },
+        { type: 'heading', text: '2 · Error signal at the output layer' },
+        {
+          type: 'p',
+          text: r`An output neuron $j$ affects the loss only through its own activation $a^{L}_{j}=\varphi(z^{L}_{j})$, so:`,
+        },
+        { type: 'math', tex: r`\delta^{L}_{j} = \frac{\partial E}{\partial z^{L}_{j}} = \frac{\partial E}{\partial a^{L}_{j}}\,\varphi'(z^{L}_{j})` },
+        {
+          type: 'p',
+          text: r`For the MSE loss, $\frac{\partial E}{\partial a^{L}_{j}} = a^{L}_{j}-y_{j}$, so the output error takes the clean form:`,
+        },
+        { type: 'math', tex: r`\boxed{\;\delta^{L}_{j} = \big(a^{L}_{j} - y_{j}\big)\,\varphi'(z^{L}_{j})\;}` },
+        { type: 'heading', text: '3 · Error signal at a hidden layer (the backward recursion)' },
+        {
+          type: 'p',
+          text: r`A hidden neuron $j$ never feeds the loss directly — it affects it **only through the next layer**. It sends its activation $a^{l}_{j}$ to every neuron $i$ of layer $l+1$, so the multivariate chain rule **sums its effect through all of them**:`,
+        },
+        { type: 'math', tex: r`\delta^{l}_{j} = \frac{\partial E}{\partial z^{l}_{j}} = \sum_{i}\underbrace{\frac{\partial E}{\partial z^{l+1}_{i}}}_{\delta^{l+1}_{i}}\,\frac{\partial z^{l+1}_{i}}{\partial z^{l}_{j}} = \sum_{i}\delta^{l+1}_{i}\,\frac{\partial z^{l+1}_{i}}{\partial z^{l}_{j}}` },
+        {
+          type: 'p',
+          text: r`The first factor is exactly $\delta^{l+1}_{i}$ — **already computed** for the next layer (this reuse is what makes backprop efficient). For the second factor, since $z^{l+1}_{i} = \sum_{k} w^{l+1}_{ik}\,\varphi(z^{l}_{k}) + b^{l+1}_{i}$ depends on $z^{l}_{j}$ only through $\varphi(z^{l}_{j})$, every term vanishes except $k=j$:`,
+        },
+        { type: 'math', tex: r`\frac{\partial z^{l+1}_{i}}{\partial z^{l}_{j}} = w^{l+1}_{ij}\,\varphi'(z^{l}_{j})` },
+        {
+          type: 'p',
+          text: r`Substituting gives the **backward recursion** — the heart of backpropagation:`,
+        },
+        { type: 'math', tex: r`\boxed{\;\delta^{l}_{j} = \Big(\sum_{i} w^{l+1}_{ij}\,\delta^{l+1}_{i}\Big)\,\varphi'(z^{l}_{j})\;}` },
+        {
+          type: 'note',
+          variant: 'intuition',
+          title: 'How to read the recursion',
+          text: r`**$\sum_i w^{l+1}_{ij}\delta^{l+1}_{i}$** — gather the error signals of the neurons this neuron feeds, each weighted by the very connection it sent forward (push hard on a badly-wrong neuron → inherit more blame). **$\varphi'(z^{l}_{j})$** — scale by this neuron's own activation slope; a saturated neuron ($\varphi'\approx 0$) can barely change the output, so its error is tiny. Errors literally propagate **backward through the same weights** used in the forward pass.`,
+        },
+        { type: 'heading', text: '4 · Vector form' },
+        {
+          type: 'p',
+          text: r`Collecting neurons into vectors (with $\odot$ the element-wise product), the whole derivation compresses to four lines — the $(\mathbf{W}^{l+1})^\top$ makes precise "send the error back through the weights":`,
+        },
+        { type: 'math', tex: r`\delta^{L} = \nabla_{\mathbf a}E \odot \varphi'(\mathbf{z}^{L}), \qquad \delta^{l} = \big((\mathbf{W}^{l+1})^\top \delta^{l+1}\big)\odot \varphi'(\mathbf{z}^{l})` },
+        { type: 'math', tex: r`\nabla_{\mathbf{W}^{l}}E = \delta^{l}\,(\mathbf{a}^{l-1})^\top, \qquad \nabla_{\mathbf{b}^{l}}E = \delta^{l}` },
+        { type: 'heading', text: 'The backpropagation algorithm' },
+        {
+          type: 'steps',
+          items: [
+            r`**Forward pass.** Set $\mathbf{a}^{0}=\mathbf{x}$; for $l=1,\dots,L$ compute $\mathbf{z}^{l}=\mathbf{W}^{l}\mathbf{a}^{l-1}+\mathbf{b}^{l}$ and $\mathbf{a}^{l}=\varphi(\mathbf{z}^{l})$; store all $\mathbf{z}^{l},\mathbf{a}^{l}$.`,
+            r`**Output error.** $\delta^{L} = (\mathbf{a}^{L}-\mathbf{y})\odot\varphi'(\mathbf{z}^{L})$.`,
+            r`**Backward pass.** For $l=L-1,\dots,1$: $\ \delta^{l} = \big((\mathbf{W}^{l+1})^\top\delta^{l+1}\big)\odot\varphi'(\mathbf{z}^{l})$.`,
+            r`**Gradients.** $\nabla_{\mathbf{W}^{l}}E = \delta^{l}(\mathbf{a}^{l-1})^\top$, $\ \nabla_{\mathbf{b}^{l}}E = \delta^{l}$.`,
+            r`**Update.** $\mathbf{W}^{l} \leftarrow \mathbf{W}^{l} - \eta\,\nabla_{\mathbf{W}^{l}}E$, $\ \mathbf{b}^{l} \leftarrow \mathbf{b}^{l} - \eta\,\nabla_{\mathbf{b}^{l}}E$. Repeat until the loss converges.`,
+          ],
+        },
+        { type: 'heading', text: 'Variants' },
+        {
+          type: 'table',
+          headers: ['Choice', 'Idea'],
+          rows: [
+            ['Batch GD', 'Average the gradient over the whole training set per update — stable but slow.'],
+            ['Stochastic (SGD)', 'Update after each example — noisy but fast; noise can escape poor minima.'],
+            ['Mini-batch GD', 'Update after a small batch (32–256) — the practical default.'],
+            ['Momentum / RMSProp / Adam', 'Better optimisers that reuse the same backprop gradients; Adam is the usual default.'],
+          ],
+        },
+
+        // ---------------- Worked example ----------------
+        { type: 'heading', text: 'Worked example — one full step (2–2–1 sigmoid)' },
+        {
+          type: 'p',
+          text: r`We train the network of the previous lesson for one step. **Setup:** $x_1{=}0.05,\ x_2{=}0.10$; $w_1{=}0.15,w_2{=}0.20$ (→$h_1$), $w_3{=}0.25,w_4{=}0.30$ (→$h_2$); $b_{h_1}{=}b_{h_2}{=}0.35$; $w_5{=}0.40,w_6{=}0.45$ (→$o$); $b_o{=}0.60$; sigmoid activation; target $t=0.01$; loss $E=\tfrac12(o-t)^2$; learning rate $\eta=0.5$.`,
+        },
+        {
+          type: 'example',
+          title: 'Backpropagation, step by step',
+          problem: r`Perform one forward pass, one backward pass, update all nine parameters, and verify the loss decreased.`,
+          solution: [
+            { type: 'p', text: r`**Step 1 — Forward pass.** (activations stored for reuse)` },
+            {
+              type: 'table',
+              headers: ['Neuron', 'Net input z', 'Activation a = σ(z)'],
+              rows: [
+                ['h₁', '0.3775', '0.593270'],
+                ['h₂', '0.3925', '0.596884'],
+                ['o', '1.105906', '0.751365'],
+              ],
+            },
+            { type: 'p', text: r`Loss $E = \tfrac12(0.751365-0.01)^2 = 0.274811$.` },
+            { type: 'p', text: r`**Step 2 — Output error & its gradients** using $\delta_o=(o-t)\,o(1-o)$ and $\partial E/\partial w = \delta_o \cdot h$:` },
+            {
+              type: 'table',
+              headers: ['Quantity', 'Computation', 'Value'],
+              rows: [
+                ['δₒ', '(0.751365 − 0.01)(0.751365)(0.248635)', '0.138499'],
+                ['∂E/∂w₅', 'δₒ · h₁ = 0.138499 × 0.593270', '0.082167'],
+                ['∂E/∂w₆', 'δₒ · h₂ = 0.138499 × 0.596884', '0.082668'],
+                ['∂E/∂bₒ', '= δₒ', '0.138499'],
+              ],
+            },
+            { type: 'p', text: r`**Step 3 — Hidden errors & gradients.** With one output, $\delta_h = \delta_o\,w_{(h\to o)}\,h(1-h)$, and $\partial E/\partial w = \delta_h \cdot x$:` },
+            {
+              type: 'table',
+              headers: ['Quantity', 'Computation', 'Value'],
+              rows: [
+                ['δₕ₁', '0.138499 × 0.40 × 0.593270 × 0.406730', '0.013368'],
+                ['δₕ₂', '0.138499 × 0.45 × 0.596884 × 0.403116', '0.014996'],
+                ['∂E/∂w₁', 'δₕ₁ · x₁', '0.000668'],
+                ['∂E/∂w₂', 'δₕ₁ · x₂', '0.001337'],
+                ['∂E/∂w₃', 'δₕ₂ · x₁', '0.000750'],
+                ['∂E/∂w₄', 'δₕ₂ · x₂', '0.001500'],
+              ],
+            },
+            { type: 'p', text: r`**Step 4 — Update every parameter** with $w \leftarrow w - \eta\,\partial E/\partial w$ ($\eta=0.5$):` },
+            {
+              type: 'table',
+              headers: ['Param', 'Old', 'Gradient', 'New'],
+              rows: [
+                ['w₁', '0.15', '0.000668', '0.149666'],
+                ['w₂', '0.20', '0.001337', '0.199332'],
+                ['w₃', '0.25', '0.000750', '0.249625'],
+                ['w₄', '0.30', '0.001500', '0.299250'],
+                ['w₅', '0.40', '0.082167', '0.358916'],
+                ['w₆', '0.45', '0.082668', '0.408666'],
+                ['b_h₁', '0.35', '0.013368', '0.343316'],
+                ['b_h₂', '0.35', '0.014996', '0.342502'],
+                ['bₒ', '0.60', '0.138499', '0.530751'],
+              ],
+            },
+            { type: 'p', text: r`**Step 5 — Verify the loss decreased.** A forward pass with the updated weights gives $o'=0.728352$, so $E' = \tfrac12(0.728352-0.01)^2 = 0.258015 < 0.274811 = E$. ✓ One step reduced the error, exactly as gradient descent promises.` },
+            {
+              type: 'note',
+              variant: 'intuition',
+              title: 'Notice the gradient shrinkage',
+              text: r`$\partial E/\partial w_5 \approx 0.082$ but $\partial E/\partial w_1 \approx 0.0007$ — over 100× smaller. The hidden gradients carry the extra factors $w_5\,h_1(1-h_1)$ and the tiny input $x_1=0.05$, shrinking them. This is an early glimpse of the **vanishing-gradient** effect as we move back through a network.`,
+            },
+          ],
+          answer: "E: 0.274811 → 0.258015 (loss decreased ✓)",
+        },
+        { type: 'heading', text: 'From-scratch implementation (NumPy)' },
+        {
+          type: 'code',
+          language: 'python',
+          code: r`import numpy as np
+sig  = lambda z: 1 / (1 + np.exp(-z))
+dsig = lambda a: a * (1 - a)          # σ'(z) in terms of a = σ(z)
+
+x = np.array([[0.05], [0.10]]); t = np.array([[0.01]]); eta = 0.5
+W1 = np.array([[0.15, 0.20], [0.25, 0.30]]); b1 = np.array([[0.35], [0.35]])
+W2 = np.array([[0.40, 0.45]]);               b2 = np.array([[0.60]])
+
+# forward
+a1 = sig(W1 @ x + b1)                 # hidden activations
+a2 = sig(W2 @ a1 + b2)                # output
+E  = 0.5 * np.sum((a2 - t) ** 2)      # 0.274811...
+
+# backward
+d2 = (a2 - t) * dsig(a2)              # output error signal
+d1 = (W2.T @ d2) * dsig(a1)           # hidden error signal
+gW2, gb2 = d2 @ a1.T, d2             # gradients
+gW1, gb1 = d1 @ x.T,  d1
+
+# update
+W2 -= eta * gW2; b2 -= eta * gb2
+W1 -= eta * gW1; b1 -= eta * gb1
+print("loss:", E)`,
+          caption: 'Reproduces the by-hand numbers: δₒ = 0.1385, updated w₅ = 0.3589, and so on.',
+        },
+        {
+          type: 'note',
+          variant: 'tip',
           title: 'The big picture',
-          text: r`Perceptron → MLP architecture → forward propagation → loss → backpropagation → gradient descent → updated weights and biases. You now have the full pipeline that underlies all of deep learning.`,
+          text: r`Perceptron → artificial neuron → activation functions → MLP & forward propagation → loss → **backpropagation** (error signal δ, output error, backward recursion) → gradient descent → updated weights. You now have the complete pipeline that underlies all of deep learning.`,
         },
       ],
     },
