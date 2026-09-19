@@ -13,8 +13,14 @@ function everyBlock(blocks: Block[]): Block[] {
 }
 
 describe('content integrity', () => {
-  it('has all four modules with lessons', () => {
-    expect(modules.map((m) => m.id)).toEqual(['supervised', 'unsupervised', 'perceptron', 'mlp']);
+  it('has all modules in pedagogical order, each with lessons', () => {
+    expect(modules.map((m) => m.id)).toEqual([
+      'foundations',
+      'supervised',
+      'unsupervised',
+      'perceptron',
+      'mlp',
+    ]);
     for (const m of modules) expect(m.lessons.length).toBeGreaterThan(0);
   });
 
@@ -43,8 +49,9 @@ describe('content integrity', () => {
     const withExample = allLessons().filter(({ lesson }) =>
       lesson.blocks.some((b) => b.type === 'example'),
     );
-    // The vast majority of lessons include a worked example.
-    expect(withExample.length).toBeGreaterThanOrEqual(totalLessons() - 3);
+    // Most lessons include a worked example; some purely conceptual ones
+    // (e.g. "What is ML?", "The ML Workflow") legitimately do not.
+    expect(withExample.length).toBeGreaterThanOrEqual(Math.ceil(totalLessons() * 0.75));
   });
 
   it('renders every LaTeX formula without KaTeX throwing', () => {
