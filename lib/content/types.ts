@@ -29,11 +29,29 @@ export type Block =
       answer?: string;
     };
 
+/**
+ * The "At a glance" background shown at the top of every lesson so a reader
+ * knows what the topic is, why it exists and when to reach for it before
+ * diving into the theory and mathematics.
+ */
+export interface LessonIntro {
+  /** What it IS — a crisp one/two-sentence definition. */
+  definition: string;
+  /** The problem it solves / why it is worth learning. */
+  whyItMatters: string;
+  /** Situations where this method is a good fit. */
+  whenToUse: string[];
+  /** Situations where it is a poor fit (optional). */
+  whenNotToUse?: string[];
+}
+
 export interface Lesson {
   slug: string;
   title: string;
   /** One-line description used in cards, search and meta tags. */
   summary: string;
+  /** Background card: definition, motivation and when to use. */
+  intro?: LessonIntro;
   /** Learning objectives shown at the top of the lesson. */
   objectives?: string[];
   blocks: Block[];
