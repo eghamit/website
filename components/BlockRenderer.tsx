@@ -88,6 +88,19 @@ function BlockView({ block }: { block: Block }) {
       );
     case 'note':
       return <Note block={block} />;
+    case 'code':
+      return (
+        <figure className="my-5">
+          <pre className="overflow-x-auto rounded-xl border border-app bg-zinc-950 p-4 text-sm leading-6 text-zinc-100 dark:bg-black/60">
+            <code className="font-mono">{block.code}</code>
+          </pre>
+          {block.caption && (
+            <figcaption className="mt-1.5 text-xs text-muted">
+              <InlineText text={block.caption} />
+            </figcaption>
+          )}
+        </figure>
+      );
     case 'table':
       return <Table block={block} />;
     case 'example':

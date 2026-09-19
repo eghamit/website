@@ -222,55 +222,310 @@ export const supervised: Module = {
       slug: 'k-nearest-neighbors',
       title: 'k-Nearest Neighbors (k-NN)',
       summary:
-        'A lazy, instance-based method that classifies by majority vote of the closest points. Includes a worked vote.',
+        'A complete treatment: lazy instance-based learning, distance measures, the algorithm and decision rules, distance weighting, choosing k, variants, and five worked-by-hand examples (classification, feature scaling, multi-class and regression).',
       objectives: [
-        'Describe the k-NN algorithm and why it is "lazy"',
-        'Use distance to find neighbours',
-        'Classify a query point by majority vote',
+        'Explain why k-NN is a lazy, instance-based, non-parametric learner',
+        'Use Euclidean, Manhattan, Minkowski, Hamming and cosine measures',
+        'Apply the majority-vote and mean decision rules, and distance weighting',
+        'Choose k via the bias–variance trade-off',
+        'Work classification, feature-scaling and regression examples entirely by hand',
       ],
       blocks: [
+        // ---- Background ----
+        { type: 'heading', text: 'Background: where k-NN fits' },
         {
           type: 'p',
-          text: r`**k-Nearest Neighbors** makes no assumptions and builds no model during training — it simply stores the data. To predict, it finds the $k$ closest training points to the query and lets them vote (classification) or average (regression). This is why it is called a **lazy** or **instance-based** learner.`,
+          text: r`**k-Nearest Neighbours (k-NN)** is a **supervised** algorithm — it needs labelled training data $\mathbf{x}=(x_1,\dots,x_n)\to y$. For **classification** $y$ is a discrete label (e.g. Pass/Fail); for **regression** $y$ is a real number (e.g. a house price). k-NN handles both, changing only the final aggregation step.`,
         },
-        { type: 'heading', text: 'Algorithm' },
         {
-          type: 'steps',
+          type: 'note',
+          variant: 'intuition',
+          title: 'A lazy, instance-based learner',
+          text: r`Most algorithms (linear/logistic regression, trees, neural networks) learn a model at training time and discard the data — they are **eager**. Basic k-NN builds **no model**: it simply stores the labelled examples and does all the work — distances, neighbour search, voting — only when a new point must be classified. Hence *lazy* (or *instance-based* / *memory-based*): $\text{new point} \to \text{distances} \to k\ \text{nearest} \to \text{vote / average} \to \text{prediction}$.`,
+        },
+        {
+          type: 'p',
+          text: r`**Applications:** recommendation systems, handwritten-digit and image recognition, medical diagnosis from patient measurements, credit scoring and anomaly detection, and nearest-neighbour imputation of missing values.`,
+        },
+
+        // ---- Distance measures ----
+        { type: 'heading', text: 'Distance & similarity measures' },
+        {
+          type: 'p',
+          text: r`k-NN is built entirely on a notion of "closeness". Let $\mathbf{x}=(x_1,\dots,x_n)$ and $\mathbf{y}=(y_1,\dots,y_n)$ be two observations.`,
+        },
+        { type: 'math', tex: r`\text{Euclidean }(L_2):\quad d(\mathbf{x},\mathbf{y}) = \sqrt{\sum_{k=1}^{n}(x_k-y_k)^2}`, caption: 'The straight-line distance; the default for numerical features.' },
+        { type: 'math', tex: r`\text{Manhattan }(L_1):\quad d(\mathbf{x},\mathbf{y}) = \sum_{k=1}^{n}|x_k-y_k|` },
+        { type: 'math', tex: r`\text{Minkowski }(L_p):\quad d(\mathbf{x},\mathbf{y}) = \Big(\sum_{k=1}^{n}|x_k-y_k|^p\Big)^{1/p}`, caption: 'Manhattan at p = 1, Euclidean at p = 2.' },
+        {
+          type: 'list',
           items: [
-            r`Choose $k$ and a distance metric (usually Euclidean).`,
-            r`Compute the distance from the query $\mathbf{x}$ to every training point.`,
-            r`Select the $k$ points with the smallest distances.`,
-            r`**Classification:** predict the majority class among them. **Regression:** predict their mean target.`,
+            r`**Hamming distance** — for categorical features, the number of positions at which $\mathbf{x}$ and $\mathbf{y}$ differ (binary/string data).`,
+            r`**Cosine dissimilarity** — $d(\mathbf{x},\mathbf{y}) = 1 - \dfrac{\mathbf{x}^\top\mathbf{y}}{\lVert\mathbf{x}\rVert\,\lVert\mathbf{y}\rVert}$; measures angle rather than magnitude (common for text).`,
           ],
-        },
-        { type: 'math', tex: r`d(\mathbf{x},\mathbf{x}') = \sqrt{\sum_{j=1}^{n}\left(x_j - x'_j\right)^2}` },
-        {
-          type: 'example',
-          title: 'Classify with k = 3',
-          problem: r`Training points (class in brackets): $A(1,1)[\,\bullet\,]$, $B(2,2)[\,\bullet\,]$, $C(3,3)[\,\circ\,]$, $D(6,6)[\,\circ\,]$. Classify the query $Q(2,3)$ with $k=3$.`,
-          solution: [
-            { type: 'p', text: r`**Step 1 — distances from $Q(2,3)$:**` },
-            {
-              type: 'table',
-              headers: ['Point', 'Class', 'Distance to Q', 'Value'],
-              rows: [
-                ['A(1,1)', '●', r`$\sqrt{1^2+2^2}$`, '2.24'],
-                ['B(2,2)', '●', r`$\sqrt{0^2+1^2}$`, '1.00'],
-                ['C(3,3)', '○', r`$\sqrt{1^2+0^2}$`, '1.00'],
-                ['D(6,6)', '○', r`$\sqrt{4^2+3^2}$`, '5.00'],
-              ],
-            },
-            { type: 'p', text: r`**Step 2 — nearest 3:** B (1.00), C (1.00), A (2.24).` },
-            { type: 'p', text: r`**Step 3 — vote:** classes are ●, ○, ● → two ● vs one ○.` },
-            { type: 'p', text: r`**Prediction:** class **●**.` },
-          ],
-          answer: 'Class ● (filled)',
         },
         {
           type: 'note',
           variant: 'warning',
-          title: 'Practical notes',
-          text: r`Always **scale features** first — a large-range feature otherwise dominates the distance. Small $k$ → noisy, high-variance boundaries; large $k$ → smoother but can blur classes. Prediction is slow on big datasets because every query scans all data.`,
+          title: 'Why feature scaling matters',
+          text: r`Euclidean distance is dominated by features with a large numerical range. If "hours studied" ranges 1–6 but "attendance" ranges 50–80, then in $\sqrt{(\Delta\text{hours})^2+(\Delta\text{attendance})^2}$ the attendance term dwarfs hours — k-NN would effectively ignore hours. Scale first: **z-score** $z=\frac{x-\mu}{\sigma}$ (mean 0, variance 1) or **min–max** $x'=\frac{x-x_{\min}}{x_{\max}-x_{\min}}\in[0,1]$.`,
+        },
+
+        // ---- Algorithm ----
+        { type: 'heading', text: 'The k-NN algorithm' },
+        {
+          type: 'steps',
+          items: [
+            r`Choose the number of neighbours $k$ and a distance metric.`,
+            r`For a query point $\mathbf{x}_q$, compute the distance to **every** training point.`,
+            r`Sort the distances and select the $k$ nearest points $N_k(\mathbf{x}_q)$.`,
+            r`**Classification:** predict the majority class among $N_k$. **Regression:** predict the average target.`,
+          ],
+        },
+        { type: 'heading', text: 'The decision rule' },
+        { type: 'math', tex: r`\text{Classification: }\ \hat y = \operatorname{mode}\{\,y_i : i\in N_k(\mathbf{x}_q)\,\} = \arg\max_{c}\sum_{i\in N_k(\mathbf{x}_q)}\mathbb{1}(y_i=c)`, caption: '𝟙(·) is 1 when true, 0 otherwise.' },
+        { type: 'math', tex: r`\text{Regression: }\ \hat y = \frac{1}{k}\sum_{i\in N_k(\mathbf{x}_q)} y_i` },
+        { type: 'heading', text: 'Distance-weighted k-NN' },
+        {
+          type: 'p',
+          text: r`Closer neighbours are usually more relevant, so weight each vote by $w_i = 1/d_i^2$ (or $1/d_i$). Weighting also breaks ties naturally.`,
+        },
+        { type: 'math', tex: r`\hat y_{\text{class}} = \arg\max_{c}\!\!\sum_{i\in N_k,\,y_i=c}\!\! w_i, \qquad \hat y_{\text{reg}} = \frac{\sum_{i\in N_k} w_i\,y_i}{\sum_{i\in N_k} w_i}` },
+        {
+          type: 'note',
+          variant: 'tip',
+          title: 'Choosing k (bias–variance trade-off)',
+          text: r`**Small $k$** (e.g. $k=1$): very flexible, low bias, **high variance** — sensitive to noise and outliers. **Large $k$**: smoother boundary, **high bias, low variance** — may blur real structure. A common rule of thumb is $k\approx\sqrt{m}$ (with $m$ training points), tuned by cross-validation; for binary problems pick an **odd** $k$ to avoid tied votes.`,
+        },
+        {
+          type: 'p',
+          text: r`**Decision boundary & complexity.** k-NN induces a piecewise-linear boundary (for $k=1$, the boundaries of the Voronoi cells of the training points). It has **no training cost**, but each brute-force query costs $O(mn)$ — slow for large $m$.`,
+        },
+
+        // ---- Variants ----
+        { type: 'heading', text: 'Types & variants' },
+        {
+          type: 'table',
+          headers: ['Neighbour search', 'Idea and cost'],
+          rows: [
+            ['Brute force', 'Compare the query to all m points; O(mn) per query. Exact, fine for small data.'],
+            ['k-d tree', 'Binary space partition on feature axes; ~O(log m) per query in low dimensions.'],
+            ['Ball tree', 'Nested hyperspheres; better than k-d trees in higher dimensions.'],
+          ],
+          caption: 'All three return the same neighbours — they differ only in speed. In very high dimensions the "curse of dimensionality" makes points nearly equidistant and trees degrade toward brute force.',
+        },
+        {
+          type: 'p',
+          text: r`By task/weighting: **k-NN classification** (majority vote), **k-NN regression** (neighbour average), **distance-weighted k-NN** ($1/d^2$), and **radius-neighbours** (all points within a fixed radius $r$, good for varying density).`,
+        },
+
+        // ---- Example 1: binary classification ----
+        {
+          type: 'example',
+          title: 'Example 1 — Binary classification by hand',
+          problem: r`Predict whether a student **Passes** or **Fails** from $x_1=$ hours studied and $x_2=$ attendance (%). New student $X=(4,68)$, $k=3$, Euclidean distance.`,
+          solution: [
+            {
+              type: 'table',
+              headers: ['Student', 'Hours', 'Attendance', 'Class', 'd(X, Sⱼ)'],
+              rows: [
+                ['S1', '1', '50', 'Fail', '18.25'],
+                ['S2', '2', '55', 'Fail', '13.15'],
+                ['S3', '2', '60', 'Fail', '8.25'],
+                ['S4', '3', '60', 'Fail', '8.06'],
+                ['S5', '3', '65', 'Pass', '3.16'],
+                ['S6', '4', '65', 'Pass', '3.00'],
+                ['S7', '4', '70', 'Pass', '2.00'],
+                ['S8', '5', '70', 'Pass', '2.24'],
+                ['S9', '5', '75', 'Pass', '7.07'],
+                ['S10', '6', '80', 'Pass', '12.17'],
+              ],
+            },
+            { type: 'p', text: r`Each distance is $d(X,S_j)=\sqrt{(4-h_j)^2+(68-a_j)^2}$. e.g. $d(X,S7)=\sqrt{(4-4)^2+(68-70)^2}=\sqrt{4}=2.00$.` },
+            { type: 'p', text: r`**Nearest 3:** the smallest distances are $2.00\,(S7),\ 2.24\,(S8),\ 3.00\,(S6)$ — all **Pass**.` },
+            { type: 'p', text: r`**Vote:** $N(\text{Pass})=3,\ N(\text{Fail})=0 \Rightarrow \hat y = \textbf{Pass}$.` },
+            {
+              type: 'table',
+              headers: ['k', 'Neighbours', 'Prediction'],
+              rows: [
+                ['1', 'S7', 'Pass'],
+                ['3', 'S7, S8, S6', 'Pass'],
+                ['5', 'S7, S8, S6, S5, S9', 'Pass'],
+                ['7', 'S7, S8, S6, S5, S9, S4, S3', 'Pass (5 vs 2)'],
+              ],
+              caption: 'Effect of k — stable here because the classes are cleanly separated.',
+            },
+          ],
+          answer: 'ŷ = Pass',
+        },
+
+        // ---- Example 2: z-score scaling ----
+        {
+          type: 'example',
+          title: 'Example 2 — Feature scaling (z-score)',
+          problem: r`Re-do Example 1 after **standardizing** both features with $z=\frac{x-\mu}{\sigma}$. Does scaling change the neighbour set?`,
+          solution: [
+            { type: 'p', text: r`**Statistics over the 10 students:** $\bar h=3.5,\ \sigma_h=1.5$; $\ \bar a=65,\ \sigma_a\approx 8.66$.` },
+            { type: 'p', text: r`**Query** $X=(4,68)$ standardizes to $z_1=\frac{4-3.5}{1.5}=0.333,\ z_2=\frac{68-65}{8.66}=0.346$.` },
+            {
+              type: 'table',
+              headers: ['Student', 'Class', 'Raw d', 'Scaled d'],
+              rows: [
+                ['S1', 'Fail', '18.25', '2.88'],
+                ['S2', 'Fail', '13.15', '2.01'],
+                ['S3', 'Fail', '8.25', '1.62'],
+                ['S4', 'Fail', '8.06', '1.14'],
+                ['S5', 'Pass', '3.16', '0.75'],
+                ['S6', 'Pass', '3.00', '0.35'],
+                ['S7', 'Pass', '2.00', '0.23'],
+                ['S8', 'Pass', '2.24', '0.71'],
+                ['S9', 'Pass', '7.07', '1.05'],
+                ['S10', 'Pass', '12.17', '1.92'],
+              ],
+            },
+            { type: 'p', text: r`**Nearest 3 (scaled):** $S7\,(0.23),\ S6\,(0.35),\ S8\,(0.71)$ — all Pass $\Rightarrow \hat y=\textbf{Pass}$.` },
+            { type: 'p', text: r`Under raw distances the order was $\{S7,S8,S6\}$; after scaling $S6$ and $S8$ **swap** because standardization restored the influence of "hours". Here the class is unchanged, but on many datasets scaling changes the neighbour set — **always scale in practice**.` },
+          ],
+          answer: 'ŷ = Pass; neighbour order changes (S6 ↔ S8)',
+        },
+
+        // ---- Example 3: min-max ----
+        {
+          type: 'example',
+          title: 'Example 3 — Min–max normalization',
+          problem: r`Rescale instead with min–max $x'=\frac{x-x_{\min}}{x_{\max}-x_{\min}}\in[0,1]$ and re-classify $X=(4,68)$, $k=3$.`,
+          solution: [
+            { type: 'p', text: r`**Ranges:** $h'=\frac{h-1}{5},\ a'=\frac{a-50}{30}$, so the query becomes $X'=(0.6,\,0.6)$ since $\frac{4-1}{5}=0.6$ and $\frac{68-50}{30}=0.6$.` },
+            {
+              type: 'table',
+              headers: ['Student', 'Class', 'Normalized d'],
+              rows: [
+                ['S7', 'Pass', '0.07'],
+                ['S6', 'Pass', '0.10'],
+                ['S8', 'Pass', '0.21'],
+                ['S5', 'Pass', '0.22'],
+                ['S9', 'Pass', '0.31'],
+                ['S4', 'Fail', '0.33'],
+                ['S3', 'Fail', '0.48'],
+                ['S10', 'Pass', '0.57'],
+                ['S2', 'Fail', '0.59'],
+                ['S1', 'Fail', '0.85'],
+              ],
+              caption: 'Sorted by normalized distance.',
+            },
+            { type: 'p', text: r`**Nearest 3:** $S7\,(0.07),\ S6\,(0.10),\ S8\,(0.21)$ — all Pass $\Rightarrow \hat y=\textbf{Pass}$.` },
+          ],
+          answer: 'ŷ = Pass — same neighbours {S7, S6, S8} as z-score',
+        },
+        {
+          type: 'table',
+          headers: ['Standardization (z-score)', 'Min–max normalization'],
+          rows: [
+            ['x′ = (x−μ)/σ; mean 0, variance 1', 'x′ = (x−xmin)/(xmax−xmin); range [0,1]'],
+            ['Unbounded; centred on the mean', 'Bounded to [0,1]; anchored to the extremes'],
+            ['More robust to outliers (uses μ, σ)', 'Sensitive to outliers (one extreme sets a bound)'],
+            ['Good default for distance-based methods', 'Handy when a bounded range is needed (pixels, NN inputs)'],
+          ],
+          caption: 'Both fix the "attendance dominates" problem; they differ in how.',
+        },
+
+        // ---- Example 4: multi-class ----
+        {
+          type: 'example',
+          title: 'Example 4 — Multi-class classification (k = 7)',
+          problem: r`A query $P=(6,5)$ sits amid three classes A, B, C (five points each). Classify it with $k=7$, Euclidean distance. (Squared distance $d^2=(6-x)^2+(5-y)^2$ suffices to rank.)`,
+          solution: [
+            {
+              type: 'table',
+              headers: ['Rank', 'Point', 'Class', 'd² ', 'd'],
+              rows: [
+                ['1', '(6, 3)', 'C', '4', '2.00'],
+                ['2', '(8, 5)', 'B', '4', '2.00'],
+                ['3', '(7, 7)', 'B', '5', '2.24'],
+                ['4', '(8, 7)', 'B', '8', '2.83'],
+                ['5', '(5, 2)', 'C', '10', '3.16'],
+                ['6', '(9, 6)', 'B', '10', '3.16'],
+                ['7', '(3, 7)', 'A', '13', '3.61'],
+              ],
+              caption: 'The seven nearest of the fifteen points.',
+            },
+            { type: 'p', text: r`**Counts among the 7:** $N(\text{B})=4\ \{(8,5),(7,7),(8,7),(9,6)\}$, $N(\text{C})=2\ \{(6,3),(5,2)\}$, $N(\text{A})=1\ \{(3,7)\}$.` },
+            { type: 'p', text: r`**Vote:** Class B has the most (4 of 7) $\Rightarrow \hat y=\textbf{Class B}$.` },
+            { type: 'p', text: r`Note the single closest point is a **tie** between C$(6,3)$ and B$(8,5)$ (both $d=2$), so 1-NN is ambiguous — yet B wins decisively at $k=3$ (2–1), $k=5$ (3–2) and $k=7$ (4–2–1). Majority voting is more robust than trusting the single nearest point.` },
+          ],
+          answer: 'ŷ = Class B',
+        },
+
+        // ---- Example 5: regression ----
+        {
+          type: 'example',
+          title: 'Example 5 — k-NN regression',
+          problem: r`Estimate a house price (lakh) from $x_1=$ rooms and $x_2=$ age. Query $Q=(5,10)$, $k=3$.`,
+          solution: [
+            {
+              type: 'table',
+              headers: ['House', 'Rooms', 'Age', 'Price', 'd(Q, ·)'],
+              rows: [
+                ['H1', '5', '11', '92', '1.00'],
+                ['H2', '6', '11', '88', '1.41'],
+                ['H3', '5', '8', '98', '2.00'],
+                ['H4', '7', '12', '80', '2.83'],
+                ['H5', '2', '9', '70', '3.16'],
+                ['H6', '8', '14', '74', '5.00'],
+              ],
+            },
+            { type: 'p', text: r`**Nearest 3:** H1, H2, H3 (prices 92, 88, 98).` },
+            { type: 'p', text: r`**Simple average:** $\hat y=\frac{92+88+98}{3}=\frac{278}{3}\approx 92.67$ lakh.` },
+            { type: 'p', text: r`**Distance-weighted** ($w_i=1/d_i^2$): weights $1,\ 0.5,\ 0.25$ (sum $1.75$); $\ \hat y=\frac{92(1)+88(0.5)+98(0.25)}{1.75}=\frac{160.5}{1.75}\approx 91.71$ lakh — leaning toward the closest house H1, as it should.` },
+            { type: 'p', text: r`**Adding a third feature (area, sq ft)** with query $Q=(5,10,1500)$: **unscaled**, $(\Delta\text{area})^2$ runs into the thousands and dominates $d^2$, so the nearest become $\{H4,H1,H2\}$ and $\hat y=\frac{80+92+88}{3}\approx 86.67$ — a change caused purely by units, not information. After **standardizing** every feature, the nearest are again $\{H1,H2,H3\}$ and $\hat y\approx 92.67$. Always scale before combining features of different ranges.` },
+          ],
+          answer: 'Simple ŷ ≈ 92.67 lakh, weighted ≈ 91.71 lakh',
+        },
+
+        // ---- Pros/cons ----
+        { type: 'heading', text: 'Advantages & disadvantages' },
+        {
+          type: 'table',
+          headers: ['Advantages', 'Disadvantages'],
+          rows: [
+            ['Simple, intuitive, no training phase', 'Slow at prediction: O(mn) per query'],
+            ['Naturally handles multi-class problems', 'Stores the entire dataset (high memory)'],
+            ['Non-parametric (no distribution assumptions)', 'Sensitive to feature scaling & irrelevant features'],
+            ['Adapts instantly to new data (just add points)', 'Degrades in high dimensions; must choose k'],
+          ],
+        },
+
+        // ---- Code ----
+        { type: 'heading', text: 'k-NN in Python (scikit-learn)' },
+        {
+          type: 'code',
+          language: 'python',
+          code: r`import numpy as np
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.preprocessing import StandardScaler
+
+X = np.array([[1, 50], [2, 55], [2, 60], [3, 60], [3, 65],
+              [4, 65], [4, 70], [5, 70], [5, 75], [6, 80]], dtype=float)
+y = np.array([0, 0, 0, 0, 1, 1, 1, 1, 1, 1])   # 0 = Fail, 1 = Pass
+
+# scale features, then fit KNN with k = 3
+scaler = StandardScaler().fit(X)
+knn = KNeighborsClassifier(n_neighbors=3).fit(scaler.transform(X), y)
+
+q = scaler.transform([[4, 68]])
+print("prediction:", knn.predict(q))        # -> [1] = Pass
+
+# distance-weighted variant:
+# KNeighborsClassifier(n_neighbors=3, weights="distance")`,
+          caption: 'Scale first, then fit — the same k = 3 → Pass result as the worked example.',
+        },
+
+        // ---- Exercises ----
+        {
+          type: 'note',
+          variant: 'info',
+          title: 'Practice exercises',
+          text: r`(1) Recompute the 3 nearest neighbours of $X=(4,68)$ using **Manhattan** distance — does the prediction change? (2) For neighbours $S7(2.00),S8(2.24),S6(3.00)$ (Pass) and a Fail neighbour at $d=1.5$, redo the vote with $w=1/d^2$ — which class wins? (3) With $m=10$, what does $k\approx\sqrt{m}$ suggest? (4) Explain why k-NN struggles when $n$ is very large even for fixed $m$ (curse of dimensionality).`,
         },
       ],
     },
