@@ -103,6 +103,11 @@ export const supervised: Module = {
           type: 'p',
           text: r`Here $\beta_0$ is the **intercept** (bias) and each $\beta_j$ is the **slope** (weight) telling us how much $\hat{y}$ changes per unit of feature $x_j$.`,
         },
+        {
+          type: 'diagram',
+          kind: 'linear-fit',
+          caption: 'Linear regression fits the line minimising the squared residuals (dashed).',
+        },
         { type: 'heading', text: 'Cost function: least squares' },
         {
           type: 'p',
@@ -175,6 +180,11 @@ export const supervised: Module = {
           text: r`Despite its name, **logistic regression** is a **classification** model. It computes a linear score and squashes it into a probability between 0 and 1 with the **sigmoid** (logistic) function.`,
         },
         { type: 'math', tex: r`\sigma(z) = \frac{1}{1+e^{-z}}, \qquad z = \boldsymbol{\beta}^\top \mathbf{x}` },
+        {
+          type: 'diagram',
+          kind: 'sigmoid',
+          caption: 'The sigmoid squashes any real score z into a probability in (0, 1).',
+        },
         {
           type: 'p',
           text: r`The output $\hat{p} = \sigma(z)$ is read as $P(y=1\mid \mathbf{x})$. We predict class 1 when $\hat p \ge 0.5$, which happens exactly when $z \ge 0$ — so the **decision boundary** is the line/hyperplane $\boldsymbol{\beta}^\top\mathbf{x}=0$.`,
@@ -281,6 +291,11 @@ export const supervised: Module = {
             r`Sort the distances and select the $k$ nearest points $N_k(\mathbf{x}_q)$.`,
             r`**Classification:** predict the majority class among $N_k$. **Regression:** predict the average target.`,
           ],
+        },
+        {
+          type: 'diagram',
+          kind: 'knn',
+          caption: 'k-NN with k = 3: the query is classified by majority vote of its 3 nearest points.',
         },
         { type: 'heading', text: 'The decision rule' },
         { type: 'math', tex: r`\text{Classification: }\ \hat y = \operatorname{mode}\{\,y_i : i\in N_k(\mathbf{x}_q)\,\} = \arg\max_{c}\sum_{i\in N_k(\mathbf{x}_q)}\mathbb{1}(y_i=c)`, caption: '𝟙(·) is 1 when true, 0 otherwise.' },
@@ -761,6 +776,11 @@ print("prediction:", knn.predict(q))        # -> [1] = Pass
         },
         { type: 'math', tex: r`\theta_j \leftarrow \theta_j - \eta\,\frac{\partial J}{\partial \theta_j}` },
         {
+          type: 'diagram',
+          kind: 'gradient-descent',
+          caption: 'Each update steps the parameter downhill on the loss surface toward the minimum.',
+        },
+        {
           type: 'table',
           headers: ['Variant', 'Data per update', 'Trade-off'],
           rows: [
@@ -817,6 +837,11 @@ print("prediction:", knn.predict(q))        # -> [1] = Pass
             ['Symptom', 'Misses the pattern', 'Memorises noise'],
           ],
         },
+        {
+          type: 'diagram',
+          kind: 'fit-trio',
+          caption: 'Underfitting (too simple), a good fit, and overfitting (memorising noise).',
+        },
         { type: 'heading', text: 'The bias–variance decomposition' },
         {
           type: 'p',
@@ -828,6 +853,11 @@ print("prediction:", knn.predict(q))        # -> [1] = Pass
           variant: 'intuition',
           title: 'The trade-off',
           text: r`Increasing complexity lowers bias but raises variance. The best model sits at the sweet spot where their **sum** is smallest — not where either is individually zero.`,
+        },
+        {
+          type: 'diagram',
+          kind: 'bias-variance',
+          caption: 'Total error is bias² + variance; the sweet spot minimises their sum.',
         },
         { type: 'heading', text: 'Regularization' },
         {
@@ -880,6 +910,11 @@ print("prediction:", knn.predict(q))        # -> [1] = Pass
             ['Actual +', 'TP (true positive)', 'FN (false negative)'],
             ['Actual −', 'FP (false positive)', 'TN (true negative)'],
           ],
+        },
+        {
+          type: 'diagram',
+          kind: 'confusion-matrix',
+          caption: 'The confusion matrix — the four outcomes every classification metric is built from.',
         },
         { type: 'heading', text: 'Classification metrics' },
         { type: 'math', tex: r`\text{Accuracy} = \frac{TP+TN}{TP+TN+FP+FN}` },

@@ -43,6 +43,11 @@ export const perceptron: Module = {
           text: r`Each input $x_i$ has a **weight** $w_i$ (its importance) and the neuron has a **bias** $b$ (a threshold offset). The **net input** is the weighted sum:`,
         },
         { type: 'math', tex: r`z = \sum_{i=1}^{n} w_i x_i + b = \mathbf{w}^\top\mathbf{x} + b` },
+        {
+          type: 'diagram',
+          kind: 'neuron',
+          caption: 'A single artificial neuron: inputs are weighted and summed with a bias, then passed through φ.',
+        },
         { type: 'heading', text: 'Step activation & output' },
         {
           type: 'p',
@@ -53,6 +58,11 @@ export const perceptron: Module = {
         {
           type: 'p',
           text: r`The neuron switches output exactly where $z=0$, i.e. on the hyperplane $\mathbf{w}^\top\mathbf{x}+b=0$. In 2-D this is a straight **line** splitting the plane into a "1" side and a "0" side — the perceptron is a **linear classifier**.`,
+        },
+        {
+          type: 'diagram',
+          kind: 'linearly-separable',
+          caption: 'A perceptron draws a single straight boundary wᵀx + b = 0 between the classes.',
         },
         {
           type: 'example',
@@ -135,6 +145,11 @@ export const perceptron: Module = {
             ['1', '0', '1'],
             ['1', '1', '0'],
           ],
+        },
+        {
+          type: 'diagram',
+          kind: 'xor',
+          caption: 'XOR: the two classes sit on opposite diagonals — no single straight line separates them.',
         },
         {
           type: 'p',
