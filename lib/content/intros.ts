@@ -335,35 +335,5 @@ export const intros: Record<string, LessonIntro> = {
     ],
   },
 
-  // -------------------------------- MLP --------------------------------
-  'mlp-architecture-and-activations': {
-    definition:
-      'A feedforward neural network with one or more hidden layers and non-linear activation functions, able to approximate complex non-linear functions.',
-    whyItMatters:
-      'Hidden layers overcome the perceptron’s linear limit (solving XOR); the MLP is the foundation of deep learning and a universal function approximator.',
-    whenToUse: [
-      'Non-linear patterns that simpler models underfit',
-      'Large datasets with vector/tabular inputs',
-      'When you can afford training and tuning a network',
-    ],
-    whenNotToUse: [
-      'Very small datasets (they overfit)',
-      'You need interpretability, or linear/tree models already suffice',
-    ],
-  },
-  'backpropagation-and-gradient-descent': {
-    definition:
-      'The algorithm that computes the gradient of the loss with respect to every weight by applying the chain rule backward through the network, so gradient descent can update them.',
-    whyItMatters:
-      'It is the training engine of virtually every neural network and all of modern deep learning.',
-    whenToUse: [
-      'Training any differentiable neural network',
-      'Understanding how deep models actually learn',
-      'Debugging training issues like vanishing gradients',
-    ],
-    whenNotToUse: [
-      'Models with non-differentiable components (need other methods)',
-      'When a simpler model with a closed-form solution is enough',
-    ],
-  },
+  // The MLP module (Module 5) authors its intros inline in mlp.ts.
 };
