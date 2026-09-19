@@ -1,109 +1,78 @@
 import type { Metadata } from 'next';
-import { search } from '@/lib/aggregator';
-import { parseSearchQuery } from '@/lib/query';
-import { Filters } from '@/components/Filters';
-import { SortSelect } from '@/components/SortSelect';
-import { ProductCard } from '@/components/ProductCard';
-import { Pagination } from '@/components/Pagination';
-import { ProviderBadge } from '@/components/ProviderBadge';
-import { SearchX, AlertTriangle } from 'lucide-react';
+import Link from 'next/link';
+import { searchIndex } from '@/lib/content';
+import { SearchX } from 'lucide-react';
 
-export const dynamic = 'force-dynamic';
+export const metadata: Metadata = {
+  title: 'Search',
+};
 
-type SearchParams = Record<string, string | string[] | undefined>;
+type SearchParams = { q?: string | string[] };
 
-export async function generateMetadata({
-  searchParams,
-}: {
-  searchParams: SearchParams;
-}): Promise<Metadata> {
-  const q = typeof searchParams.q === 'string' ? searchParams.q : '';
-  return {
-    title: q ? `“${q}” — compare prices` : 'Browse & compare',
-  };
+function scoreDoc(haystack: string, terms: string[]): number {
+  let score = 0;
+  for (const t of terms) {
+    if (!t) continue;
+    // Count occurrences (cheap relevance).
+    let idx = haystack.indexOf(t);
+    while (idx !== -1) {
+      score += 1;
+      idx = haystack.indexOf(t, idx + t.length);
+    }
+  }
+  return score;
 }
 
-export default async function SearchPage({ searchParams }: { searchParams: SearchParams }) {
-  const query = parseSearchQuery(searchParams);
-  const result = await search(query);
+export default function SearchPage({ searchParams }: { searchParams: SearchParams }) {
+  const rawQ = Array.isArray(searchParams.q) ? searchParams.q[0] : searchParams.q;
+  const q = (rawQ ?? '').trim();
+  const terms = q.toLowerCase().split(/\s+/).filter(Boolean);
+
+  const results = q
+    ? searchIndex()
+        .map((doc) => ({ doc, score: scoreDoc(doc.haystack, terms) }))
+        .filter((r) => r.score > 0)
+        .sort((a, b) => b.score - a.score)
+    : [];
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-6">
-      <div className="mb-4 flex flex-col gap-1">
-        <h1 className="text-xl font-bold">
-          {query.q ? (
-            <>
-              Results for <span className="text-brand-600">“{query.q}”</span>
-            </>
-          ) : (
-            'Browse all products'
-          )}
-        </h1>
-        <p className="text-sm text-muted">
-          {result.total} product{result.total === 1 ? '' : 's'} · compared across{' '}
-          {result.providersQueried.length} store
-          {result.providersQueried.length === 1 ? '' : 's'} · {result.tookMs} ms
-          {result.cached && ' · cached'}
-        </p>
-      </div>
-
-      {result.providerErrors.length > 0 && (
-        <div className="mb-4 flex items-start gap-2 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-200">
-          <AlertTriangle size={16} className="mt-0.5 shrink-0" />
-          <div>
-            Some stores couldn’t be reached:{' '}
-            {result.providerErrors.map((e, i) => (
-              <span key={e.provider}>
-                {i > 0 && ', '}
-                <ProviderBadge provider={e.provider} /> <span className="text-xs">({e.message})</span>
-              </span>
-            ))}
-            . Showing results from the rest.
-          </div>
-        </div>
-      )}
-
-      <div className="grid gap-6 lg:grid-cols-[240px_1fr]">
-        <div className="lg:sticky lg:top-24 lg:self-start">
-          <Filters result={result} />
-        </div>
-
-        <div>
-          <div className="mb-4 flex items-center justify-between">
-            <span className="text-sm text-muted">
-              Showing {result.products.length} of {result.total}
-            </span>
-            <SortSelect />
-          </div>
-
-          {result.products.length === 0 ? (
-            <EmptyState query={query.q} />
-          ) : (
-            <>
-              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-4">
-                {result.products.map((product) => (
-                  <ProductCard key={product.id} product={product} />
-                ))}
-              </div>
-              <Pagination page={result.page} pageSize={result.pageSize} total={result.total} />
-            </>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function EmptyState({ query }: { query: string }) {
-  return (
-    <div className="card flex flex-col items-center justify-center gap-3 p-12 text-center">
-      <SearchX size={40} className="text-muted" />
-      <h2 className="text-lg font-semibold">No matching products</h2>
-      <p className="max-w-sm text-sm text-muted">
-        {query
-          ? `We couldn't find anything for “${query}” with the current filters. Try a broader term or clear some filters.`
-          : 'No products match the current filters. Try clearing them.'}
+    <div className="mx-auto max-w-3xl px-4 py-10">
+      <h1 className="text-2xl font-bold">
+        {q ? (
+          <>
+            Search results for <span className="text-brand-600">“{q}”</span>
+          </>
+        ) : (
+          'Search lessons'
+        )}
+      </h1>
+      <p className="mt-1 text-sm text-muted">
+        {q ? `${results.length} lesson${results.length === 1 ? '' : 's'} matched` : 'Type a topic in the search box above.'}
       </p>
+
+      {q && results.length === 0 ? (
+        <div className="card mt-8 flex flex-col items-center gap-3 p-12 text-center">
+          <SearchX size={40} className="text-muted" />
+          <p className="text-muted">No lessons matched “{q}”. Try another keyword like “entropy”, “sigmoid” or “clustering”.</p>
+          <Link href="/learn" className="btn-primary">
+            Browse the curriculum
+          </Link>
+        </div>
+      ) : (
+        <ul className="mt-6 space-y-3">
+          {results.map(({ doc }) => (
+            <li key={doc.slug}>
+              <Link href={`/learn/${doc.slug}`} className="card block p-4">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted">
+                  {doc.moduleTitle}
+                </p>
+                <p className="mt-0.5 font-semibold text-brand-600">{doc.title}</p>
+                <p className="mt-0.5 text-sm text-muted">{doc.summary}</p>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

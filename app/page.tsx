@@ -1,111 +1,87 @@
 import Link from 'next/link';
-import { SearchBar } from '@/components/SearchBar';
-import { ProviderBadge } from '@/components/ProviderBadge';
-import { CATALOG } from '@/lib/data/catalog';
-import { Search, Sparkles, Store, TrendingDown } from 'lucide-react';
-
-const POPULAR = [
-  'running shoes',
-  'anarkali kurta',
-  'jeans',
-  'smartwatch',
-  'earbuds',
-  'sunglasses',
-  'backpack',
-  'saree',
-];
-
-function topCategories(): { name: string; count: number }[] {
-  const counts = new Map<string, number>();
-  for (const p of CATALOG) counts.set(p.category, (counts.get(p.category) ?? 0) + 1);
-  return [...counts.entries()]
-    .map(([name, count]) => ({ name, count }))
-    .sort((a, b) => b.count - a.count)
-    .slice(0, 8);
-}
+import { modules, totalLessons } from '@/lib/content';
+import { BookOpen, FunctionSquare, FlaskConical, GraduationCap, ArrowRight } from 'lucide-react';
 
 export default function HomePage() {
-  const categories = topCategories();
-
   return (
     <div>
       {/* Hero */}
       <section className="relative overflow-hidden border-b border-app">
-        <div className="absolute inset-0 -z-10 bg-gradient-to-br from-brand-50 via-transparent to-transparent dark:from-brand-900/20" />
+        <div className="absolute inset-0 -z-10 bg-gradient-to-br from-brand-50 via-transparent to-violet-50 dark:from-brand-900/20 dark:to-violet-900/10" />
         <div className="mx-auto max-w-4xl px-4 py-16 text-center sm:py-24">
           <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-app px-3 py-1 text-xs font-medium text-muted">
-            <Sparkles size={13} className="text-brand-500" /> One search, every store
+            <GraduationCap size={14} className="text-brand-500" /> {modules.length} modules ·{' '}
+            {totalLessons()} lessons · free
           </div>
-          <h1 className="text-3xl font-extrabold tracking-tight sm:text-5xl">
-            Compare prices across{' '}
+          <h1 className="text-4xl font-extrabold tracking-tight sm:text-6xl">
+            Learn{' '}
             <span className="bg-gradient-to-r from-brand-600 to-violet-500 bg-clip-text text-transparent">
-              Myntra, Ajio &amp; Meesho
-            </span>
+              Machine Learning
+            </span>{' '}
+            properly
           </h1>
-          <p className="mx-auto mt-4 max-w-2xl text-base text-muted sm:text-lg">
-            Search once and instantly see who has the lowest price, best rating and fastest delivery —
-            so you always grab the best deal.
+          <p className="mx-auto mt-5 max-w-2xl text-lg text-muted">
+            A complete, from-scratch course covering the <strong>theory</strong>, the{' '}
+            <strong>mathematics</strong> behind every method, and <strong>solved examples</strong> you
+            can follow by hand — from linear regression to backpropagation.
           </p>
-
-          <div className="mx-auto mt-8 max-w-2xl">
-            <SearchBar size="lg" autoFocus />
-          </div>
-
-          <div className="mt-5 flex flex-wrap items-center justify-center gap-2 text-sm">
-            <span className="text-muted">Popular:</span>
-            {POPULAR.map((term) => (
-              <Link
-                key={term}
-                href={`/search?q=${encodeURIComponent(term)}`}
-                className="chip hover:border-brand-400 hover:text-brand-600"
-              >
-                {term}
-              </Link>
-            ))}
-          </div>
-
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
-            <span className="text-sm text-muted">Comparing:</span>
-            <ProviderBadge provider="myntra" />
-            <ProviderBadge provider="ajio" />
-            <ProviderBadge provider="meesho" />
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <Link href="/learn" className="btn-primary h-11 px-5 text-base">
+              <BookOpen size={18} /> Start learning
+            </Link>
+            <Link href="/learn/the-perceptron" className="btn-ghost h-11 px-5 text-base">
+              Jump to neural networks <ArrowRight size={16} />
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* Value props */}
-      <section className="mx-auto max-w-7xl px-4 py-12">
+      {/* What you get */}
+      <section className="mx-auto max-w-7xl px-4 py-14">
         <div className="grid gap-4 sm:grid-cols-3">
           <Feature
-            icon={<Search size={20} />}
-            title="Unified search"
-            body="Query every connected store at once through a single, fast search."
+            icon={<BookOpen size={20} />}
+            title="Clear theory"
+            body="Plain-language explanations and intuition for every concept, built up step by step."
           />
           <Feature
-            icon={<Store size={20} />}
-            title="Cross-store matching"
-            body="We automatically group the same product across stores so you compare like-for-like."
+            icon={<FunctionSquare size={20} />}
+            title="The real mathematics"
+            body="Every model's equations, cost functions and update rules — rendered beautifully with LaTeX."
           />
           <Feature
-            icon={<TrendingDown size={20} />}
-            title="Lowest price, surfaced"
-            body="The best in-stock deal is highlighted, with the exact rupees you save."
+            icon={<FlaskConical size={20} />}
+            title="Solved examples"
+            body="Worked numeric examples you can reproduce by hand to lock in understanding."
           />
         </div>
       </section>
 
-      {/* Categories */}
-      <section className="mx-auto max-w-7xl px-4 pb-16">
-        <h2 className="mb-4 text-lg font-semibold">Browse by category</h2>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {categories.map((c) => (
+      {/* Modules */}
+      <section className="mx-auto max-w-7xl px-4 pb-20">
+        <h2 className="mb-6 text-2xl font-bold">What you’ll cover</h2>
+        <div className="grid gap-4 sm:grid-cols-2">
+          {modules.map((m, mi) => (
             <Link
-              key={c.name}
-              href={`/search?category=${encodeURIComponent(c.name)}`}
-              className="card flex items-center justify-between p-4"
+              key={m.id}
+              href={`/learn/${m.lessons[0]!.slug}`}
+              className="card group flex flex-col p-6"
             >
-              <span className="font-medium">{c.name}</span>
-              <span className="chip text-muted">{c.count}</span>
+              <div className="mb-3 flex items-center gap-3">
+                <span className="grid h-12 w-12 place-items-center rounded-xl bg-brand-50 text-2xl dark:bg-brand-900/30">
+                  {m.icon}
+                </span>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted">
+                    Module {mi + 1}
+                  </p>
+                  <h3 className="text-lg font-bold group-hover:text-brand-600">{m.title}</h3>
+                </div>
+              </div>
+              <p className="text-sm text-muted">{m.description}</p>
+              <p className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-brand-600">
+                {m.lessons.length} lessons <ArrowRight size={14} />
+              </p>
             </Link>
           ))}
         </div>
@@ -116,11 +92,11 @@ export default function HomePage() {
 
 function Feature({ icon, title, body }: { icon: React.ReactNode; title: string; body: string }) {
   return (
-    <div className="card p-5">
-      <div className="mb-3 grid h-10 w-10 place-items-center rounded-lg bg-brand-50 text-brand-600 dark:bg-brand-900/30 dark:text-brand-300">
+    <div className="card p-6">
+      <div className="mb-3 grid h-11 w-11 place-items-center rounded-xl bg-brand-50 text-brand-600 dark:bg-brand-900/30 dark:text-brand-300">
         {icon}
       </div>
-      <h3 className="font-semibold">{title}</h3>
+      <h3 className="text-lg font-semibold">{title}</h3>
       <p className="mt-1 text-sm text-muted">{body}</p>
     </div>
   );

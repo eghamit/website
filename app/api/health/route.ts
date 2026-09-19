@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server';
-import { config } from '@/lib/config';
+import { modules, totalLessons } from '@/lib/content';
 
-/** GET /api/health — liveness/readiness probe for load balancers. */
+/** GET /api/health — liveness/readiness probe. */
 export async function GET() {
   return NextResponse.json({
     status: 'ok',
-    mode: config.providerMode,
-    providers: config.enabledProviders,
+    modules: modules.length,
+    lessons: totalLessons(),
     time: new Date().toISOString(),
   });
 }
