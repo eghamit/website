@@ -1,4 +1,5 @@
 import type { Block, Lesson, Module } from './types';
+import { foundations } from './foundations';
 import { supervised } from './supervised';
 import { unsupervised } from './unsupervised';
 import { perceptron } from './perceptron';
@@ -16,7 +17,9 @@ function withIntros(module: Module): Module {
   };
 }
 
-export const modules: Module[] = [supervised, unsupervised, perceptron, mlp].map(withIntros);
+export const modules: Module[] = [foundations, supervised, unsupervised, perceptron, mlp].map(
+  withIntros,
+);
 
 export type { Block, Lesson, Module };
 export * from './types';
