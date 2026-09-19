@@ -1,8 +1,8 @@
 {
-  "name": "price-compare",
+  "name": "ml-academy",
   "version": "1.0.0",
   "private": true,
-  "description": "Production-grade product comparison across Indian e-commerce stores (Myntra, Ajio, Meesho).",
+  "description": "ML Academy — an interactive Machine Learning course with theory, mathematics and solved examples.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -15,12 +15,14 @@
   },
   "dependencies": {
     "clsx": "^2.1.1",
+    "katex": "^0.16.47",
     "lucide-react": "^0.454.0",
     "next": "^14.2.35",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
+    "@types/katex": "^0.16.8",
     "@types/node": "^20.14.0",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",

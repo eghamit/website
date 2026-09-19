@@ -1,0 +1,79 @@
+import { describe, it, expect } from 'vitest';
+import { modules, allLessons, getLesson, neighbors, searchIndex, totalLessons } from './index';
+import type { Block } from './types';
+import { renderMath } from '../math';
+
+function everyBlock(blocks: Block[]): Block[] {
+  const out: Block[] = [];
+  for (const b of blocks) {
+    out.push(b);
+    if (b.type === 'example') out.push(...everyBlock(b.solution));
+  }
+  return out;
+}
+
+describe('content integrity', () => {
+  it('has all four modules with lessons', () => {
+    expect(modules.map((m) => m.id)).toEqual(['supervised', 'unsupervised', 'perceptron', 'mlp']);
+    for (const m of modules) expect(m.lessons.length).toBeGreaterThan(0);
+  });
+
+  it('has globally unique lesson slugs', () => {
+    const slugs = allLessons().map((f) => f.lesson.slug);
+    expect(new Set(slugs).size).toBe(slugs.length);
+  });
+
+  it('every lesson has a summary and at least one content block', () => {
+    for (const { lesson } of allLessons()) {
+      expect(lesson.summary.length).toBeGreaterThan(0);
+      expect(lesson.blocks.length).toBeGreaterThan(0);
+    }
+  });
+
+  it('has a solved example in most lessons', () => {
+    const withExample = allLessons().filter(({ lesson }) =>
+      lesson.blocks.some((b) => b.type === 'example'),
+    );
+    // The vast majority of lessons include a worked example.
+    expect(withExample.length).toBeGreaterThanOrEqual(totalLessons() - 3);
+  });
+
+  it('renders every LaTeX formula without KaTeX throwing', () => {
+    for (const { lesson } of allLessons()) {
+      for (const block of everyBlock(lesson.blocks)) {
+        if (block.type === 'math') {
+          const html = renderMath(block.tex, true);
+          expect(html).toContain('katex');
+          // A parse error renders a element with class "katex-error".
+          expect(html).not.toContain('katex-error');
+        }
+      }
+    }
+  });
+});
+
+describe('navigation', () => {
+  it('links prev/next in reading order', () => {
+    const lessons = allLessons();
+    const first = lessons[0]!.lesson.slug;
+    const last = lessons[lessons.length - 1]!.lesson.slug;
+    expect(neighbors(first).prev).toBeUndefined();
+    expect(neighbors(first).next).toBeDefined();
+    expect(neighbors(last).next).toBeUndefined();
+  });
+
+  it('resolves a known lesson and rejects an unknown one', () => {
+    expect(getLesson('linear-regression')).toBeDefined();
+    expect(getLesson('does-not-exist')).toBeUndefined();
+  });
+});
+
+describe('search', () => {
+  it('finds lessons by keyword', () => {
+    const idx = searchIndex();
+    const hit = idx.find((d) => d.haystack.includes('gradient descent'));
+    expect(hit).toBeDefined();
+    const backprop = idx.filter((d) => d.haystack.includes('backpropagation'));
+    expect(backprop.length).toBeGreaterThan(0);
+  });
+});

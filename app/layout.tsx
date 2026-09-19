@@ -1,25 +1,33 @@
 import type { Metadata } from 'next';
+import 'katex/dist/katex.min.css';
 import './globals.css';
-import { Header } from '@/components/Header';
-import { Footer } from '@/components/Footer';
+import { SiteHeader } from '@/components/SiteHeader';
+import { SiteFooter } from '@/components/SiteFooter';
 
 export const metadata: Metadata = {
   title: {
-    default: 'PriceCompare — Compare prices across Myntra, Ajio & Meesho',
-    template: '%s · PriceCompare',
+    default: 'ML Academy — Learn Machine Learning from the ground up',
+    template: '%s · ML Academy',
   },
   description:
-    'Search once and compare product prices, ratings and offers across Myntra, Ajio and Meesho. Find the best deal in seconds.',
-  keywords: ['price comparison', 'Myntra', 'Ajio', 'Meesho', 'best price', 'shopping'],
+    'A free, interactive course on Machine Learning: theory, the mathematics behind each method, and fully worked examples — supervised learning, unsupervised learning, the perceptron and multilayer perceptrons.',
+  keywords: [
+    'machine learning',
+    'supervised learning',
+    'unsupervised learning',
+    'perceptron',
+    'neural networks',
+    'backpropagation',
+    'tutorial',
+  ],
   openGraph: {
-    title: 'PriceCompare',
-    description: 'Compare prices across Myntra, Ajio and Meesho.',
+    title: 'ML Academy',
+    description: 'Learn Machine Learning: theory, mathematics and solved examples.',
     type: 'website',
   },
   robots: { index: true, follow: true },
 };
 
-// Set theme before paint to avoid a flash of the wrong colour scheme.
 const themeScript = `
 (function(){
   try {
@@ -37,10 +45,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
-      <body className="min-h-screen flex flex-col">
-        <Header />
-        <main className="flex-1">{children}</main>
-        <Footer />
+      <body className="min-h-screen">
+        <SiteHeader />
+        {children}
+        <SiteFooter />
       </body>
     </html>
   );

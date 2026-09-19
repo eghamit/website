@@ -5,9 +5,9 @@
 :root {
   --bg: 250 250 251;
   --surface: 255 255 255;
-  --border: 229 231 235;
-  --text: 17 24 39;
-  --muted: 107 114 128;
+  --border: 228 228 231;
+  --text: 24 24 27;
+  --muted: 113 113 122;
 }
 
 .dark {
@@ -20,6 +20,7 @@
 
 @layer base {
   html {
+    scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
   }
   body {
@@ -41,7 +42,7 @@
     border-color: rgb(var(--border));
   }
   .card {
-    @apply surface rounded-xl border shadow-sm transition-shadow hover:shadow-md;
+    @apply surface rounded-xl border shadow-sm transition-all hover:shadow-md;
   }
   .btn-primary {
     @apply inline-flex items-center justify-center gap-2 rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 disabled:opacity-50;
@@ -57,11 +58,10 @@
   }
 }
 
-/* Skeleton shimmer */
-.skeleton {
-  @apply relative overflow-hidden bg-zinc-200 dark:bg-zinc-800;
+/* KaTeX: let long display formulas scroll instead of overflowing */
+.katex-display-wrap .katex-display {
+  margin: 0;
 }
-.skeleton::after {
-  content: '';
-  @apply absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/40 to-transparent dark:via-white/10;
+.katex {
+  font-size: 1.05em;
 }
