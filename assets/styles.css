@@ -300,7 +300,86 @@ html[data-theme='dark'] .answer { color: #6ee7b7; }
 }
 .sidebar-close { display: none; }
 
+/* ---------- interactive / playful ---------- */
+
+/* header progress ring */
+.progress-chip { display: inline-flex; align-items: center; gap: 6px; text-decoration: none; color: var(--text);
+  padding: 3px 10px 3px 4px; border: 1px solid var(--border-strong); border-radius: 999px; background: var(--surface); box-shadow: var(--shadow); }
+.progress-chip:hover { background: var(--surface-2); }
+.progress-chip .pc-num { font-size: 12.5px; font-weight: 750; letter-spacing: -0.01em; }
+@media (max-width: 620px) { .progress-chip .pc-num { display: none; } }
+
+/* sidebar checkmarks + module progress */
+.lesson-link { display: flex; align-items: center; gap: 4px; }
+.ll-check { flex: none; width: 15px; font-size: 11px; color: var(--emer); font-weight: 800; }
+.lesson-link.done { color: color-mix(in srgb, var(--text) 55%, transparent); }
+.mod-progress { margin-left: auto; font-size: 10px; font-weight: 750; color: var(--muted); background: color-mix(in srgb, var(--muted) 14%, transparent); border-radius: 999px; padding: 1px 7px; letter-spacing: 0; text-transform: none; }
+.mod-progress.complete { color: #fff; background: var(--emer); }
+
+/* lesson meta chips */
+.lesson-meta { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 22px; }
+.chip-meta { font-size: 12.5px; color: var(--muted); background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 4px 11px; box-shadow: var(--shadow); }
+
+/* reveal solution */
+.reveal-btn { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; margin: 6px 0 2px;
+  border: 1px dashed color-mix(in srgb, var(--accent) 55%, var(--border)); background: var(--accent-tint); color: color-mix(in srgb, var(--accent) 82%, var(--text));
+  font-weight: 700; font-size: 0.9rem; padding: 9px 15px; border-radius: 11px; transition: 0.15s; }
+.reveal-btn:hover { transform: translateY(-1px); }
+.reveal-hide { display: none; }
+.example.revealed .reveal-show { display: none; }
+.example.revealed .reveal-hide { display: inline; }
+.example.revealed .reveal-btn { border-style: solid; }
+.reveal-body { display: none; }
+.example.revealed .reveal-body { display: block; animation: revealIn 0.3s ease; }
+@keyframes revealIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+
+/* code copy */
+.code-wrap { position: relative; }
+.copy-btn { position: absolute; top: 10px; right: 10px; z-index: 2; cursor: pointer; font-size: 12px; font-weight: 650;
+  color: #cbd5e1; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.16); border-radius: 8px; padding: 4px 10px; transition: 0.15s; }
+.copy-btn:hover { background: rgba(255,255,255,0.16); color: #fff; }
+.copy-btn.copied { color: #fff; background: var(--emer); border-color: var(--emer); }
+
+/* complete card */
+.complete-slot { margin-top: 30px; }
+.complete-card { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; justify-content: space-between;
+  border: 1px solid var(--border); border-radius: 16px; padding: 18px 20px; box-shadow: var(--shadow);
+  background: radial-gradient(120% 140% at 100% 0%, var(--accent-tint), transparent 60%), var(--surface); }
+.complete-card.is-done { border-color: color-mix(in srgb, var(--emer) 40%, var(--border)); background: radial-gradient(120% 140% at 100% 0%, var(--emer-tint), transparent 60%), var(--surface); }
+.cc-title { font-weight: 750; margin: 0; font-size: 1.05rem; }
+.cc-sub { margin: 2px 0 0; }
+.cc-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.complete-btn { background: linear-gradient(135deg, var(--emer), #0d9488); box-shadow: 0 6px 16px rgba(16,185,129,0.32); }
+.complete-card.is-done .complete-btn { background: var(--emer); }
+
+/* resume / continue card on home */
+.resume-card { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: space-between;
+  border: 1px solid var(--border); border-radius: 18px; padding: 20px 22px; margin: 0 0 26px;
+  background: linear-gradient(120deg, var(--brand-tint), var(--violet-tint)); box-shadow: var(--shadow); }
+.resume-label { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--brand-700); margin: 0; }
+html[data-theme='dark'] .resume-label { color: #a5b4fc; }
+.resume-title { font-size: 1.3rem; font-weight: 750; margin: 4px 0 2px; letter-spacing: -0.01em; }
+.resume-right { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; min-width: 220px; }
+.resume-bar { width: 100%; height: 9px; border-radius: 999px; background: color-mix(in srgb, var(--muted) 22%, transparent); overflow: hidden; }
+.resume-bar span { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--brand), var(--sky)); transition: width 0.6s ease; }
+
+/* search hit check */
+.search-hit { position: relative; }
+.hit-check { position: absolute; top: 14px; right: 16px; font-size: 11px; font-weight: 750; color: var(--emer); }
+
+/* confetti */
+.confetti { position: fixed; inset: 0; pointer-events: none; z-index: 90; overflow: hidden; }
+.confetti i { position: absolute; top: -12px; width: 9px; height: 14px; border-radius: 2px; opacity: 0.95; animation: fall linear forwards; }
+@keyframes fall { to { transform: translateY(105vh) rotate(720deg); opacity: 0.9; } }
+
+/* toast */
+#toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 140%); z-index: 95;
+  background: var(--surface); color: var(--text); border: 1px solid var(--border-strong); border-radius: 14px;
+  padding: 13px 18px; box-shadow: var(--shadow-lg); font-size: 0.95rem; max-width: 90vw; transition: transform 0.35s cubic-bezier(.2,.9,.3,1.2); }
+#toast.show { transform: translate(-50%, 0); }
+#toast a { color: var(--brand); font-weight: 700; text-decoration: none; }
+
 /* motion-safe niceties */
 #app { animation: fade 0.25s ease; }
 @keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
-@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; scroll-behavior: auto; } }
+@media (prefers-reduced-motion: reduce) { *, .confetti i { animation: none !important; transition: none !important; scroll-behavior: auto; } .confetti { display: none; } }
