@@ -1,4 +1,4 @@
-# ML Academy
+# Neuronode
 
 A **static, offline-first** course on Machine Learning — theory, the mathematics
 behind each method, solved examples and figures. It is plain **HTML / CSS /
