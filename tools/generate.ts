@@ -287,9 +287,13 @@ function renderCurriculum(): string {
   const sections = modules
     .map(
       (m, mi) => `<section class="curriculum-module" data-module="${esc(m.id)}">
-        <div class="module-card-head"><span class="module-icon">${m.icon}</span>
-          <div><h2><span class="muted">Module ${mi + 1}</span> · ${esc(m.title)}</h2>
-          <p class="muted">${esc(m.description)}</p></div></div>
+        <button class="module-toggle curr-toggle" type="button" data-mod="${esc(m.id)}" aria-expanded="false">
+          <span class="module-icon">${m.icon}</span>
+          <span class="ct-main"><span class="ct-eyebrow">Module ${mi + 1}</span><span class="ct-title">${esc(m.title)}</span></span>
+          <span class="ct-count">${m.lessons.length} lessons</span>
+          <span class="nav-chev">›</span>
+        </button>
+        <p class="ct-desc muted">${esc(m.description)}</p>
         <ol class="lesson-grid">${m.lessons
           .map((l) => {
             counter += 1;
