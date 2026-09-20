@@ -323,7 +323,7 @@
   app.addEventListener('click', function (e) {
     var mt = e.target.closest ? e.target.closest('.module-toggle') : null;
     if (mt) {
-      var grp = mt.closest('.module-group');
+      var grp = mt.closest('.module-group, .curriculum-module');
       var opened = grp.classList.toggle('open');
       mt.setAttribute('aria-expanded', opened ? 'true' : 'false');
       var id = mt.getAttribute('data-mod');
@@ -415,6 +415,17 @@
   }
 
   // ---------- router ----------
+  function applyCurriculumState() {
+    var secs = app.querySelectorAll('.curriculum-module');
+    secs.forEach(function (sec) {
+      var id = sec.getAttribute('data-module');
+      if (NAV[id]) {
+        sec.classList.add('open');
+        var t = sec.querySelector('.module-toggle');
+        if (t) t.setAttribute('aria-expanded', 'true');
+      }
+    });
+  }
   function wireSidebar() {
     var toggle = document.getElementById('sbToggle');
     var close = document.getElementById('sbClose');
@@ -442,6 +453,7 @@
     } else if (hash === '#/learn') {
       app.innerHTML = layoutWithSidebar('', ML.curriculum);
       document.title = 'Curriculum · ML Academy';
+      applyCurriculumState();
       window.scrollTo(0, 0);
     } else if (hash.indexOf('#/search') === 0) {
       var qs = hash.indexOf('?') !== -1 ? hash.slice(hash.indexOf('?') + 1) : '';

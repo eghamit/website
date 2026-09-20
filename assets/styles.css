@@ -275,8 +275,20 @@ html[data-theme='dark'] .answer { color: #6ee7b7; }
 .curriculum h1 { font-size: clamp(1.9rem, 4vw, 2.5rem); letter-spacing: -0.025em; margin-bottom: 4px; }
 .curriculum-module { position: relative; border: 1px solid var(--border); border-radius: 18px; padding: 22px; margin: 20px 0; background: var(--surface); box-shadow: var(--shadow); overflow: hidden; }
 .curriculum-module::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: var(--accent); }
-.curriculum-module h2 { margin: 0; font-size: 1.3rem; letter-spacing: -0.015em; }
-.lesson-grid { margin-top: 14px; padding: 0; list-style: none; display: grid; gap: 12px; grid-template-columns: 1fr; }
+.curr-toggle { display: flex; align-items: center; gap: 14px; width: 100%; text-align: left; background: none; border: 0;
+  cursor: pointer; font: inherit; padding: 0; margin: 0; text-transform: none; letter-spacing: normal; color: var(--text); border-radius: 0; }
+.curr-toggle:hover { background: none; }
+.curr-toggle:hover .ct-title { color: var(--accent); }
+.ct-main { flex: 1 1 auto; display: flex; flex-direction: column; min-width: 0; }
+.ct-eyebrow { font-size: 11px; font-weight: 750; text-transform: uppercase; letter-spacing: 0.04em; color: var(--accent); }
+.ct-title { font-size: 1.3rem; font-weight: 760; letter-spacing: -0.015em; transition: color 0.15s; }
+.ct-count { flex: none; font-size: 12px; font-weight: 700; color: var(--muted); background: color-mix(in srgb, var(--muted) 14%, transparent); border-radius: 999px; padding: 3px 11px; }
+.curriculum-module .nav-chev { font-size: 18px; }
+.curriculum-module.open .nav-chev { transform: rotate(90deg); }
+.ct-desc { margin: 12px 0 0; }
+.curriculum-module .lesson-grid { display: none; }
+.curriculum-module.open .lesson-grid { display: grid; animation: navIn 0.2s ease; }
+.lesson-grid { margin-top: 16px; padding: 0; list-style: none; display: grid; gap: 12px; grid-template-columns: 1fr; }
 @media (min-width: 640px) { .lesson-grid { grid-template-columns: 1fr 1fr; } }
 .lesson-grid a { display: flex; gap: 13px; align-items: flex-start; border: 1px solid var(--border); border-radius: 12px; padding: 13px 14px; text-decoration: none; transition: 0.15s; background: var(--surface); }
 .lesson-grid a:hover { border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); background: var(--accent-tint); transform: translateY(-2px); }
