@@ -1,138 +1,60 @@
 # ML Academy
 
-An interactive, from-scratch course on **Machine Learning** — covering the
-**theory**, the **mathematics behind each method**, and **fully worked solved
-examples** you can follow by hand.
+A **static, offline-first** course on Machine Learning — theory, the mathematics
+behind each method, solved examples and figures. It is plain **HTML / CSS /
+JavaScript**: no server, no build step, no internet required to read it.
 
-Built with Next.js 14 (App Router), TypeScript and Tailwind CSS, with all
-mathematics typeset by [KaTeX](https://katex.org/).
+## ▶️ How to open it
 
-![CI](https://img.shields.io/badge/CI-typecheck%20·%20lint%20·%20test%20·%20build-blue)
+**Just double-click `index.html`** (or drag it into any web browser).
 
----
+That's it. Everything — all 5 modules and 35 lessons, the math, the figures,
+search and dark mode — runs entirely from the file, offline.
 
-## What it covers
+> The math fonts and content are bundled in the `assets/` folder next to
+> `index.html`, so keep that folder beside it if you move things around.
 
-The curriculum follows a complete "Introduction to ML" syllabus across four
-modules and ~25 lessons:
+## What's inside
 
-| Module | Topics |
-| ------ | ------ |
-| **🎯 Supervised Learning** | Intro & data · Linear/Multiple regression · Logistic regression · k-NN · Decision trees · Random forests · SVM · Naive Bayes · Loss functions & gradient descent · Overfitting, bias–variance & regularization · Evaluation metrics & cross-validation |
-| **🧭 Unsupervised Learning** | Intro & distance measures · k-Means (elbow, silhouette) · Hierarchical · DBSCAN · Gaussian mixture models · PCA · t-SNE & autoencoders · Association rules (Apriori) · Anomaly detection |
-| **⚡ Perceptron Model** | The artificial neuron · Net input, step activation & decision boundary · Learning rule · Convergence theorem · The XOR problem |
-| **🕸️ Multilayer Perceptron** | Architecture & activations (sigmoid/tanh/ReLU) · Forward propagation · Backpropagation & gradient descent |
+```
+index.html            ← open this
+assets/
+  styles.css          ← all styling (light/dark)
+  app.js              ← the small app: routing, sidebar, search, theme toggle
+  content.js          ← the whole course, pre-rendered (generated)
+  katex/              ← bundled math stylesheet + fonts (for offline math)
+```
 
-Every lesson includes **learning objectives**, **plain-language theory**, the
-**mathematical model** (rendered with LaTeX), and at least one **solved numeric
-example**.
+The course covers, in order:
 
-## Features
+1. **Foundations** — what ML is, datasets & their representation, types of data,
+   and the linear algebra / calculus / probability you need.
+2. **Supervised Learning** — regression, logistic regression, k-NN, trees,
+   forests, SVM, Naive Bayes, loss & gradient descent, bias–variance, metrics.
+3. **Unsupervised Learning** — k-means, hierarchical, DBSCAN, GMM, PCA, t-SNE,
+   autoencoders, association rules, anomaly detection.
+4. **Perceptron** — the artificial neuron, the learning rule, XOR.
+5. **Multilayer Perceptron** — the neuron, activation functions, forward
+   propagation, and the full backpropagation derivation with a worked example.
 
-- 📖 **Structured lessons** with sidebar navigation and prev/next flow.
-- ➗ **Real mathematics** — display and inline LaTeX via KaTeX, rendered on the
-  server for fast, flash-free pages.
-- 🧪 **Solved examples** as first-class content blocks (problem → steps → answer).
-- 🔎 **Full-text search** across every lesson.
-- 🌗 **Light/dark mode**, responsive and accessible.
-- ✅ **Tested** — a content-integrity suite checks unique slugs, navigation,
-  search, and that *every* formula renders without a KaTeX error.
+Every lesson has an **"At a glance"** card (definition · why · when to use), the
+**mathematics** typeset with KaTeX, **worked examples**, and **figures**.
 
----
+## Editing / regenerating (optional — only if you want to change content)
 
-## Quick start
+The page you open is generated from typed source in `lib/content/` (one file per
+module) and the figure library in `components/Diagram.tsx`. To rebuild after an
+edit you need [Node.js](https://nodejs.org):
 
 ```bash
-npm install
-npm run dev
-# open http://localhost:3000
+npm install        # once
+npm run build      # regenerates assets/content.js and the bundled math assets
 ```
 
-### Scripts
+Then reopen `index.html`. Other scripts: `npm test` (content-integrity checks),
+`npm run typecheck`.
 
-| Script              | What it does                          |
-| ------------------- | ------------------------------------- |
-| `npm run dev`       | Start the dev server                  |
-| `npm run build`     | Production build (standalone output)  |
-| `npm run start`     | Serve the production build            |
-| `npm run typecheck` | `tsc --noEmit`                        |
-| `npm run lint`      | ESLint                                |
-| `npm test`          | Vitest content-integrity suite        |
+## Putting it online (optional)
 
----
-
-## How it’s built
-
-Lessons are authored as **typed data**, not free-form MDX, so every lesson is
-type-checked, searchable and rendered uniformly.
-
-```
-lib/content/
-  types.ts          # Block/Lesson/Module model
-  supervised.ts     # Module 1 content
-  unsupervised.ts   # Module 2 content
-  perceptron.ts     # Module 3 content
-  mlp.ts            # Module 4 content
-  index.ts          # aggregation, navigation & search index
-  content.test.ts   # integrity tests
-lib/math.ts         # KaTeX render helper (server-side)
-components/
-  BlockRenderer.tsx # renders each Block type (prose, math, notes, tables, examples…)
-  InlineText.tsx    # inline markup: $math$ **bold** *italic* `code` [link](/x)
-  Sidebar, SiteHeader, SearchBox, ThemeToggle …
-app/
-  page.tsx              # landing
-  learn/page.tsx        # curriculum index
-  learn/[slug]/page.tsx # a lesson (statically generated)
-  search/page.tsx       # search results
-  api/health/route.ts   # health probe
-```
-
-### Authoring a lesson
-
-Add a lesson object to the relevant module file. A lesson is a list of **blocks**:
-
-```ts
-{
-  slug: 'my-topic',
-  title: 'My Topic',
-  summary: 'One line for cards and search.',
-  objectives: ['…'],
-  blocks: [
-    { type: 'p', text: r`Prose with $inline$ math and **bold**.` },
-    { type: 'math', tex: r`E = mc^2` },
-    { type: 'example', title: '…', problem: r`…`, solution: [ /* blocks */ ], answer: '…' },
-  ],
-}
-```
-
-`const r = String.raw` lets you write LaTeX with single backslashes. New lessons
-appear in the sidebar, curriculum, search and prev/next automatically.
-
----
-
-## Deployment
-
-**Vercel** (easiest): import the repo and click Deploy — it auto-detects Next.js,
-and no environment variables are required.
-
-**Docker**
-
-```bash
-docker build -t ml-academy .
-docker run -p 3000:3000 ml-academy
-```
-
-Uses Next.js `standalone` output and a non-root user, with a `HEALTHCHECK`
-against `/api/health`.
-
-## Tech stack
-
-Next.js 14 · React 18 · TypeScript (strict) · Tailwind CSS · KaTeX ·
-lucide-react · Vitest · ESLint · Docker · GitHub Actions.
-
-## A note on accuracy
-
-The content is written to be correct and teachable. If you spot an error in a
-derivation or example, it lives in one place — the relevant `lib/content/*.ts`
-file — and the test suite will re-verify every formula on the next run.
+Because it's static, you can host the folder anywhere — GitHub Pages, Netlify
+drop, or any static host — and share a link. Nothing needs to run server-side.
