@@ -76,6 +76,42 @@ function headingId(text: string): string {
   return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 }
 
+/** Approximate word count of a block tree, for reading-time estimates. */
+function countWords(blocks: Block[]): number {
+  let n = 0;
+  const add = (s?: string) => {
+    if (s) n += s.split(/\s+/).filter(Boolean).length;
+  };
+  for (const b of blocks) {
+    switch (b.type) {
+      case 'heading':
+      case 'p':
+        add(b.text);
+        break;
+      case 'list':
+      case 'steps':
+        b.items.forEach(add);
+        break;
+      case 'note':
+        add(b.title);
+        add(b.text);
+        break;
+      case 'table':
+        b.headers.forEach(add);
+        b.rows.forEach((r) => r.forEach(add));
+        break;
+      case 'example':
+        add(b.title);
+        add(b.problem);
+        n += countWords(b.solution);
+        break;
+      default:
+        break;
+    }
+  }
+  return n;
+}
+
 // ---- diagrams: render each kind once to an SVG string ----------------------
 const diagramCache = new Map<string, string>();
 function diagramSvg(kind: string): string {
@@ -127,9 +163,9 @@ function renderBlock(b: Block): string {
       }</figure>`;
     }
     case 'code':
-      return `<figure><pre class="code"><code>${esc(b.code)}</code></pre>${
-        b.caption ? `<figcaption>${inline(b.caption)}</figcaption>` : ''
-      }</figure>`;
+      return `<figure><div class="code-wrap"><button class="copy-btn" type="button" aria-label="Copy code">Copy</button><pre class="code"><code>${esc(
+        b.code,
+      )}</code></pre></div>${b.caption ? `<figcaption>${inline(b.caption)}</figcaption>` : ''}</figure>`;
     case 'diagram':
       return `<figure class="diagram-fig"><div class="diagram">${diagramSvg(b.kind)}</div>${
         b.caption ? `<figcaption>${inline(b.caption)}</figcaption>` : ''
@@ -137,11 +173,11 @@ function renderBlock(b: Block): string {
     case 'example':
       return `<div class="example"><div class="example-head">🧪 Solved example: ${esc(b.title)}</div><div class="example-body"><p><strong>Problem.</strong> ${inline(
         b.problem,
-      )}</p><div class="solution"><p class="solution-label">Solution</p>${b.solution
+      )}</p><button class="reveal-btn" type="button"><span class="reveal-show">🤔 Try it — then show solution</span><span class="reveal-hide">Hide solution</span></button><div class="reveal-body"><div class="solution"><p class="solution-label">Solution</p>${b.solution
         .map(renderBlock)
         .join('')}</div>${
         b.answer ? `<div class="answer">Answer:&nbsp;${inline(b.answer)}</div>` : ''
-      }</div></div>`;
+      }</div></div></div>`;
     default:
       return '';
   }
@@ -191,14 +227,21 @@ function renderLesson(lesson: Lesson, mod: Module, index: number): string {
       : ''
   }</nav>`;
 
-  return `<article class="lesson" data-module="${esc(mod.id)}">
+  const readMin = Math.max(2, Math.round(countWords(lesson.blocks) / 190));
+  const meta = `<div class="lesson-meta"><span class="chip-meta">⏱ ~${readMin} min read</span><span class="chip-meta">📘 Lesson ${
+    index + 1
+  } of ${totalLessons()}</span></div>`;
+
+  return `<article class="lesson" data-module="${esc(mod.id)}" data-slug="${esc(lesson.slug)}">
     <nav class="breadcrumb"><a href="#/learn">Curriculum</a> <span class="sep">/</span> <span>${esc(moduleIcon)} ${esc(moduleTitle)}</span></nav>
     <p class="lesson-eyebrow"><span class="eyebrow-dot"></span>Lesson ${index + 1} · ${esc(moduleTitle)}</p>
     <h1 class="lesson-title">${esc(lesson.title)}</h1>
     <p class="lesson-summary">${esc(lesson.summary)}</p>
+    ${meta}
     ${glance}
     ${objectives}
     <div class="lesson-body">${lesson.blocks.map(renderBlock).join('')}</div>
+    <div class="complete-slot" id="completeSlot"></div>
     ${pager}
   </article>`;
 }
@@ -225,10 +268,10 @@ function renderHome(): string {
         <div class="hero-cta"><a class="btn btn-lg" href="#/learn">Start learning →</a>
           <a class="btn ghost btn-lg" href="#/learn/backpropagation">Jump to backpropagation</a></div>
         <div class="stat-row">
-          <div class="stat"><span class="stat-n">${modules.length}</span><span class="stat-l">Modules</span></div>
-          <div class="stat"><span class="stat-n">${totalLessons()}</span><span class="stat-l">Lessons</span></div>
-          <div class="stat"><span class="stat-n">${figureCount}+</span><span class="stat-l">Figures</span></div>
-          <div class="stat"><span class="stat-n">40+</span><span class="stat-l">Worked examples</span></div>
+          <div class="stat"><span class="stat-n" data-to="${modules.length}">${modules.length}</span><span class="stat-l">Modules</span></div>
+          <div class="stat"><span class="stat-n" data-to="${totalLessons()}">${totalLessons()}</span><span class="stat-l">Lessons</span></div>
+          <div class="stat"><span class="stat-n" data-to="${figureCount}" data-suffix="+">${figureCount}+</span><span class="stat-l">Figures</span></div>
+          <div class="stat"><span class="stat-n" data-to="40" data-suffix="+">40+</span><span class="stat-l">Worked examples</span></div>
         </div>
       </div>
     </section>
@@ -267,10 +310,14 @@ function build() {
 
   const lessons: Record<string, unknown> = {};
   for (const { lesson, module, index } of allLessons()) {
+    const nb = neighbors(lesson.slug);
     lessons[lesson.slug] = {
       title: lesson.title,
       summary: lesson.summary,
       moduleTitle: module.title,
+      moduleId: module.id,
+      prev: nb.prev ? nb.prev.lesson.slug : null,
+      next: nb.next ? nb.next.lesson.slug : null,
       html: renderLesson(lesson, module, index),
     };
   }
