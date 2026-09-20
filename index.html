@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ML Academy — Learn Machine Learning</title>
+    <meta
+      name="description"
+      content="A free, offline course on Machine Learning: theory, the mathematics behind each method, solved examples and figures."
+    />
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem('theme');
+          if (t === 'dark' || (!t && matchMedia('(prefers-color-scheme: dark)').matches))
+            document.documentElement.setAttribute('data-theme', 'dark');
+          else if (t === 'light') document.documentElement.setAttribute('data-theme', 'light');
+        } catch (e) {}
+      })();
+    </script>
+    <link rel="stylesheet" href="assets/katex/katex.min.css" />
+    <link rel="stylesheet" href="assets/styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="#/"><span class="brand-logo">🧠</span><span>ML Academy</span></a>
+        <nav class="header-nav"><a href="#/learn">Curriculum</a></nav>
+        <div class="header-spacer"></div>
+        <form class="search-box" id="searchForm" role="search">
+          <input id="searchInput" type="search" placeholder="Search topics…" aria-label="Search lessons" autocomplete="off" />
+        </form>
+        <a class="btn" href="#/learn">Start</a>
+        <button class="icon-btn" id="themeBtn" title="Toggle dark mode" aria-label="Toggle dark mode">🌙</button>
+      </div>
+    </header>
+
+    <main id="app"><!-- rendered by app.js --></main>
+
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <span><strong>ML Academy</strong> — theory, mathematics &amp; solved examples.</span>
+        <nav><a href="#/learn">Curriculum</a></nav>
+      </div>
+    </footer>
+
+    <script src="assets/content.js"></script>
+    <script src="assets/app.js"></script>
+  </body>
+</html>
