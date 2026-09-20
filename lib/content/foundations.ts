@@ -4,7 +4,7 @@ const r = String.raw;
 
 export const foundations: Module = {
   id: 'foundations',
-  title: 'Foundations of ML',
+  title: 'Prerequisite',
   icon: '🧱',
   description:
     'Start here. What machine learning is and why it works, what a dataset is and how it is represented mathematically, the types of data, and the linear algebra, calculus and probability you need before any algorithm makes sense.',
