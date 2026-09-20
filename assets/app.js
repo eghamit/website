@@ -12,6 +12,10 @@
     return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
 
+  // node/network brand mark (white, for gradient tiles)
+  var NODE_LOGO =
+    '<svg viewBox="0 0 24 24" width="28" height="28" fill="none"><g stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-opacity="0.85"><path d="M6.6 7.4 11.4 11.6"/><path d="M6.6 16.6 11.4 12.4"/><path d="M12.6 11.6 17.4 7.4"/><path d="M12.6 12.4 17.4 16.6"/></g><g fill="#fff"><circle cx="6" cy="7" r="2.1"/><circle cx="6" cy="17" r="2.1"/><circle cx="12" cy="12" r="2.6"/><circle cx="18" cy="7" r="2.1"/><circle cx="18" cy="17" r="2.1"/></g></svg>';
+
   // ---------- progress (localStorage) ----------
   var DONE = {};
   try {
@@ -252,7 +256,9 @@
       ? 'Already have an account? <a href="#/login">Log in</a>'
       : 'New here? <a href="#/signup">Create an account</a>';
     return (
-      '<div class="auth-wrap"><div class="auth-card"><div class="auth-logo">🧠</div><h1>' +
+      '<div class="auth-wrap"><div class="auth-card"><div class="auth-logo">' +
+      NODE_LOGO +
+      '</div><h1>' +
       title +
       '</h1><p class="muted">' +
       sub +
