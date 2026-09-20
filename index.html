@@ -25,14 +25,27 @@
     <header class="site-header">
       <div class="header-inner">
         <a class="brand" href="#/"><span class="brand-logo">🧠</span><span>ML Academy</span></a>
-        <nav class="header-nav"><a href="#/learn">Curriculum</a></nav>
+
+        <nav class="mainnav" id="mainnav">
+          <a class="navlink" data-nav="home" href="#/">Home</a>
+          <div class="has-dropdown" id="exploreWrap">
+            <button class="navlink nav-trigger" id="exploreBtn" type="button" aria-haspopup="true" aria-expanded="false">
+              Explore Courses <span class="caret">▾</span>
+            </button>
+            <div class="dropdown" id="coursesMenu"><!-- filled by app.js --></div>
+          </div>
+          <a class="navlink" data-nav="contact" href="#/contact">Contact Us</a>
+        </nav>
+
         <div class="header-spacer"></div>
+
         <form class="search-box" id="searchForm" role="search">
           <input id="searchInput" type="search" placeholder="Search topics…" aria-label="Search lessons" autocomplete="off" />
         </form>
         <a class="progress-chip" id="progressChip" href="#/learn" title="Your progress" aria-label="Your progress"></a>
-        <a class="btn" href="#/learn">Start</a>
         <button class="icon-btn" id="themeBtn" title="Toggle dark mode" aria-label="Toggle dark mode">🌙</button>
+        <a class="navlink login-link" data-nav="login" href="#/login">Log In</a>
+        <a class="btn signup-btn" data-nav="signup" href="#/signup">Sign Up</a>
       </div>
     </header>
 
