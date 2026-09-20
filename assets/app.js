@@ -178,6 +178,125 @@
     return '<div class="layout"><div class="content">' + content + '</div></div>';
   }
 
+  // ---------- top nav: courses mega-menu ----------
+  function buildCoursesMenu() {
+    var menu = document.getElementById('coursesMenu');
+    if (!menu) return;
+    var items = ML.modules
+      .map(function (m, i) {
+        return (
+          '<a class="dd-item" data-module="' +
+          m.id +
+          '" href="#/learn/' +
+          m.lessons[0].slug +
+          '"><span class="dd-ic">' +
+          m.icon +
+          '</span><span class="dd-main"><span class="dd-t">' +
+          esc(m.title) +
+          '</span><span class="dd-s">' +
+          m.lessons.length +
+          ' lessons · Module ' +
+          (i + 1) +
+          '</span></span><span class="dd-arrow">→</span></a>'
+        );
+      })
+      .join('');
+    menu.innerHTML =
+      '<div class="dropdown-inner"><p class="dd-label">Courses</p>' +
+      items +
+      '<a class="dd-all" href="#/learn">📚 Browse the full curriculum →</a></div>';
+  }
+
+  // ---------- nav active state + explore toggle (touch) ----------
+  function setActiveNav(hash) {
+    var map = { '#/': 'home', '#/contact': 'contact', '#/login': 'login', '#/signup': 'signup' };
+    var active = map[hash] || (hash.indexOf('#/learn') === 0 ? 'explore' : '');
+    document.querySelectorAll('.navlink[data-nav]').forEach(function (a) {
+      a.classList.toggle('active', a.getAttribute('data-nav') === active);
+    });
+    var eb = document.getElementById('exploreBtn');
+    if (eb) eb.classList.toggle('active', active === 'explore');
+  }
+  (function wireExploreTouch() {
+    var wrap = document.getElementById('exploreWrap');
+    var btn = document.getElementById('exploreBtn');
+    if (!wrap || !btn) return;
+    btn.addEventListener('click', function (e) {
+      e.preventDefault();
+      wrap.classList.toggle('open');
+      btn.setAttribute('aria-expanded', wrap.classList.contains('open') ? 'true' : 'false');
+    });
+    document.addEventListener('click', function (e) {
+      if (!wrap.contains(e.target)) {
+        wrap.classList.remove('open');
+        btn.setAttribute('aria-expanded', 'false');
+      }
+    });
+    wrap.addEventListener('click', function (e) {
+      if (e.target.closest('.dd-item, .dd-all')) {
+        wrap.classList.remove('open');
+        btn.setAttribute('aria-expanded', 'false');
+      }
+    });
+  })();
+
+  // ---------- auth / contact demo pages ----------
+  function authPage(kind) {
+    var isSignup = kind === 'signup';
+    var title = isSignup ? 'Create your account' : 'Welcome back';
+    var sub = isSignup ? 'Start learning ML for free.' : 'Log in to keep your progress.';
+    var nameField = isSignup
+      ? '<label class="field"><span>Full name</span><input type="text" name="name" required placeholder="Ada Lovelace" /></label>'
+      : '';
+    var alt = isSignup
+      ? 'Already have an account? <a href="#/login">Log in</a>'
+      : 'New here? <a href="#/signup">Create an account</a>';
+    return (
+      '<div class="auth-wrap"><div class="auth-card"><div class="auth-logo">🧠</div><h1>' +
+      title +
+      '</h1><p class="muted">' +
+      sub +
+      '</p><form class="demo-form" data-kind="' +
+      kind +
+      '">' +
+      nameField +
+      '<label class="field"><span>Email</span><input type="email" name="email" required placeholder="you@example.com" /></label>' +
+      '<label class="field"><span>Password</span><input type="password" name="password" required minlength="6" placeholder="••••••••" /></label>' +
+      '<button class="btn btn-lg auth-submit" type="submit">' +
+      (isSignup ? 'Sign up' : 'Log in') +
+      '</button></form><p class="auth-alt">' +
+      alt +
+      '</p><p class="demo-note">Demo site — no data is sent or stored anywhere.</p></div></div>'
+    );
+  }
+  function contactPage() {
+    return (
+      '<div class="auth-wrap"><div class="auth-card wide"><div class="auth-logo">✉️</div><h1>Contact us</h1>' +
+      '<p class="muted">Questions, feedback or a topic you\'d like covered? Drop us a line.</p>' +
+      '<form class="demo-form" data-kind="contact">' +
+      '<label class="field"><span>Your name</span><input type="text" name="name" required placeholder="Your name" /></label>' +
+      '<label class="field"><span>Email</span><input type="email" name="email" required placeholder="you@example.com" /></label>' +
+      '<label class="field"><span>Message</span><textarea name="message" rows="5" required placeholder="How can we help?"></textarea></label>' +
+      '<button class="btn btn-lg" type="submit">Send message</button></form>' +
+      '<p class="demo-note">Demo site — the form doesn\'t actually send anything.</p></div></div>'
+    );
+  }
+  app.addEventListener('submit', function (e) {
+    var form = e.target.closest ? e.target.closest('.demo-form') : null;
+    if (!form) return;
+    e.preventDefault();
+    var kind = form.getAttribute('data-kind');
+    if (kind === 'signup') confetti();
+    var msg =
+      kind === 'contact'
+        ? '✅ <strong>Thanks!</strong> This is a demo — your message wasn’t really sent.'
+        : kind === 'signup'
+          ? '🎉 <strong>Welcome!</strong> Demo only — no account was created. <a href="#/learn">Start learning →</a>'
+          : '👋 <strong>Logged in (demo).</strong> No account is required here. <a href="#/learn">Continue →</a>';
+    toast(msg);
+    form.reset();
+  });
+
   // ---------- search ----------
   function scoreDoc(haystack, terms) {
     var score = 0;
@@ -464,6 +583,14 @@
       if (searchInput && document.activeElement !== searchInput) searchInput.value = q;
       app.innerHTML = plain(searchHtml(q));
       document.title = 'Search · ML Academy';
+    } else if (hash === '#/login' || hash === '#/signup') {
+      app.innerHTML = plain(authPage(hash === '#/signup' ? 'signup' : 'login'));
+      document.title = (hash === '#/signup' ? 'Sign Up' : 'Log In') + ' · ML Academy';
+      window.scrollTo(0, 0);
+    } else if (hash === '#/contact') {
+      app.innerHTML = plain(contactPage());
+      document.title = 'Contact · ML Academy';
+      window.scrollTo(0, 0);
     } else {
       app.innerHTML = plain(ML.home);
       document.title = 'ML Academy — Learn Machine Learning';
@@ -472,7 +599,9 @@
     }
     wireSidebar();
     renderRing();
+    setActiveNav(hash.split('?')[0]);
   }
+  buildCoursesMenu();
 
   // ---------- search input ----------
   function goSearch(q) {
