@@ -265,8 +265,7 @@ function renderHome(): string {
         <span class="badge"><span class="badge-dot"></span> Free · offline · ${modules.length} modules</span>
         <h1 class="hero-title">Learn <span class="grad">Machine Learning</span><br />from first principles</h1>
         <p class="hero-sub">A complete, from-scratch course covering the <strong>theory</strong>, the <strong>mathematics</strong> behind every method, and <strong>solved examples</strong> — with figures throughout.</p>
-        <div class="hero-cta"><a class="btn btn-lg" href="#/learn">Start learning →</a>
-          <a class="btn ghost btn-lg" href="#/learn/backpropagation">Jump to backpropagation</a></div>
+        <div class="hero-cta"><a class="btn btn-lg" href="#/learn">Start learning →</a></div>
         <div class="stat-row">
           <div class="stat"><span class="stat-n" data-to="${modules.length}">${modules.length}</span><span class="stat-l">Modules</span></div>
           <div class="stat"><span class="stat-n" data-to="${totalLessons()}">${totalLessons()}</span><span class="stat-l">Lessons</span></div>
