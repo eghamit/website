@@ -16,7 +16,7 @@ import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 
 import { modules, allLessons, neighbors, searchIndex, totalLessons } from '../lib/content/index';
-import type { Block, Lesson } from '../lib/content/types';
+import type { Block, Lesson, Module } from '../lib/content/types';
 import { renderMath } from '../lib/math';
 import { Diagram } from '../components/Diagram';
 
@@ -148,7 +148,9 @@ function renderBlock(b: Block): string {
 }
 
 // ---- lesson page fragment --------------------------------------------------
-function renderLesson(lesson: Lesson, moduleTitle: string, moduleIcon: string, index: number): string {
+function renderLesson(lesson: Lesson, mod: Module, index: number): string {
+  const moduleTitle = mod.title;
+  const moduleIcon = mod.icon;
   const intro = lesson.intro;
   const glance = intro
     ? `<div class="glance"><div class="glance-head">📖 At a glance</div><div class="glance-body">
@@ -189,9 +191,9 @@ function renderLesson(lesson: Lesson, moduleTitle: string, moduleIcon: string, i
       : ''
   }</nav>`;
 
-  return `<article class="lesson">
-    <nav class="breadcrumb"><a href="#/learn">Curriculum</a> / <span>${esc(moduleIcon)} ${esc(moduleTitle)}</span></nav>
-    <p class="lesson-eyebrow">Lesson ${index + 1}</p>
+  return `<article class="lesson" data-module="${esc(mod.id)}">
+    <nav class="breadcrumb"><a href="#/learn">Curriculum</a> <span class="sep">/</span> <span>${esc(moduleIcon)} ${esc(moduleTitle)}</span></nav>
+    <p class="lesson-eyebrow"><span class="eyebrow-dot"></span>Lesson ${index + 1} · ${esc(moduleTitle)}</p>
     <h1 class="lesson-title">${esc(lesson.title)}</h1>
     <p class="lesson-summary">${esc(lesson.summary)}</p>
     ${glance}
@@ -203,35 +205,46 @@ function renderLesson(lesson: Lesson, moduleTitle: string, moduleIcon: string, i
 
 // ---- home + curriculum -----------------------------------------------------
 function renderHome(): string {
+  const figureCount = 20;
   const cards = modules
     .map(
-      (m, i) => `<a class="module-card" href="#/learn/${m.lessons[0]!.slug}">
+      (m, i) => `<a class="module-card" data-module="${esc(m.id)}" href="#/learn/${m.lessons[0]!.slug}">
+        <span class="module-rail"></span>
         <div class="module-card-head"><span class="module-icon">${m.icon}</span>
           <div><p class="module-eyebrow">Module ${i + 1}</p><h3>${esc(m.title)}</h3></div></div>
         <p class="muted">${esc(m.description)}</p>
-        <p class="module-count">${m.lessons.length} lessons →</p></a>`,
+        <p class="module-count">${m.lessons.length} lessons <span class="arrow">→</span></p></a>`,
     )
     .join('');
   return `<section class="hero">
-      <span class="badge">🎓 ${modules.length} modules · ${totalLessons()} lessons · free &amp; offline</span>
-      <h1 class="hero-title">Learn <span class="grad">Machine Learning</span> properly</h1>
-      <p class="hero-sub">A complete, from-scratch course covering the <strong>theory</strong>, the <strong>mathematics</strong> behind every method, and <strong>solved examples</strong> — with figures throughout.</p>
-      <div class="hero-cta"><a class="btn" href="#/learn">Start learning</a>
-        <a class="btn ghost" href="#/learn/backpropagation">Jump to backpropagation →</a></div>
+      <div class="hero-glow" aria-hidden="true"></div>
+      <div class="hero-inner">
+        <span class="badge"><span class="badge-dot"></span> Free · offline · ${modules.length} modules</span>
+        <h1 class="hero-title">Learn <span class="grad">Machine Learning</span><br />from first principles</h1>
+        <p class="hero-sub">A complete, from-scratch course covering the <strong>theory</strong>, the <strong>mathematics</strong> behind every method, and <strong>solved examples</strong> — with figures throughout.</p>
+        <div class="hero-cta"><a class="btn btn-lg" href="#/learn">Start learning →</a>
+          <a class="btn ghost btn-lg" href="#/learn/backpropagation">Jump to backpropagation</a></div>
+        <div class="stat-row">
+          <div class="stat"><span class="stat-n">${modules.length}</span><span class="stat-l">Modules</span></div>
+          <div class="stat"><span class="stat-n">${totalLessons()}</span><span class="stat-l">Lessons</span></div>
+          <div class="stat"><span class="stat-n">${figureCount}+</span><span class="stat-l">Figures</span></div>
+          <div class="stat"><span class="stat-n">40+</span><span class="stat-l">Worked examples</span></div>
+        </div>
+      </div>
     </section>
     <section class="features">
       <div class="feature"><div class="feature-ic">📖</div><h3>Clear theory</h3><p class="muted">Plain-language explanations and intuition, built up step by step.</p></div>
       <div class="feature"><div class="feature-ic">➗</div><h3>The real mathematics</h3><p class="muted">Every equation, cost function and update rule — typeset with KaTeX.</p></div>
       <div class="feature"><div class="feature-ic">🧪</div><h3>Solved examples</h3><p class="muted">Worked numeric examples and figures you can reproduce by hand.</p></div>
     </section>
-    <section><h2 class="section-title">What you'll cover</h2><div class="modules-grid">${cards}</div></section>`;
+    <section class="home-modules"><div class="section-head"><h2 class="section-title">Your learning path</h2><p class="muted">Five modules, in order — from what a dataset is to backpropagation.</p></div><div class="modules-grid">${cards}</div></section>`;
 }
 
 function renderCurriculum(): string {
   let counter = 0;
   const sections = modules
     .map(
-      (m, mi) => `<section class="curriculum-module">
+      (m, mi) => `<section class="curriculum-module" data-module="${esc(m.id)}">
         <div class="module-card-head"><span class="module-icon">${m.icon}</span>
           <div><h2><span class="muted">Module ${mi + 1}</span> · ${esc(m.title)}</h2>
           <p class="muted">${esc(m.description)}</p></div></div>
@@ -258,7 +271,7 @@ function build() {
       title: lesson.title,
       summary: lesson.summary,
       moduleTitle: module.title,
-      html: renderLesson(lesson, module.title, module.icon, index),
+      html: renderLesson(lesson, module, index),
     };
   }
 
