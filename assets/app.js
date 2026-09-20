@@ -24,6 +24,18 @@
       localStorage.setItem('ml-progress', JSON.stringify(DONE));
     } catch (e) {}
   }
+  // which sidebar modules the user has pinned open
+  var NAV = {};
+  try {
+    NAV = JSON.parse(localStorage.getItem('ml-nav') || '{}') || {};
+  } catch (e) {
+    NAV = {};
+  }
+  function saveNav() {
+    try {
+      localStorage.setItem('ml-nav', JSON.stringify(NAV));
+    } catch (e) {}
+  }
   function isDone(slug) {
     return !!DONE[slug];
   }
@@ -119,22 +131,32 @@
           .join('');
         var mdone = moduleDone(m),
           mtot = m.lessons.length;
+        var hasActive = m.lessons.some(function (l) {
+          return l.slug === activeSlug;
+        });
+        var open = NAV[m.id] || hasActive;
         return (
-          '<div class="module-group" data-module="' +
+          '<div class="module-group' +
+          (open ? ' open' : '') +
+          '" data-module="' +
           m.id +
-          '"><p><span class="mg-icon">' +
+          '"><button class="module-toggle" type="button" data-mod="' +
+          m.id +
+          '" aria-expanded="' +
+          (open ? 'true' : 'false') +
+          '"><span class="mg-icon">' +
           m.icon +
-          '</span> ' +
+          '</span> <span class="mg-title">' +
           (mi + 1) +
           '. ' +
           esc(m.title) +
-          '<span class="mod-progress' +
+          '</span><span class="mod-progress' +
           (mdone === mtot ? ' complete' : '') +
           '">' +
           mdone +
           '/' +
           mtot +
-          '</span></p><ul>' +
+          '</span><span class="nav-chev">›</span></button><ul>' +
           links +
           '</ul></div>'
         );
@@ -299,6 +321,17 @@
 
   // ---------- reveal + copy (event delegation) ----------
   app.addEventListener('click', function (e) {
+    var mt = e.target.closest ? e.target.closest('.module-toggle') : null;
+    if (mt) {
+      var grp = mt.closest('.module-group');
+      var opened = grp.classList.toggle('open');
+      mt.setAttribute('aria-expanded', opened ? 'true' : 'false');
+      var id = mt.getAttribute('data-mod');
+      if (opened) NAV[id] = true;
+      else delete NAV[id];
+      saveNav();
+      return;
+    }
     var rb = e.target.closest ? e.target.closest('.reveal-btn') : null;
     if (rb) {
       rb.closest('.example').classList.toggle('revealed');

@@ -107,12 +107,20 @@ a { color: inherit; }
 .content { min-width: 0; }
 
 /* ---- sidebar ---- */
-.module-group { margin-bottom: 20px; }
-.module-group > p { margin: 0 0 8px; font-size: 11px; font-weight: 800; letter-spacing: 0.03em; text-transform: uppercase;
-  color: var(--muted); display: flex; align-items: center; gap: 7px; }
-.mg-icon { width: 22px; height: 22px; border-radius: 7px; display: grid; place-items: center; font-size: 12px;
+.module-group { margin-bottom: 8px; }
+.module-toggle { display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; cursor: pointer;
+  background: none; border: 0; font: inherit; margin: 0 0 4px; padding: 8px 8px; border-radius: 10px;
+  font-size: 11.5px; font-weight: 800; letter-spacing: 0.02em; text-transform: uppercase; color: var(--muted); transition: 0.13s; }
+.module-toggle:hover { color: var(--text); background: var(--accent-tint); }
+.module-group.open .module-toggle { color: var(--text); }
+.mg-title { flex: 1 1 auto; }
+.mg-icon { width: 24px; height: 24px; border-radius: 8px; display: grid; place-items: center; font-size: 13px; flex: none;
   background: var(--accent-tint); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 30%, transparent); }
-.module-group ul { list-style: none; margin: 0; padding: 0; border-left: 2px solid var(--border); margin-left: 10px; }
+.nav-chev { flex: none; font-size: 15px; line-height: 1; color: var(--muted); transition: transform 0.2s ease; transform: rotate(0deg); }
+.module-group.open .nav-chev { transform: rotate(90deg); }
+.module-group ul { list-style: none; margin: 0 0 8px; padding: 0; border-left: 2px solid var(--border); margin-left: 18px; display: none; }
+.module-group.open ul { display: block; animation: navIn 0.2s ease; }
+@keyframes navIn { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: none; } }
 .lesson-link { display: block; padding: 7px 10px 7px 14px; margin-left: -2px; border-left: 2px solid transparent;
   font-size: 13.5px; text-decoration: none; color: color-mix(in srgb, var(--text) 72%, transparent); border-radius: 0 8px 8px 0; transition: 0.13s; }
 .lesson-link:hover { color: var(--text); background: var(--accent-tint); border-left-color: color-mix(in srgb, var(--accent) 50%, transparent); }
