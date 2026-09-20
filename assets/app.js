@@ -39,9 +39,11 @@
           })
           .join('');
         return (
-          '<div class="module-group"><p>' +
+          '<div class="module-group" data-module="' +
+          m.id +
+          '"><p><span class="mg-icon">' +
           m.icon +
-          ' ' +
+          '</span> ' +
           (mi + 1) +
           '. ' +
           esc(m.title) +
@@ -198,4 +200,18 @@
 
   window.addEventListener('hashchange', render);
   render();
+
+  // ---- scroll progress bar ----
+  var bar = document.createElement('div');
+  bar.className = 'scroll-progress';
+  document.body.appendChild(bar);
+  function updateBar() {
+    var h = document.documentElement;
+    var max = h.scrollHeight - h.clientHeight;
+    var pct = max > 0 ? (h.scrollTop / max) * 100 : 0;
+    bar.style.width = pct + '%';
+  }
+  window.addEventListener('scroll', updateBar, { passive: true });
+  window.addEventListener('resize', updateBar);
+  updateBar();
 })();
