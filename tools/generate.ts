@@ -158,7 +158,10 @@ function renderBlock(b: Block): string {
       const body = b.rows
         .map((row) => `<tr>${row.map((c) => `<td>${inline(c)}</td>`).join('')}</tr>`)
         .join('');
-      return `<figure class="tablewrap"><table><thead>${head}</thead><tbody>${body}</tbody></table>${
+      // Many-column tables size to their content (tighter inter-column gaps)
+      // and scroll instead of stretching each column to fill the width.
+      const wide = b.headers.length >= 8 ? ' wide' : '';
+      return `<figure class="tablewrap${wide}"><table><thead>${head}</thead><tbody>${body}</tbody></table>${
         b.caption ? `<figcaption>${inline(b.caption)}</figcaption>` : ''
       }</figure>`;
     }

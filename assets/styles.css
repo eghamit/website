@@ -267,6 +267,9 @@ th { text-align: left; font-weight: 750; padding: 11px 14px; border-bottom: 1px 
 td { padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: top; color: color-mix(in srgb, var(--text) 88%, transparent); }
 tbody tr:last-child td { border-bottom: 0; }
 tbody tr:hover { background: color-mix(in srgb, var(--accent) 5%, transparent); }
+/* many-column tables: hug content and tighten the gaps instead of stretching */
+.tablewrap.wide table { width: auto; }
+.tablewrap.wide th, .tablewrap.wide td { padding: 8px 12px; white-space: nowrap; }
 
 /* code */
 pre.code { background: var(--code-bg); color: #e6e6ef; border: 1px solid var(--border-strong); border-radius: 14px;
