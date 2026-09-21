@@ -242,6 +242,23 @@ html[data-theme='dark'] .use-label { color: #6ee7b7; } html[data-theme='dark'] .
 figure { margin: 0; }
 figcaption { text-align: center; color: var(--muted); font-size: 12.5px; margin-top: 8px; }
 
+/* interactive labs */
+.lab-fig { margin: 20px 0; }
+.lab { border: 1px solid var(--border); border-radius: 16px; background: var(--surface); box-shadow: var(--shadow); padding: 14px; }
+.lab-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 10px; }
+.lab-kctl { display: inline-flex; align-items: center; gap: 6px; font-weight: 650; font-size: 13px; color: var(--muted); margin-right: 4px; }
+.lab-kbtn { width: 28px; height: 28px; border-radius: 8px; border: 1px solid var(--border-strong); background: var(--surface); color: var(--text); font: inherit; font-weight: 650; cursor: pointer; transition: 0.12s; }
+.lab-kbtn:hover { border-color: var(--brand); }
+.lab-kbtn.on { background: var(--brand); border-color: var(--brand); color: #fff; }
+.lab-btn { border: 1px solid var(--border-strong); background: var(--surface); color: var(--text); font: inherit; font-size: 13px; font-weight: 600; padding: 6px 12px; border-radius: 9px; cursor: pointer; transition: 0.12s; }
+.lab-btn:hover { border-color: var(--brand); background: var(--brand-tint); }
+.lab-btn.primary { background: var(--brand); border-color: var(--brand); color: #fff; }
+.lab-btn.primary:hover { filter: brightness(1.05); background: var(--brand); }
+.lab-btn:disabled { opacity: 0.45; cursor: not-allowed; border-color: var(--border); background: var(--surface); }
+.lab-status { font-size: 13.5px; font-weight: 600; color: var(--text); min-height: 20px; margin: 2px 2px 8px; }
+.lab-svg { display: block; width: 100%; height: auto; background: var(--surface-2); border-radius: 12px; cursor: crosshair; touch-action: manipulation; }
+.lab-hint { font-size: 12.5px; color: var(--muted); margin: 10px 2px 0; }
+
 /* notes */
 .note { display: flex; gap: 13px; border: 1px solid var(--border); border-left-width: 4px; border-radius: 14px; padding: 15px 17px; margin: 20px 0; box-shadow: var(--shadow); }
 .note-ico { flex: none; font-size: 18px; line-height: 1.35; }

@@ -182,6 +182,10 @@ function renderBlock(b: Block): string {
       return `<figure class="diagram-fig"><div class="diagram">${diagramSvg(b.kind)}</div>${
         b.caption ? `<figcaption>${inline(b.caption)}</figcaption>` : ''
       }</figure>`;
+    case 'widget':
+      return `<figure class="lab-fig"><div class="lab" data-lab="${esc(b.kind)}"></div>${
+        b.caption ? `<figcaption>${inline(b.caption)}</figcaption>` : ''
+      }</figure>`;
     case 'example':
       return `<div class="example"><div class="example-head">🧪 Solved example: ${esc(b.title)}</div><div class="example-body"><p><strong>Problem.</strong> ${inline(
         b.problem,
