@@ -499,5 +499,211 @@ print("loss:", E)`,
         },
       ],
     },
+
+    // ==================================================================
+    {
+      slug: 'mlp-backprop-worked-example-3-2-2-1',
+      title: 'Worked Example: Backpropagation in a 3–2–2–1 Network',
+      summary:
+        'One complete training iteration worked entirely by hand — forward propagation, the squared error, full backpropagation of the error signal δ through every layer, all gradients, and the gradient-descent parameter updates for a 3–2–2–1 MLP with sigmoid activations (η = 0.5).',
+      intro: {
+        definition:
+          'A fully worked, one-iteration training pass for a 3–2–2–1 multilayer perceptron: forward propagation, error, backpropagation of the δ signal, gradients and the gradient-descent weight/bias updates.',
+        whyItMatters:
+          'Doing every arithmetic step by hand — once — turns backpropagation from a formula into something you can trace neuron by neuron, which is the fastest way to truly understand how a network learns.',
+        whenToUse: [
+          'Checking a backprop implementation against known-good numbers',
+          'Learning exactly how the error signal flows backward through layers',
+          'Revising for an exam that asks for a manual forward/backward pass',
+        ],
+      },
+      objectives: [
+        'Run forward propagation layer by layer to the output',
+        'Compute the squared error for the training example',
+        'Backpropagate the local error signal δ through every layer',
+        'Compute all weight and bias gradients and apply the gradient-descent update',
+      ],
+      blocks: [
+        {
+          type: 'p',
+          text: r`Consider a fully connected multilayer perceptron with **three input neurons, two neurons in the first hidden layer, two neurons in the second hidden layer, and one output neuron (3–2–2–1)**.`,
+        },
+        {
+          type: 'diagram',
+          kind: 'mlp-3-2-2-1',
+          caption: 'The 3–2–2–1 network. Layers l = 1 and l = 2 are hidden; l = L = 3 is the output.',
+        },
+        { type: 'p', text: r`For a single training example, the input vector and desired output are` },
+        { type: 'math', tex: r`\mathbf{x}=\begin{bmatrix}0.6\\ -0.2\\ 0.8\end{bmatrix},\qquad y=1.` },
+        { type: 'heading', text: 'Initial weights and biases' },
+        { type: 'p', text: r`**Input layer → first hidden layer**` },
+        { type: 'math', tex: r`W^{1}=\begin{bmatrix}w_{11}^{1} & w_{12}^{1} & w_{13}^{1}\\ w_{21}^{1} & w_{22}^{1} & w_{23}^{1}\end{bmatrix}=\begin{bmatrix}0.4 & -0.5 & 0.2\\ -0.3 & 0.8 & 0.1\end{bmatrix},\qquad \mathbf{b}^{1}=\begin{bmatrix}0.1\\ -0.2\end{bmatrix}` },
+        { type: 'p', text: r`**First hidden layer → second hidden layer**` },
+        { type: 'math', tex: r`W^{2}=\begin{bmatrix}w_{11}^{2} & w_{12}^{2}\\ w_{21}^{2} & w_{22}^{2}\end{bmatrix}=\begin{bmatrix}0.7 & -0.4\\ -0.6 & 0.9\end{bmatrix},\qquad \mathbf{b}^{2}=\begin{bmatrix}0.05\\ 0.1\end{bmatrix}` },
+        { type: 'p', text: r`**Second hidden layer → output layer**` },
+        { type: 'math', tex: r`W^{3}=\begin{bmatrix}w_{11}^{3} & w_{12}^{3}\end{bmatrix}=\begin{bmatrix}0.8 & -1.1\end{bmatrix},\qquad b_1^{3}=0.2` },
+        { type: 'heading', text: 'Activation, error and learning rate' },
+        { type: 'p', text: r`Every hidden and output neuron uses the sigmoid activation, whose derivative is convenient:` },
+        { type: 'math', tex: r`a=\phi(z)=\frac{1}{1+e^{-z}},\qquad \phi'(z)=\phi(z)\bigl(1-\phi(z)\bigr)=a(1-a)` },
+        { type: 'p', text: r`The error for the training example and the learning rate are` },
+        { type: 'math', tex: r`E=\frac{1}{2}\sum_j\left(a_j^L-y_j\right)^2,\qquad \eta=0.5` },
+        {
+          type: 'note',
+          variant: 'info',
+          title: 'One complete training iteration',
+          text: r`**1. Forward propagation** — $z_j^l=\sum_k w_{jk}^l a_k^{l-1}+b_j^l$, $\ a_j^l=\sigma(z_j^l)$.  **2. Error** — $E=\tfrac12\sum_j(a_j^L-y_j)^2$.  **3. Backpropagation** — output signal $\delta_j^L=(a_j^L-y_j)a_j^L(1-a_j^L)$, hidden signal $\delta_j^l=\bigl(\sum_r w_{rj}^{l+1}\delta_r^{l+1}\bigr)a_j^l(1-a_j^l)$, gradients $\frac{\partial E}{\partial w_{jk}^l}=\delta_j^l a_k^{l-1}$ and $\frac{\partial E}{\partial b_j^l}=\delta_j^l$.  **4. Update** — $\theta^{\mathrm{new}}=\theta^{\mathrm{old}}-\eta\,\frac{\partial E}{\partial\theta}$.`,
+        },
+
+        // ---- 1. Forward propagation ----
+        { type: 'heading', text: '1. Forward propagation' },
+        { type: 'p', text: r`**First hidden layer ($l=1$).** $\ z_j^{1}=\sum_{k=1}^{3}w_{jk}^{1}a_k^{0}+b_j^{1}$, $\ a_j^{1}=\sigma(z_j^{1})=\dfrac{1}{1+e^{-z_j^{1}}}$.` },
+        {
+          type: 'table',
+          headers: [r`Neuron $j$`, r`Net input calculation`, r`Activation output`],
+          rows: [
+            ['1', r`$\begin{aligned} z_1^{1} &= w_{11}^{1}a_1^{0}+w_{12}^{1}a_2^{0}+w_{13}^{1}a_3^{0}+b_1^{1}\\ &=(0.4)(0.6)+(-0.5)(-0.2)+(0.2)(0.8)+0.1\\ &=0.6000 \end{aligned}$`, r`$a_1^{1}=0.6457$`],
+            ['2', r`$\begin{aligned} z_2^{1} &= w_{21}^{1}a_1^{0}+w_{22}^{1}a_2^{0}+w_{23}^{1}a_3^{0}+b_2^{1}\\ &=(-0.3)(0.6)+(0.8)(-0.2)+(0.1)(0.8)+(-0.2)\\ &=-0.4600 \end{aligned}$`, r`$a_2^{1}=0.3870$`],
+          ],
+        },
+        { type: 'p', text: r`**Second hidden layer ($l=2$).** $\ z_j^{2}=\sum_{k=1}^{2}w_{jk}^{2}a_k^{1}+b_j^{2}$.` },
+        {
+          type: 'table',
+          headers: [r`Neuron $j$`, r`Net input calculation`, r`Activation output`],
+          rows: [
+            ['1', r`$\begin{aligned} z_1^{2} &= w_{11}^{2}a_1^{1}+w_{12}^{2}a_2^{1}+b_1^{2}\\ &=(0.7)(0.64566)+(-0.4)(0.38699)+0.05\\ &=0.34717 \end{aligned}$`, r`$a_1^{2}=0.58593$`],
+            ['2', r`$\begin{aligned} z_2^{2} &= w_{21}^{2}a_1^{1}+w_{22}^{2}a_2^{1}+b_2^{2}\\ &=(-0.6)(0.64566)+(0.9)(0.38699)+0.10\\ &=0.06090 \end{aligned}$`, r`$a_2^{2}=0.51522$`],
+          ],
+        },
+        { type: 'p', text: r`**Output layer ($L=3$).** $\ z_j^{3}=\sum_{k=1}^{2}w_{jk}^{3}a_k^{2}+b_j^{3}$.` },
+        {
+          type: 'table',
+          headers: [r`Neuron $j$`, r`Net input calculation`, r`Activation output`],
+          rows: [
+            ['1', r`$\begin{aligned} z_1^{3} &= w_{11}^{3}a_1^{2}+w_{12}^{3}a_2^{2}+b_1^{3}\\ &=(0.8)(0.58593)+(-1.1)(0.51522)+0.2\\ &=0.10200 \end{aligned}$`, r`$a_1^{3}=0.52548$`],
+          ],
+        },
+
+        // ---- 2. Error ----
+        { type: 'heading', text: '2. Error calculation' },
+        { type: 'math', tex: r`E=\frac{1}{2}\sum_j\left(a_j^L-y_j\right)^2=\frac{1}{2}\left(a_1^3-y_1\right)^2=\frac{1}{2}\left(0.52548-1\right)^2=0.11258` },
+
+        // ---- 3. Backprop: output layer ----
+        { type: 'heading', text: '3. Backpropagation — output layer (L = 3)' },
+        { type: 'p', text: r`**Stage 1 — local error signal.** $\ \delta_1^L=(a_1^L-y_1)\phi'(z_1^L)=(a_1^L-y_1)a_1^L(1-a_1^L)$.` },
+        {
+          type: 'table',
+          headers: [r`Neuron $j$`, r`Local error signal $\delta_j^3=(a_j^3-y_j)a_j^3(1-a_j^3)$`],
+          rows: [
+            ['1', r`$\begin{aligned} \delta_1^3 &= (a_1^3-y_1)a_1^3(1-a_1^3)\\ &=(0.52548-1)(0.52548)(1-0.52548)\\ &=-0.11832 \end{aligned}$`],
+          ],
+        },
+        { type: 'p', text: r`**Stage 2 — gradient calculation.** $\ \dfrac{\partial E}{\partial w_{jk}^{l}}=\delta_j^l a_k^{l-1}$, $\ \dfrac{\partial E}{\partial b_j^l}=\delta_j^l$.` },
+        {
+          type: 'table',
+          headers: [r`$j$`, r`$k$`, r`$a_k^{l-1}$`, r`Gradient $\dfrac{\partial E}{\partial w_{jk}^{l}}=\delta_j^l a_k^{l-1}$`],
+          rows: [
+            ['1', '1', r`$a_1^2=0.58593$`, r`$\begin{aligned} \frac{\partial E}{\partial w_{11}^3}=\delta_1^3a_1^2 &=(-0.11832)(0.58593)\\ &=-0.069327 \end{aligned}$`],
+            ['1', '2', r`$a_2^2=0.51522$`, r`$\begin{aligned} \frac{\partial E}{\partial w_{12}^3}=\delta_1^3a_2^2 &=(-0.11832)(0.51522)\\ &=-0.06096 \end{aligned}$`],
+            ['1', '—', r`$1$`, r`$\dfrac{\partial E}{\partial b_1^3}=\delta_1^3=-0.11832$`],
+          ],
+        },
+        { type: 'p', text: r`**Stage 3 — parameter update.** $\ \theta^{\mathrm{new}}=\theta^{\mathrm{old}}-\eta\,\dfrac{\partial E}{\partial\theta}$ with $\eta=0.5$.` },
+        {
+          type: 'table',
+          headers: [r`$j$`, r`$k$`, r`Old parameter`, r`Parameter update $\theta^{\mathrm{new}}$`],
+          rows: [
+            ['1', '1', r`$w_{11}^{3,\mathrm{old}}=0.8$`, r`$\begin{aligned} w_{11}^{3,\mathrm{new}} &=0.8-0.5(-0.069327)\\ &=0.8346635 \end{aligned}$`],
+            ['1', '2', r`$w_{12}^{3,\mathrm{old}}=-1.1$`, r`$\begin{aligned} w_{12}^{3,\mathrm{new}} &=-1.1-0.5(-0.06096)\\ &=-1.06952 \end{aligned}$`],
+            ['1', '—', r`$b_1^{3,\mathrm{old}}=0.2$`, r`$\begin{aligned} b_1^{3,\mathrm{new}} &=0.2-0.5(-0.11832)\\ &=0.25916 \end{aligned}$`],
+          ],
+        },
+
+        // ---- 3. Backprop: second hidden layer ----
+        { type: 'heading', text: '3. Backpropagation — second hidden layer (l = 2)' },
+        { type: 'p', text: r`**Stage 1 — local error signal.** $\ \delta_j^2=\bigl(\sum_{r=1}^{1} w_{rj}^{3}\delta_r^{3}\bigr)a_j^2(1-a_j^2)$.` },
+        {
+          type: 'table',
+          headers: [r`Neuron $j$`, r`Local error signal $\delta_j^2=\bigl(\sum_{r} w_{rj}^{3}\delta_r^{3}\bigr)a_j^2(1-a_j^2)$`],
+          rows: [
+            ['1', r`$\begin{aligned} \delta_1^2 &= w_{11}^{3}\delta_1^{3}\,a_1^2(1-a_1^2)\\ &=(0.8)(-0.11832)(0.58593)(1-0.58593)\\ &=-0.022965 \end{aligned}$`],
+            ['2', r`$\begin{aligned} \delta_2^2 &= w_{12}^{3}\delta_1^{3}\,a_2^2(1-a_2^2)\\ &=(-1.1)(-0.11832)(0.51522)(1-0.51522)\\ &=0.032508 \end{aligned}$`],
+          ],
+        },
+        { type: 'p', text: r`**Stage 2 — gradient calculation.**` },
+        {
+          type: 'table',
+          headers: [r`$j$`, r`$k$`, r`$a_k^{1}$`, r`Gradient $\dfrac{\partial E}{\partial w_{jk}^{2}}=\delta_j^2 a_k^{1}$`],
+          rows: [
+            ['1', '1', r`$a_1^1=0.64566$`, r`$\begin{aligned} \frac{\partial E}{\partial w_{11}^2}=\delta_1^2a_1^1 &=(-0.022965)(0.64566)\\ &=-0.014828 \end{aligned}$`],
+            ['1', '2', r`$a_2^1=0.38699$`, r`$\begin{aligned} \frac{\partial E}{\partial w_{12}^2}=\delta_1^2a_2^1 &=(-0.022965)(0.38699)\\ &=-0.008887 \end{aligned}$`],
+            ['1', '—', r`$1$`, r`$\dfrac{\partial E}{\partial b_1^2}=\delta_1^2=-0.022965$`],
+            ['2', '1', r`$a_1^1=0.64566$`, r`$\begin{aligned} \frac{\partial E}{\partial w_{21}^2}=\delta_2^2a_1^1 &=(0.032508)(0.64566)\\ &=0.020989 \end{aligned}$`],
+            ['2', '2', r`$a_2^1=0.38699$`, r`$\begin{aligned} \frac{\partial E}{\partial w_{22}^2}=\delta_2^2a_2^1 &=(0.032508)(0.38699)\\ &=0.012580 \end{aligned}$`],
+            ['2', '—', r`$1$`, r`$\dfrac{\partial E}{\partial b_2^2}=\delta_2^2=0.032508$`],
+          ],
+        },
+        { type: 'p', text: r`**Stage 3 — parameter update.**` },
+        {
+          type: 'table',
+          headers: [r`$j$`, r`$k$`, r`Old parameter`, r`Parameter update $\theta^{\mathrm{new}}$`],
+          rows: [
+            ['1', '1', r`$w_{11}^{2,\mathrm{old}}=0.7$`, r`$\begin{aligned} w_{11}^{2,\mathrm{new}} &=0.7-0.5(-0.014828)\\ &=0.707414 \end{aligned}$`],
+            ['1', '2', r`$w_{12}^{2,\mathrm{old}}=-0.4$`, r`$\begin{aligned} w_{12}^{2,\mathrm{new}} &=-0.4-0.5(-0.008887)\\ &=-0.3955565 \end{aligned}$`],
+            ['1', '—', r`$b_1^{2,\mathrm{old}}=0.05$`, r`$\begin{aligned} b_1^{2,\mathrm{new}} &=0.05-0.5(-0.022965)\\ &=0.0614825 \end{aligned}$`],
+            ['2', '1', r`$w_{21}^{2,\mathrm{old}}=-0.6$`, r`$\begin{aligned} w_{21}^{2,\mathrm{new}} &=-0.6-0.5(0.020989)\\ &=-0.6104945 \end{aligned}$`],
+            ['2', '2', r`$w_{22}^{2,\mathrm{old}}=0.9$`, r`$\begin{aligned} w_{22}^{2,\mathrm{new}} &=0.9-0.5(0.012580)\\ &=0.893710 \end{aligned}$`],
+            ['2', '—', r`$b_2^{2,\mathrm{old}}=0.1$`, r`$\begin{aligned} b_2^{2,\mathrm{new}} &=0.1-0.5(0.032508)\\ &=0.083746 \end{aligned}$`],
+          ],
+        },
+
+        // ---- 3. Backprop: first hidden layer ----
+        { type: 'heading', text: '3. Backpropagation — first hidden layer (l = 1)' },
+        { type: 'p', text: r`**Stage 1 — local error signal.** $\ \delta_j^1=\bigl(\sum_{r=1}^{2} w_{rj}^{2}\delta_r^{2}\bigr)a_j^1(1-a_j^1)$.` },
+        {
+          type: 'table',
+          headers: [r`Neuron $j$`, r`Local error signal $\delta_j^1=\bigl(\sum_{r} w_{rj}^{2}\delta_r^{2}\bigr)a_j^1(1-a_j^1)$`],
+          rows: [
+            ['1', r`$\begin{aligned} \delta_1^1 &= \left(w_{11}^{2}\delta_1^{2}+w_{21}^{2}\delta_2^{2}\right)a_1^1(1-a_1^1)\\ &=\left[(0.7)(-0.022965)+(-0.6)(0.032508)\right](0.64566)(1-0.64566)\\ &=-0.00814017 \end{aligned}$`],
+            ['2', r`$\begin{aligned} \delta_2^1 &= \left(w_{12}^{2}\delta_1^{2}+w_{22}^{2}\delta_2^{2}\right)a_2^1(1-a_2^1)\\ &=\left[(-0.4)(-0.022965)+(0.9)(0.032508)\right](0.38699)(1-0.38699)\\ &=0.009120 \end{aligned}$`],
+          ],
+        },
+        { type: 'p', text: r`**Stage 2 — gradient calculation.**` },
+        {
+          type: 'table',
+          headers: [r`$j$`, r`$k$`, r`$a_k^{0}$`, r`Gradient $\dfrac{\partial E}{\partial w_{jk}^{1}}=\delta_j^1 a_k^{0}$`],
+          rows: [
+            ['1', '1', r`$a_1^0=0.6$`, r`$\begin{aligned} \frac{\partial E}{\partial w_{11}^1}=\delta_1^1a_1^0 &=(-0.00814017)(0.6)\\ &=-0.004884 \end{aligned}$`],
+            ['1', '2', r`$a_2^0=-0.2$`, r`$\begin{aligned} \frac{\partial E}{\partial w_{12}^1}=\delta_1^1a_2^0 &=(-0.00814017)(-0.2)\\ &=0.001628 \end{aligned}$`],
+            ['1', '3', r`$a_3^0=0.8$`, r`$\begin{aligned} \frac{\partial E}{\partial w_{13}^1}=\delta_1^1a_3^0 &=(-0.00814017)(0.8)\\ &=-0.006512 \end{aligned}$`],
+            ['1', '—', r`$1$`, r`$\dfrac{\partial E}{\partial b_1^1}=\delta_1^1=-0.00814017$`],
+            ['2', '1', r`$a_1^0=0.6$`, r`$\begin{aligned} \frac{\partial E}{\partial w_{21}^1}=\delta_2^1a_1^0 &=(0.009120)(0.6)\\ &=0.005472 \end{aligned}$`],
+            ['2', '2', r`$a_2^0=-0.2$`, r`$\begin{aligned} \frac{\partial E}{\partial w_{22}^1}=\delta_2^1a_2^0 &=(0.009120)(-0.2)\\ &=-0.001824 \end{aligned}$`],
+            ['2', '3', r`$a_3^0=0.8$`, r`$\begin{aligned} \frac{\partial E}{\partial w_{23}^1}=\delta_2^1a_3^0 &=(0.009120)(0.8)\\ &=0.007296 \end{aligned}$`],
+            ['2', '—', r`$1$`, r`$\dfrac{\partial E}{\partial b_2^1}=\delta_2^1=0.009120$`],
+          ],
+        },
+        { type: 'p', text: r`**Stage 3 — parameter update.**` },
+        {
+          type: 'table',
+          headers: [r`$j$`, r`$k$`, r`Old parameter`, r`Parameter update $\theta^{\mathrm{new}}$`],
+          rows: [
+            ['1', '1', r`$w_{11}^{1,\mathrm{old}}=0.4$`, r`$\begin{aligned} w_{11}^{1,\mathrm{new}} &=0.4-0.5(-0.004884)\\ &=0.402442 \end{aligned}$`],
+            ['1', '2', r`$w_{12}^{1,\mathrm{old}}=-0.5$`, r`$\begin{aligned} w_{12}^{1,\mathrm{new}} &=-0.5-0.5(0.001628)\\ &=-0.500814 \end{aligned}$`],
+            ['1', '3', r`$w_{13}^{1,\mathrm{old}}=0.2$`, r`$\begin{aligned} w_{13}^{1,\mathrm{new}} &=0.2-0.5(-0.006512)\\ &=0.203256 \end{aligned}$`],
+            ['1', '—', r`$b_1^{1,\mathrm{old}}=0.1$`, r`$\begin{aligned} b_1^{1,\mathrm{new}} &=0.1-0.5(-0.00814017)\\ &=0.10407 \end{aligned}$`],
+            ['2', '1', r`$w_{21}^{1,\mathrm{old}}=-0.3$`, r`$\begin{aligned} w_{21}^{1,\mathrm{new}} &=-0.3-0.5(0.005472)\\ &=-0.302736 \end{aligned}$`],
+            ['2', '2', r`$w_{22}^{1,\mathrm{old}}=0.8$`, r`$\begin{aligned} w_{22}^{1,\mathrm{new}} &=0.8-0.5(-0.001824)\\ &=0.800912 \end{aligned}$`],
+            ['2', '3', r`$w_{23}^{1,\mathrm{old}}=0.1$`, r`$\begin{aligned} w_{23}^{1,\mathrm{new}} &=0.1-0.5(0.007296)\\ &=0.096352 \end{aligned}$`],
+            ['2', '—', r`$b_2^{1,\mathrm{old}}=-0.2$`, r`$\begin{aligned} b_2^{1,\mathrm{new}} &=-0.2-0.5(0.009120)\\ &=-0.204560 \end{aligned}$`],
+          ],
+        },
+        {
+          type: 'note',
+          variant: 'tip',
+          title: 'That is one full iteration',
+          text: r`Forward pass → error $E=0.11258$ → backward pass (output, then hidden layers, propagating $\delta$ backward) → every weight and bias nudged by $-\eta\,\partial E/\partial\theta$. Repeating this for many examples and many iterations is exactly how the network learns.`,
+        },
+      ],
+    },
   ],
 };
