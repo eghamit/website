@@ -8,7 +8,7 @@ JavaScript**: no server, no build step, no internet required to read it.
 
 **Just double-click `index.html`** (or drag it into any web browser).
 
-That's it. Everything — all 5 modules and 35 lessons, the math, the figures,
+That's it. Everything — all 5 modules and 36 lessons, the math, the figures,
 search and dark mode — runs entirely from the file, offline.
 
 > The math fonts and content are bundled in the `assets/` folder next to
@@ -28,7 +28,7 @@ assets/
 The course covers, in order:
 
 1. **Foundations** — what ML is, datasets & their representation, types of data,
-   and the linear algebra / calculus / probability you need.
+   and the linear algebra / calculus / statistics / probability you need.
 2. **Supervised Learning** — regression, logistic regression, k-NN, trees,
    forests, SVM, Naive Bayes, loss & gradient descent, bias–variance, metrics.
 3. **Unsupervised Learning** — k-means, hierarchical, DBSCAN, GMM, PCA, t-SNE,
