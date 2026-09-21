@@ -326,110 +326,86 @@ export const supervised: Module = {
         { type: 'heading', text: 'Worked example — gradient descent' },
         {
           type: 'p',
-          text: r`We now fit the **same** dataset with gradient descent, so we can compare the iterative answer against the exact closed-form solution $(\theta_0,\theta_1)=(0.6,0.8)$.`,
+          text: r`**The dataset.** This illustration fits a line $\hat y=\theta_0+\theta_1 x$ to the same five-point toy dataset used for the closed-form example above — feature $x$ (house size, in thousands of sq ft) and target $y$ (price), with $m=5$:`,
+        },
+        {
+          type: 'table',
+          headers: [r`$i$`, '1', '2', '3', '4', '5'],
+          rows: [
+            [r`$x_i$`, '1', '2', '3', '4', '5'],
+            [r`$y_i$`, '1', '3', '2', '5', '4'],
+          ],
         },
         {
           type: 'p',
-          text: r`**Setup.** Model $h_{\boldsymbol\theta}(x)=\theta_0+\theta_1 x$, cost $J=\frac{1}{2m}\sum(h_{\boldsymbol\theta}(x_i)-y_i)^2$ with $m=5$. Initialize $\theta_0=\theta_1=0$ and use learning rate $\alpha=0.1$. The gradients are`,
+          text: r`**Setup.** The cost is $J=\frac{1}{2m}\sum_i(h_{\boldsymbol\theta}(x_i)-y_i)^2$. We start from $\theta_0=0.5,\ \theta_1=0.6$ with learning rate $\alpha=0.1$, and watch the parameters approach the exact closed-form optimum $(\theta_0,\theta_1)=(0.6,0.8)$. The gradients are`,
         },
         { type: 'math', tex: r`g_0=\frac1m\sum_i\bigl(h_{\boldsymbol\theta}(x_i)-y_i\bigr)` },
         { type: 'math', tex: r`g_1=\frac1m\sum_i\bigl(h_{\boldsymbol\theta}(x_i)-y_i\bigr)\,x_i` },
         {
           type: 'p',
-          text: r`**The complete iteration table.** Each block below lists all five data points with their prediction $\hat y_i=\theta_0+\theta_1 x_i$, error $e_i=\hat y_i-y_i$, squared error $e_i^2$, and the product $e_i x_i$ used by the slope gradient. The summary line closing each iteration accumulates the column sums and turns them into the cost and gradients $J=\frac{\sum e_i^2}{10}$, $g_0=\frac{\sum e_i}{5}$, $g_1=\frac{\sum e_i x_i}{5}$, then applies $\theta_j:=\theta_j-\alpha\,g_j$ to produce the $(\theta_0,\theta_1)$ that opens the next iteration. Reading top to bottom reproduces the entire optimisation by hand.`,
+          text: r`**The iteration table.** Each block lists all five data points with their prediction $\hat y_i=\theta_0+\theta_1 x_i$, error $e_i=\hat y_i-y_i$, squared error $e_i^2$, and the product $e_i x_i$. The summary line accumulates the column sums into the cost and gradients $J=\frac{\sum e_i^2}{10}$, $g_0=\frac{\sum e_i}{5}$, $g_1=\frac{\sum e_i x_i}{5}$, then applies $\theta_j:=\theta_j-\alpha\,g_j$ to produce the $(\theta_0,\theta_1)$ that opens the next iteration.`,
         },
 
         // Iteration 0
-        { type: 'p', text: r`**Iteration 0** — $\theta_0=0.0000,\ \theta_1=0.0000$.` },
+        { type: 'p', text: r`**Iteration 0** — $\theta_0=0.5000,\ \theta_1=0.6000$.` },
         {
           type: 'table',
           headers: [r`$x_i$`, r`$y_i$`, r`$\hat y_i=\theta_0+\theta_1 x_i$`, r`$e_i=\hat y_i-y_i$`, r`$e_i^2$`, r`$e_i x_i$`],
           rows: [
-            ['1', '1', '0.0000', '−1.0000', '1.0000', '−1.0000'],
-            ['2', '3', '0.0000', '−3.0000', '9.0000', '−6.0000'],
-            ['3', '2', '0.0000', '−2.0000', '4.0000', '−6.0000'],
-            ['4', '5', '0.0000', '−5.0000', '25.0000', '−20.0000'],
-            ['5', '4', '0.0000', '−4.0000', '16.0000', '−20.0000'],
-            ['', '', r`$\sum=$`, '−15.0000', '55.0000', '−53.0000'],
+            ['1', '1', '1.1000', '0.1000', '0.0100', '0.1000'],
+            ['2', '3', '1.7000', '−1.3000', '1.6900', '−2.6000'],
+            ['3', '2', '2.3000', '0.3000', '0.0900', '0.9000'],
+            ['4', '5', '2.9000', '−2.1000', '4.4100', '−8.4000'],
+            ['5', '4', '3.5000', '−0.5000', '0.2500', '−2.5000'],
+            ['', '', r`$\sum=$`, '−3.5000', '6.4500', '−12.5000'],
           ],
         },
-        { type: 'math', tex: r`\begin{aligned} J &= \frac{55.0000}{10} = 5.5000 \\ g_0 &= \frac{-15.0000}{5} = -3.0000 \\ g_1 &= \frac{-53.0000}{5} = -10.6000 \\ (\theta_0,\theta_1) &:= (0.3000,\ 1.0600) \end{aligned}` },
+        { type: 'math', tex: r`\begin{aligned} J &= \frac{6.4500}{10} = 0.6450 \\ g_0 &= \frac{-3.5000}{5} = -0.7000 \\ g_1 &= \frac{-12.5000}{5} = -2.5000 \\ (\theta_0,\theta_1) &:= (0.5700,\ 0.8500) \end{aligned}` },
 
         // Iteration 1
-        { type: 'p', text: r`**Iteration 1** — $\theta_0=0.3000,\ \theta_1=1.0600$.` },
+        { type: 'p', text: r`**Iteration 1** — $\theta_0=0.5700,\ \theta_1=0.8500$.` },
         {
           type: 'table',
           headers: [r`$x_i$`, r`$y_i$`, r`$\hat y_i=\theta_0+\theta_1 x_i$`, r`$e_i=\hat y_i-y_i$`, r`$e_i^2$`, r`$e_i x_i$`],
           rows: [
-            ['1', '1', '1.3600', '0.3600', '0.1296', '0.3600'],
-            ['2', '3', '2.4200', '−0.5800', '0.3364', '−1.1600'],
-            ['3', '2', '3.4800', '1.4800', '2.1904', '4.4400'],
-            ['4', '5', '4.5400', '−0.4600', '0.2116', '−1.8400'],
-            ['5', '4', '5.6000', '1.6000', '2.5600', '8.0000'],
-            ['', '', r`$\sum=$`, '2.4000', '5.4280', '9.8000'],
+            ['1', '1', '1.4200', '0.4200', '0.1764', '0.4200'],
+            ['2', '3', '2.2700', '−0.7300', '0.5329', '−1.4600'],
+            ['3', '2', '3.1200', '1.1200', '1.2544', '3.3600'],
+            ['4', '5', '3.9700', '−1.0300', '1.0609', '−4.1200'],
+            ['5', '4', '4.8200', '0.8200', '0.6724', '4.1000'],
+            ['', '', r`$\sum=$`, '0.6000', '3.6970', '2.3000'],
           ],
         },
-        { type: 'math', tex: r`\begin{aligned} J &= \frac{5.4280}{10} = 0.5428 \\ g_0 &= \frac{2.4000}{5} = 0.4800 \\ g_1 &= \frac{9.8000}{5} = 1.9600 \\ (\theta_0,\theta_1) &:= (0.2520,\ 0.8640) \end{aligned}` },
+        { type: 'math', tex: r`\begin{aligned} J &= \frac{3.6970}{10} = 0.3697 \\ g_0 &= \frac{0.6000}{5} = 0.1200 \\ g_1 &= \frac{2.3000}{5} = 0.4600 \\ (\theta_0,\theta_1) &:= (0.5580,\ 0.8040) \end{aligned}` },
 
         // Iteration 2
-        { type: 'p', text: r`**Iteration 2** — $\theta_0=0.2520,\ \theta_1=0.8640$.` },
+        { type: 'p', text: r`**Iteration 2** — $\theta_0=0.5580,\ \theta_1=0.8040$.` },
         {
           type: 'table',
           headers: [r`$x_i$`, r`$y_i$`, r`$\hat y_i=\theta_0+\theta_1 x_i$`, r`$e_i=\hat y_i-y_i$`, r`$e_i^2$`, r`$e_i x_i$`],
           rows: [
-            ['1', '1', '1.1160', '0.1160', '0.0135', '0.1160'],
-            ['2', '3', '1.9800', '−1.0200', '1.0404', '−2.0400'],
-            ['3', '2', '2.8440', '0.8440', '0.7123', '2.5320'],
-            ['4', '5', '3.7080', '−1.2920', '1.6693', '−5.1680'],
-            ['5', '4', '4.5720', '0.5720', '0.3272', '2.8600'],
-            ['', '', r`$\sum=$`, '−0.7800', '3.7626', '−1.7000'],
+            ['1', '1', '1.3620', '0.3620', '0.1310', '0.3620'],
+            ['2', '3', '2.1660', '−0.8340', '0.6956', '−1.6680'],
+            ['3', '2', '2.9700', '0.9700', '0.9409', '2.9100'],
+            ['4', '5', '3.7740', '−1.2260', '1.5031', '−4.9040'],
+            ['5', '4', '4.5780', '0.5780', '0.3341', '2.8900'],
+            ['', '', r`$\sum=$`, '−0.1500', '3.6047', '−0.4100'],
           ],
         },
-        { type: 'math', tex: r`\begin{aligned} J &= \frac{3.7626}{10} = 0.3763 \\ g_0 &= \frac{-0.7800}{5} = -0.1560 \\ g_1 &= \frac{-1.7000}{5} = -0.3400 \\ (\theta_0,\theta_1) &:= (0.2676,\ 0.8980) \end{aligned}` },
-
-        // Iteration 3
-        { type: 'p', text: r`**Iteration 3** — $\theta_0=0.2676,\ \theta_1=0.8980$.` },
-        {
-          type: 'table',
-          headers: [r`$x_i$`, r`$y_i$`, r`$\hat y_i=\theta_0+\theta_1 x_i$`, r`$e_i=\hat y_i-y_i$`, r`$e_i^2$`, r`$e_i x_i$`],
-          rows: [
-            ['1', '1', '1.1656', '0.1656', '0.0274', '0.1656'],
-            ['2', '3', '2.0636', '−0.9364', '0.8768', '−1.8728'],
-            ['3', '2', '2.9616', '0.9616', '0.9247', '2.8848'],
-            ['4', '5', '3.8596', '−1.1404', '1.3005', '−4.5616'],
-            ['5', '4', '4.7576', '0.7576', '0.5740', '3.7880'],
-            ['', '', r`$\sum=$`, '−0.1920', '3.7034', '0.4040'],
-          ],
-        },
-        { type: 'math', tex: r`\begin{aligned} J &= \frac{3.7034}{10} = 0.3703 \\ g_0 &= \frac{-0.1920}{5} = -0.0384 \\ g_1 &= \frac{0.4040}{5} = 0.0808 \\ (\theta_0,\theta_1) &:= (0.2714,\ 0.8899) \end{aligned}` },
-
-        // Iteration 4
-        { type: 'p', text: r`**Iteration 4** — $\theta_0=0.2714,\ \theta_1=0.8899$.` },
-        {
-          type: 'table',
-          headers: [r`$x_i$`, r`$y_i$`, r`$\hat y_i=\theta_0+\theta_1 x_i$`, r`$e_i=\hat y_i-y_i$`, r`$e_i^2$`, r`$e_i x_i$`],
-          rows: [
-            ['1', '1', '1.1614', '0.1614', '0.0260', '0.1614'],
-            ['2', '3', '2.0513', '−0.9487', '0.9001', '−1.8974'],
-            ['3', '2', '2.9412', '0.9412', '0.8859', '2.8236'],
-            ['4', '5', '3.8311', '−1.1689', '1.3663', '−4.6755'],
-            ['5', '4', '4.7210', '0.7210', '0.5199', '3.6052'],
-            ['', '', r`$\sum=$`, '−0.2940', '3.6981', '0.0172'],
-          ],
-        },
-        { type: 'math', tex: r`\begin{aligned} J &= \frac{3.6981}{10} = 0.3698 \\ g_0 &= \frac{-0.2940}{5} = -0.0588 \\ g_1 &= \frac{0.0172}{5} = 0.0034 \\ (\theta_0,\theta_1) &:= (0.2773,\ 0.8896) \end{aligned}` },
+        { type: 'math', tex: r`\begin{aligned} J &= \frac{3.6047}{10} = 0.3605 \\ g_0 &= \frac{-0.1500}{5} = -0.0300 \\ g_1 &= \frac{-0.4100}{5} = -0.0820 \\ (\theta_0,\theta_1) &:= (0.5610,\ 0.8122) \end{aligned}` },
 
         {
           type: 'note',
           variant: 'info',
           title: 'How to read one iteration (take iteration 0)',
-          text: r`All parameters start at zero, so every prediction $\hat y_i=0$ and each error is simply $e_i=-y_i$. Squaring and summing gives $\sum e_i^2=55$, hence $J=55/10=5.5$. The two gradients are the column means $g_0=\sum e_i/5=-3$ and $g_1=\sum e_i x_i/5=-10.6$. Stepping opposite the gradient, $\theta_0=0-0.1(-3)=0.3$ and $\theta_1=0-0.1(-10.6)=1.06$ — exactly the values heading iteration 1. Every subsequent block repeats this identical recipe.`,
+          text: r`With $\theta_0=0.5,\ \theta_1=0.6$, each prediction is $\hat y_i=0.5+0.6\,x_i$ — e.g. $\hat y_1=1.1$ — and its error is $e_i=\hat y_i-y_i$. Squaring and summing gives $\sum e_i^2=6.45$, so $J=6.45/10=0.645$. The gradients are the column means $g_0=\sum e_i/5=-0.7$ and $g_1=\sum e_i x_i/5=-2.5$. Stepping opposite them, $\theta_0=0.5-0.1(-0.7)=0.57$ and $\theta_1=0.6-0.1(-2.5)=0.85$ — the values heading iteration 1. Every block repeats this identical recipe.`,
         },
         {
           type: 'note',
           variant: 'intuition',
-          title: 'Discussion — why the intercept lags',
-          text: r`Within a single step the cost collapses from $5.5$ to $0.54$, and the slope $\theta_1$ locks onto its optimal value $\approx 0.89$ within a few iterations. The intercept $\theta_0$, however, drifts only slowly toward its true value $0.6$. This is the classic symptom of **unscaled features**: because $x$ ranges over $1$–$5$, the cost bowl is highly elongated and gradient descent zig-zags. Standardizing $x$ first would let both parameters converge together. Given enough iterations the trajectory converges to the closed-form optimum $(0.6,\,0.8)$ with minimum cost $J=\frac{3.6}{10}=0.36$.`,
+          title: 'Discussion — convergence',
+          text: r`Starting close to the answer at $(0.5,0.6)$, gradient descent settles quickly: the cost falls from $0.645$ to about $0.36$ in three steps, and $(\theta_0,\theta_1)$ moves to $(0.561,\,0.812)$ — already close to the closed-form optimum $(0.6,\,0.8)$ with minimum cost $J=\frac{3.6}{10}=0.36$. A few more iterations close the gap exactly. Because the feature $x$ is unscaled (it ranges over $1$–$5$), the cost bowl is elongated and the slope $\theta_1$ moves faster than the intercept $\theta_0$; standardizing $x$ first would make both converge together even faster.`,
         },
 
         // ---------------------------------------------------------------
@@ -451,7 +427,7 @@ theta_cf = np.linalg.solve(X.T @ X, X.T @ y)  # stable, avoids explicit inverse
 print(f"Closed form:  theta0={theta_cf[0]:.4f}, theta1={theta_cf[1]:.4f}")  # 0.6000, 0.8000
 
 # ----- 2) Gradient descent -----
-theta = np.zeros(2)
+theta = np.array([0.5, 0.6])                  # same start as the worked example
 alpha, iters = 0.1, 50
 for _ in range(iters):
     err  = X @ theta - y                      # residual vector
