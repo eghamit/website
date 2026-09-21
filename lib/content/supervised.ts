@@ -449,15 +449,15 @@ $\qquad
           type: 'table',
 
           headers: [
-            r`Iteration $k$`,
-            r`Parameters $(\theta_0^k,\theta_1^k)$`,
+            r`$k$`,
+            r`$(\theta_0^k,\theta_1^k)$`,
             r`$x_i$`,
             r`$y_i$`,
-            r`Prediction $\hat y_i$`,
-            r`Error $e_i$`,
+            r`$\hat y_i$`,
+            r`$e_i$`,
             r`$e_i^2$`,
             r`$e_i x_i$`,
-            r`Next parameters $(\theta_0^{k+1},\theta_1^{k+1})$`,
+            r`$(\theta_0^{k+1},\theta_1^{k+1})$`,
           ],
 
           rows: [
