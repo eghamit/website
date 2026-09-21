@@ -605,6 +605,172 @@ const FIGURES: Record<string, () => ReactElement> = {
       </g>    </Svg>
   ),
 
+  'gradient-descent-3d': () => {
+    // ---- projection (azimuth/elevation) ----
+    const cx = 335;
+    const cyS = 250; // surface centre (z=0) on screen
+    const s = 118; // horizontal scale
+    const zk = 60; // height scale
+    const az = 0.62;
+    const el = 0.5;
+    const ca = Math.cos(az);
+    const sa = Math.sin(az);
+    const se = Math.sin(el);
+    const R = 1.25;
+    const f = (x: number, y: number) => x * x + y * y;
+    const zmax = 2 * R * R;
+    const proj = (x: number, y: number, z: number): [number, number] => [
+      cx + (x * ca - y * sa) * s,
+      cyS - z * zk + (x * sa + y * ca) * s * se,
+    ];
+    // blue(low) → green → red(high)
+    const heightColor = (z: number, light = 55) => {
+      const t = Math.max(0, Math.min(1, z / zmax));
+      const hue = 240 * (1 - t);
+      return `hsl(${hue.toFixed(0)}, 72%, ${light}%)`;
+    };
+
+    // ---- surface mesh (painter's algorithm, far cells first) ----
+    const N = 12;
+    const step = (2 * R) / N;
+    type Cell = { d: number; pts: [number, number][]; fill: string };
+    const cells: Cell[] = [];
+    for (let i = 0; i < N; i++) {
+      for (let j = 0; j < N; j++) {
+        const x0 = -R + i * step;
+        const y0 = -R + j * step;
+        const x1 = x0 + step;
+        const y1 = y0 + step;
+        const corners: [number, number][] = [
+          [x0, y0],
+          [x1, y0],
+          [x1, y1],
+          [x0, y1],
+        ];
+        const pts = corners.map(([x, y]) => proj(x, y, f(x, y)));
+        const xc = x0 + step / 2;
+        const yc = y0 + step / 2;
+        const depth = xc * sa + yc * ca; // into-screen depth
+        cells.push({ d: depth, pts, fill: heightColor(f(xc, yc)) });
+      }
+    }
+    cells.sort((a, b) => a.d - b.d); // far (small depth) first
+
+    // ---- contour plane below the bowl ----
+    const zFloor = -1.05;
+    const ring = (r: number) => {
+      const seg: string[] = [];
+      for (let k = 0; k <= 48; k++) {
+        const a = (k / 48) * Math.PI * 2;
+        const [px, py] = proj(r * Math.cos(a), r * Math.sin(a), zFloor);
+        seg.push(`${k === 0 ? 'M' : 'L'}${px.toFixed(1)} ${py.toFixed(1)}`);
+      }
+      return seg.join(' ') + ' Z';
+    };
+    const rings = [0.28, 0.55, 0.82, 1.1, 1.25];
+
+    // ---- gradient-descent path on f = x²+y² ----
+    const eta = 0.135;
+    const shrink = 1 - 2 * eta;
+    let px0 = -1.06;
+    let py0 = 0.92;
+    const path: { x: number; y: number; z: number }[] = [];
+    for (let k = 0; k < 8; k++) {
+      path.push({ x: px0, y: py0, z: f(px0, py0) });
+      px0 *= shrink;
+      py0 *= shrink;
+    }
+    path.push({ x: 0, y: 0, z: 0 });
+    const surfPts = path.map((p) => proj(p.x, p.y, p.z));
+    const floorPts = path.map((p) => proj(p.x, p.y, zFloor));
+
+    const arrow = (a: [number, number], b: [number, number], color: string, key: string) => {
+      // shorten toward b so the head sits just before the next dot
+      const dx = b[0] - a[0];
+      const dy = b[1] - a[1];
+      const len = Math.hypot(dx, dy) || 1;
+      const bx = b[0] - (dx / len) * 7;
+      const by = b[1] - (dy / len) * 7;
+      return <path key={key} d={`M${a[0].toFixed(1)} ${a[1].toFixed(1)} L${bx.toFixed(1)} ${by.toFixed(1)}`} stroke={color} strokeWidth={2.4} markerEnd="url(#ar)" fill="none" />;
+    };
+
+    // ---- floor x/y axes (a V from the back corner) + a left f-axis ----
+    const axO = proj(-1.55, -1.55, zFloor);
+    const axX = proj(1.75, -1.55, zFloor);
+    const axY = proj(-1.55, 1.75, zFloor);
+    const first = surfPts[0]!;
+    const last = surfPts[surfPts.length - 1]!;
+
+    return (
+      <Svg vb="0 0 680 470">
+        {/* axes (drawn first, behind the surface) */}
+        <g stroke="currentColor" strokeWidth={1.6} fill="currentColor">
+          {/* vertical value axis on the left */}
+          <line x1={40} y1={330} x2={40} y2={44} markerEnd="url(#ah)" />
+          <text x={26} y={38} fontSize={13} fontStyle="italic">f(x, y)</text>
+          {/* floor x and y axes */}
+          <line x1={axO[0]} y1={axO[1]} x2={axX[0]} y2={axX[1]} markerEnd="url(#ah)" />
+          <line x1={axO[0]} y1={axO[1]} x2={axY[0]} y2={axY[1]} markerEnd="url(#ah)" />
+          <text x={axX[0] + 8} y={axX[1] + 6} fontSize={13} fontStyle="italic">x</text>
+          <text x={axY[0] - 16} y={axY[1] + 8} fontSize={13} fontStyle="italic">y</text>
+        </g>
+        {/* contour plane */}
+        <g>
+          {rings
+            .slice()
+            .reverse()
+            .map((r, i) => (
+              <path key={`ring${i}`} d={ring(r)} fill={heightColor(f(r, 0), 72)} fillOpacity={0.5} stroke={heightColor(f(r, 0), 45)} strokeOpacity={0.5} strokeWidth={1} />
+            ))}
+        </g>
+        {/* surface mesh */}
+        <g strokeLinejoin="round">
+          {cells.map((c, i) => (
+            <polygon key={`c${i}`} points={c.pts.map((p) => `${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ')} fill={c.fill} fillOpacity={0.92} stroke="rgba(20,20,30,0.28)" strokeWidth={0.5} />
+          ))}
+        </g>
+        {/* dashed projectors surface → floor */}
+        <g stroke="currentColor" strokeOpacity={0.4} strokeDasharray="4 3">
+          {surfPts.map((p, i) => (
+            <line key={`proj${i}`} x1={p[0]} y1={p[1]} x2={floorPts[i]![0]} y2={floorPts[i]![1]} />
+          ))}
+        </g>
+        {/* path on the floor (contour) */}
+        <g>
+          <polyline points={floorPts.map((p) => `${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ')} fill="none" stroke="currentColor" strokeOpacity={0.7} strokeWidth={1.6} />
+          {floorPts.slice(0, -1).map((p, i) => arrow(p, floorPts[i + 1]!, ROSE, `fa${i}`))}
+          {floorPts.map((p, i) => (
+            <circle key={`fd${i}`} cx={p[0]} cy={p[1]} r={2.6} fill="currentColor" />
+          ))}
+        </g>
+        {/* path on the surface */}
+        <g>
+          <polyline points={surfPts.map((p) => `${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ')} fill="none" stroke="#111827" strokeWidth={2} />
+          {surfPts.slice(0, -1).map((p, i) => arrow(p, surfPts[i + 1]!, ROSE, `sa${i}`))}
+          {surfPts.map((p, i) => (
+            <circle key={`sd${i}`} cx={p[0]} cy={p[1]} r={i === 0 || i === surfPts.length - 1 ? 5 : 3.6} fill={i === surfPts.length - 1 ? '#fff' : '#111827'} stroke="#111827" strokeWidth={1.5} />
+          ))}
+        </g>
+        {/* labels */}
+        <g fontSize={11.5} fill="currentColor">
+          <text x={first[0] - 10} y={first[1] - 12} textAnchor="end">Current point</text>
+          <line x1={first[0] - 8} y1={first[1] - 9} x2={first[0] - 2} y2={first[1] - 2} stroke="currentColor" strokeOpacity={0.6} />
+          <text x={last[0] + 14} y={last[1] + 4} fill={BRAND}>Minimum (x*, y*)</text>
+        </g>
+        {/* legend */}
+        <g fontSize={11} fill="currentColor" transform="translate(430, 18)">
+          <rect x={0} y={0} width={224} height={54} rx={8} fill="var(--surface)" stroke="currentColor" strokeOpacity={0.25} />
+          <line x1={12} y1={18} x2={40} y2={18} stroke={ROSE} strokeWidth={2.4} markerEnd="url(#ar)" />
+          <text x={48} y={22}>−∇f  (steepest descent)</text>
+          <line x1={12} y1={40} x2={40} y2={40} stroke="#111827" strokeWidth={2} />
+          <circle cx={16} cy={40} r={3} fill="#111827" />
+          <circle cx={36} cy={40} r={3} fill="#111827" />
+          <text x={48} y={44}>path of gradient descent</text>
+        </g>
+      </Svg>
+    );
+  },
+
   'bayes-terms': () => {
     const box = (
       x: number,
