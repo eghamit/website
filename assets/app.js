@@ -186,29 +186,66 @@
   function buildCoursesMenu() {
     var menu = document.getElementById('coursesMenu');
     if (!menu) return;
-    var items = ML.modules
-      .map(function (m, i) {
-        return (
-          '<a class="dd-item" data-module="' +
-          m.id +
-          '" href="#/learn/' +
-          m.lessons[0].slug +
-          '"><span class="dd-ic">' +
-          m.icon +
-          '</span><span class="dd-main"><span class="dd-t">' +
-          esc(m.title) +
-          '</span><span class="dd-s">' +
-          m.lessons.length +
-          ' lessons · Module ' +
-          (i + 1) +
-          '</span></span><span class="dd-arrow">→</span></a>'
-        );
-      })
-      .join('');
+
+    // The catalogue of courses. Today there is a single course whose modules
+    // are the whole curriculum; add more objects here (each with its own set
+    // of modules) and they appear below "Introduction to Machine Learning".
+    var COURSES = [
+      {
+        id: 'intro-ml',
+        title: 'Introduction to Machine Learning',
+        icon: '🎓',
+        modules: ML.modules,
+      },
+    ];
+
+    var courses = COURSES.map(function (c) {
+      var lessonCount = c.modules.reduce(function (s, m) {
+        return s + m.lessons.length;
+      }, 0);
+      var mods = c.modules
+        .map(function (m, i) {
+          return (
+            '<a class="dd-item" data-module="' +
+            m.id +
+            '" href="#/learn/' +
+            m.lessons[0].slug +
+            '"><span class="dd-ic">' +
+            m.icon +
+            '</span><span class="dd-main"><span class="dd-t">' +
+            esc(m.title) +
+            '</span><span class="dd-s">' +
+            m.lessons.length +
+            ' lessons · Module ' +
+            (i + 1) +
+            '</span></span><span class="dd-arrow">→</span></a>'
+          );
+        })
+        .join('');
+      return (
+        '<div class="dd-course-wrap">' +
+        '<a class="dd-item dd-course" data-course="' +
+        c.id +
+        '" href="#/learn"><span class="dd-ic">' +
+        c.icon +
+        '</span><span class="dd-main"><span class="dd-t">' +
+        esc(c.title) +
+        '</span><span class="dd-s">' +
+        c.modules.length +
+        ' modules · ' +
+        lessonCount +
+        ' lessons</span></span><span class="dd-arrow dd-chev">›</span></a>' +
+        '<div class="dd-submenu"><div class="dd-submenu-inner">' +
+        '<p class="dd-label">Modules</p>' +
+        mods +
+        '<a class="dd-all" href="#/learn">📚 Browse the full curriculum →</a>' +
+        '</div></div>' +
+        '</div>'
+      );
+    }).join('');
+
     menu.innerHTML =
-      '<div class="dropdown-inner"><p class="dd-label">Courses</p>' +
-      items +
-      '<a class="dd-all" href="#/learn">📚 Browse the full curriculum →</a></div>';
+      '<div class="dropdown-inner"><p class="dd-label">Courses</p>' + courses + '</div>';
   }
 
   // ---------- nav active state + explore toggle (touch) ----------
@@ -224,20 +261,43 @@
   (function wireExplore() {
     var wrap = document.getElementById('exploreWrap');
     var btn = document.getElementById('exploreBtn');
-    if (!wrap || !btn) return;
+    var menu = document.getElementById('coursesMenu');
+    if (!wrap || !btn || !menu) return;
     var isTouch = window.matchMedia && window.matchMedia('(hover: none), (pointer: coarse)').matches;
 
-    // Choosing a course closes the menu at once — even while still hovered.
-    wrap.addEventListener('click', function (e) {
-      if (e.target.closest('.dd-item, .dd-all')) {
-        wrap.classList.remove('open');
-        wrap.classList.add('force-closed');
-        btn.setAttribute('aria-expanded', 'false');
+    function collapseCourses() {
+      menu.querySelectorAll('.dd-course-wrap.expanded').forEach(function (w) {
+        w.classList.remove('expanded');
+      });
+    }
+    function closeAll() {
+      wrap.classList.remove('open');
+      wrap.classList.add('force-closed');
+      btn.setAttribute('aria-expanded', 'false');
+      collapseCourses();
+    }
+
+    menu.addEventListener('click', function (e) {
+      var course = e.target.closest('.dd-course');
+      // On touch (no hover), the first tap on a course reveals its modules
+      // instead of navigating; a second tap collapses it again.
+      if (course && isTouch) {
+        e.preventDefault();
+        var cw = course.closest('.dd-course-wrap');
+        var wasOpen = cw.classList.contains('expanded');
+        collapseCourses();
+        if (!wasOpen) cw.classList.add('expanded');
+        return;
       }
+      // Selecting a module, the browse-all link, or a course on a hover
+      // device closes the whole menu at once — even while still hovered.
+      if (e.target.closest('.dd-item, .dd-all')) closeAll();
     });
-    // Re-enable hover once the pointer leaves the menu area.
+
+    // Re-enable hover and reset the flyout once the pointer leaves the menu.
     wrap.addEventListener('mouseleave', function () {
       wrap.classList.remove('force-closed');
+      collapseCourses();
     });
 
     // Touch devices have no hover, so tap the trigger to open/close.
@@ -247,12 +307,10 @@
         wrap.classList.remove('force-closed');
         var open = wrap.classList.toggle('open');
         btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        if (!open) collapseCourses();
       });
       document.addEventListener('click', function (e) {
-        if (!wrap.contains(e.target)) {
-          wrap.classList.remove('open');
-          btn.setAttribute('aria-expanded', 'false');
-        }
+        if (!wrap.contains(e.target)) closeAll();
       });
     }
   })();

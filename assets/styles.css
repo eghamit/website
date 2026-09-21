@@ -116,6 +116,23 @@ a { color: inherit; }
 .dd-all { display: block; margin-top: 6px; padding: 11px; border-top: 1px solid var(--border); text-align: center; text-decoration: none; font-weight: 700; color: var(--brand); border-radius: 0 0 11px 11px; }
 .dd-all:hover { background: var(--brand-tint); }
 
+/* two-level menu: courses list → flyout of that course's modules */
+.dd-course-wrap { position: relative; }
+.dd-course .dd-chev { opacity: 0.55; font-size: 1.15rem; line-height: 1; transition: transform 0.15s, opacity 0.15s; }
+.dd-course-wrap:hover .dd-course .dd-chev,
+.dd-course-wrap.expanded .dd-course .dd-chev { opacity: 1; transform: translateX(2px); }
+.dd-submenu { position: absolute; top: -9px; left: 100%; padding-left: 12px; z-index: 60; display: none; }
+.dd-submenu-inner { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow-lg); padding: 8px; min-width: 320px; max-width: 92vw; }
+@media (hover: hover) { .dd-course-wrap:hover > .dd-submenu { display: block; } }
+.dd-course-wrap.expanded > .dd-submenu { display: block; }
+/* on small screens the flyout would run off-screen — expand it inline instead */
+@media (max-width: 640px) {
+  .dd-submenu { position: static; left: auto; padding-left: 0; padding-top: 4px; }
+  .dd-submenu-inner { border: none; box-shadow: none; border-radius: 0; padding: 2px 0 2px 10px; min-width: 0; border-left: 2px solid var(--border); margin-left: 8px; }
+  .dd-course-wrap:hover > .dd-submenu { display: none; }
+  .dd-course-wrap.expanded > .dd-submenu { display: block; }
+}
+
 /* auth / contact pages */
 .auth-wrap { display: flex; justify-content: center; padding: 20px 0 50px; }
 .auth-card { width: 100%; max-width: 430px; background: var(--surface); border: 1px solid var(--border); border-radius: 22px; box-shadow: var(--shadow-lg); padding: 34px; text-align: center; }
