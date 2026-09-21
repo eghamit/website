@@ -326,37 +326,109 @@ export const supervised: Module = {
         { type: 'heading', text: 'Worked example — gradient descent' },
         {
           type: 'p',
-          text: r`Now fit the **same** dataset iteratively so we can watch it approach the exact answer $(\theta_0,\theta_1)=(0.6,0.8)$. Start at $\theta_0=\theta_1=0$ with learning rate $\alpha=0.1$. Each iteration computes the cost $J=\frac{\sum e_i^2}{10}$ and gradients $g_0=\frac{\sum e_i}{5}$, $g_1=\frac{\sum e_i x_i}{5}$ (with $e_i=\hat y_i-y_i$), then updates $\theta_j:=\theta_j-\alpha g_j$.`,
+          text: r`We now fit the **same** dataset with gradient descent, so we can compare the iterative answer against the exact closed-form solution $(\theta_0,\theta_1)=(0.6,0.8)$.`,
         },
+        {
+          type: 'p',
+          text: r`**Setup.** Model $h_{\boldsymbol\theta}(x)=\theta_0+\theta_1 x$, cost $J=\frac{1}{2m}\sum(h_{\boldsymbol\theta}(x_i)-y_i)^2$ with $m=5$. Initialize $\theta_0=\theta_1=0$ and use learning rate $\alpha=0.1$. The gradients are`,
+        },
+        { type: 'math', tex: r`g_0=\frac1m\sum_i\bigl(h_{\boldsymbol\theta}(x_i)-y_i\bigr),\qquad g_1=\frac1m\sum_i\bigl(h_{\boldsymbol\theta}(x_i)-y_i\bigr)\,x_i .` },
+        {
+          type: 'p',
+          text: r`**The complete iteration table.** Each block below lists all five data points with their prediction $\hat y_i=\theta_0+\theta_1 x_i$, error $e_i=\hat y_i-y_i$, squared error $e_i^2$, and the product $e_i x_i$ used by the slope gradient. The summary line closing each iteration accumulates the column sums and turns them into the cost and gradients $J=\frac{\sum e_i^2}{10}$, $g_0=\frac{\sum e_i}{5}$, $g_1=\frac{\sum e_i x_i}{5}$, then applies $\theta_j:=\theta_j-\alpha\,g_j$ to produce the $(\theta_0,\theta_1)$ that opens the next iteration. Reading top to bottom reproduces the entire optimisation by hand.`,
+        },
+
+        // Iteration 0
+        { type: 'p', text: r`**Iteration 0** — $\theta_0=0.0000,\ \theta_1=0.0000$.` },
         {
           type: 'table',
-          headers: ['Iter', 'θ₀', 'θ₁', 'J', 'g₀', 'g₁', 'θ₀ next', 'θ₁ next'],
+          headers: ['xᵢ', 'yᵢ', 'ŷᵢ = θ₀+θ₁xᵢ', 'eᵢ = ŷᵢ−yᵢ', 'eᵢ²', 'eᵢxᵢ'],
           rows: [
-            ['0', '0.0000', '0.0000', '5.5000', '−3.0000', '−10.6000', '0.3000', '1.0600'],
-            ['1', '0.3000', '1.0600', '0.5428', '0.4800', '1.9600', '0.2520', '0.8640'],
-            ['2', '0.2520', '0.8640', '0.3763', '−0.1560', '−0.3400', '0.2676', '0.8980'],
-            ['3', '0.2676', '0.8980', '0.3703', '−0.0384', '0.0808', '0.2714', '0.8899'],
-            ['4', '0.2714', '0.8899', '0.3698', '−0.0588', '0.0034', '0.2773', '0.8896'],
+            ['1', '1', '0.0000', '−1.0000', '1.0000', '−1.0000'],
+            ['2', '3', '0.0000', '−3.0000', '9.0000', '−6.0000'],
+            ['3', '2', '0.0000', '−2.0000', '4.0000', '−6.0000'],
+            ['4', '5', '0.0000', '−5.0000', '25.0000', '−20.0000'],
+            ['5', '4', '0.0000', '−4.0000', '16.0000', '−20.0000'],
+            ['', '', 'Σ =', '−15.0000', '55.0000', '−53.0000'],
           ],
-          caption: 'Batch gradient descent, α = 0.1. Reading top to bottom reproduces the whole optimisation by hand.',
         },
+        { type: 'p', text: r`$J=\frac{55.0000}{10}=5.5000$,  $g_0=\frac{-15.0000}{5}=-3.0000$,  $g_1=\frac{-53.0000}{5}=-10.6000$  ⟹  $\theta_0:=0.3000$,  $\theta_1:=1.0600$.` },
+
+        // Iteration 1
+        { type: 'p', text: r`**Iteration 1** — $\theta_0=0.3000,\ \theta_1=1.0600$.` },
         {
-          type: 'example',
-          title: 'Read one iteration (iteration 0)',
-          problem: r`With $\theta_0=\theta_1=0$, verify the cost, both gradients and the first update by hand.`,
-          solution: [
-            { type: 'p', text: r`All parameters start at zero, so every prediction $\hat y_i=0$ and each error is $e_i=\hat y_i-y_i=-y_i$: $\;(-1,-3,-2,-5,-4)$.` },
-            { type: 'p', text: r`**Cost.** $\sum e_i^2=1+9+4+25+16=55$, so $J=\frac{55}{10}=5.5.$` },
-            { type: 'p', text: r`**Gradients.** $g_0=\frac{\sum e_i}{5}=\frac{-15}{5}=-3.$ For $g_1$, $\sum e_i x_i=-1-6-6-20-20=-53$, so $g_1=\frac{-53}{5}=-10.6.$` },
-            { type: 'p', text: r`**Update.** $\theta_0=0-0.1(-3)=0.3$ and $\theta_1=0-0.1(-10.6)=1.06$ — exactly the values heading iteration 1.` },
+          type: 'table',
+          headers: ['xᵢ', 'yᵢ', 'ŷᵢ = θ₀+θ₁xᵢ', 'eᵢ = ŷᵢ−yᵢ', 'eᵢ²', 'eᵢxᵢ'],
+          rows: [
+            ['1', '1', '1.3600', '0.3600', '0.1296', '0.3600'],
+            ['2', '3', '2.4200', '−0.5800', '0.3364', '−1.1600'],
+            ['3', '2', '3.4800', '1.4800', '2.1904', '4.4400'],
+            ['4', '5', '4.5400', '−0.4600', '0.2116', '−1.8400'],
+            ['5', '4', '5.6000', '1.6000', '2.5600', '8.0000'],
+            ['', '', 'Σ =', '2.4000', '5.4280', '9.8000'],
           ],
-          answer: 'J = 5.5, g₀ = −3, g₁ = −10.6 → θ = (0.3, 1.06)',
+        },
+        { type: 'p', text: r`$J=\frac{5.4280}{10}=0.5428$,  $g_0=\frac{2.4000}{5}=0.4800$,  $g_1=\frac{9.8000}{5}=1.9600$  ⟹  $\theta_0:=0.2520$,  $\theta_1:=0.8640$.` },
+
+        // Iteration 2
+        { type: 'p', text: r`**Iteration 2** — $\theta_0=0.2520,\ \theta_1=0.8640$.` },
+        {
+          type: 'table',
+          headers: ['xᵢ', 'yᵢ', 'ŷᵢ = θ₀+θ₁xᵢ', 'eᵢ = ŷᵢ−yᵢ', 'eᵢ²', 'eᵢxᵢ'],
+          rows: [
+            ['1', '1', '1.1160', '0.1160', '0.0135', '0.1160'],
+            ['2', '3', '1.9800', '−1.0200', '1.0404', '−2.0400'],
+            ['3', '2', '2.8440', '0.8440', '0.7123', '2.5320'],
+            ['4', '5', '3.7080', '−1.2920', '1.6693', '−5.1680'],
+            ['5', '4', '4.5720', '0.5720', '0.3272', '2.8600'],
+            ['', '', 'Σ =', '−0.7800', '3.7626', '−1.7000'],
+          ],
+        },
+        { type: 'p', text: r`$J=\frac{3.7626}{10}=0.3763$,  $g_0=\frac{-0.7800}{5}=-0.1560$,  $g_1=\frac{-1.7000}{5}=-0.3400$  ⟹  $\theta_0:=0.2676$,  $\theta_1:=0.8980$.` },
+
+        // Iteration 3
+        { type: 'p', text: r`**Iteration 3** — $\theta_0=0.2676,\ \theta_1=0.8980$.` },
+        {
+          type: 'table',
+          headers: ['xᵢ', 'yᵢ', 'ŷᵢ = θ₀+θ₁xᵢ', 'eᵢ = ŷᵢ−yᵢ', 'eᵢ²', 'eᵢxᵢ'],
+          rows: [
+            ['1', '1', '1.1656', '0.1656', '0.0274', '0.1656'],
+            ['2', '3', '2.0636', '−0.9364', '0.8768', '−1.8728'],
+            ['3', '2', '2.9616', '0.9616', '0.9247', '2.8848'],
+            ['4', '5', '3.8596', '−1.1404', '1.3005', '−4.5616'],
+            ['5', '4', '4.7576', '0.7576', '0.5740', '3.7880'],
+            ['', '', 'Σ =', '−0.1920', '3.7034', '0.4040'],
+          ],
+        },
+        { type: 'p', text: r`$J=\frac{3.7034}{10}=0.3703$,  $g_0=\frac{-0.1920}{5}=-0.0384$,  $g_1=\frac{0.4040}{5}=0.0808$  ⟹  $\theta_0:=0.2714$,  $\theta_1:=0.8899$.` },
+
+        // Iteration 4
+        { type: 'p', text: r`**Iteration 4** — $\theta_0=0.2714,\ \theta_1=0.8899$.` },
+        {
+          type: 'table',
+          headers: ['xᵢ', 'yᵢ', 'ŷᵢ = θ₀+θ₁xᵢ', 'eᵢ = ŷᵢ−yᵢ', 'eᵢ²', 'eᵢxᵢ'],
+          rows: [
+            ['1', '1', '1.1614', '0.1614', '0.0260', '0.1614'],
+            ['2', '3', '2.0513', '−0.9487', '0.9001', '−1.8974'],
+            ['3', '2', '2.9412', '0.9412', '0.8859', '2.8236'],
+            ['4', '5', '3.8311', '−1.1689', '1.3663', '−4.6755'],
+            ['5', '4', '4.7210', '0.7210', '0.5199', '3.6052'],
+            ['', '', 'Σ =', '−0.2940', '3.6981', '0.0172'],
+          ],
+        },
+        { type: 'p', text: r`$J=\frac{3.6981}{10}=0.3698$,  $g_0=\frac{-0.2940}{5}=-0.0588$,  $g_1=\frac{0.0172}{5}=0.0034$  ⟹  $\theta_0:=0.2773$,  $\theta_1:=0.8896$.` },
+
+        {
+          type: 'note',
+          variant: 'info',
+          title: 'How to read one iteration (take iteration 0)',
+          text: r`All parameters start at zero, so every prediction $\hat y_i=0$ and each error is simply $e_i=-y_i$. Squaring and summing gives $\sum e_i^2=55$, hence $J=55/10=5.5$. The two gradients are the column means $g_0=\sum e_i/5=-3$ and $g_1=\sum e_i x_i/5=-10.6$. Stepping opposite the gradient, $\theta_0=0-0.1(-3)=0.3$ and $\theta_1=0-0.1(-10.6)=1.06$ — exactly the values heading iteration 1. Every subsequent block repeats this identical recipe.`,
         },
         {
           type: 'note',
           variant: 'intuition',
-          title: 'Why the intercept lags',
-          text: r`In one step the cost collapses from $5.5$ to $0.54$ and the slope $\theta_1$ locks onto $\approx 0.89$ within a few iterations, but the intercept $\theta_0$ drifts only slowly toward $0.6$. That is the classic symptom of **unscaled features**: because $x$ ranges over $1$–$5$ the cost bowl is elongated and gradient descent zig-zags. Standardizing $x$ first lets both parameters converge together. Given enough iterations the trajectory reaches the closed-form optimum $(0.6, 0.8)$ with minimum cost $J=\frac{3.6}{10}=0.36$.`,
+          title: 'Discussion — why the intercept lags',
+          text: r`Within a single step the cost collapses from $5.5$ to $0.54$, and the slope $\theta_1$ locks onto its optimal value $\approx 0.89$ within a few iterations. The intercept $\theta_0$, however, drifts only slowly toward its true value $0.6$. This is the classic symptom of **unscaled features**: because $x$ ranges over $1$–$5$, the cost bowl is highly elongated and gradient descent zig-zags. Standardizing $x$ first would let both parameters converge together. Given enough iterations the trajectory converges to the closed-form optimum $(0.6,\,0.8)$ with minimum cost $J=\frac{3.6}{10}=0.36$.`,
         },
 
         // ---------------------------------------------------------------
