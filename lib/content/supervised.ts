@@ -286,7 +286,7 @@ export const supervised: Module = {
         {
           type: 'example',
           title: 'Fit a line by hand (house-price data)',
-          problem: r`A tiny house-price dataset has size $x$ (thousands of sq ft) and price $y$: $(1,1),(2,3),(3,2),(4,5),(5,4)$, with $m=5$. Fit $\hat y=\theta_0+\theta_1 x$ by least squares, then report the SSE and $R^2$.`,
+          problem: r`A tiny house-price dataset has size $x$ (thousands of sq ft) and price $y$ (in thousands of rupees): $(1,1),(2,3),(3,2),(4,5),(5,4)$, with $m=5$. Fit $\hat y=\theta_0+\theta_1 x$ by least squares, then report the SSE and $R^2$.`,
           solution: [
             { type: 'p', text: r`**Step 1 — means.** $\bar x=\frac{1+2+3+4+5}{5}=3$, $\;\bar y=\frac{1+3+2+5+4}{5}=3$.` },
             { type: 'p', text: r`**Step 2 — deviations, covariance and variance.**` },
@@ -326,7 +326,7 @@ export const supervised: Module = {
         { type: 'heading', text: 'Worked example — gradient descent' },
         {
           type: 'p',
-          text: r`**The dataset.** This illustration fits a line $\hat y=\theta_0+\theta_1 x$ to the same five-point toy dataset used for the closed-form example above — feature $x$ (house size, in thousands of sq ft) and target $y$ (price), with $m=5$:`,
+          text: r`**The dataset.** This illustration fits a line $\hat y=\theta_0+\theta_1 x$ to the same five-point toy dataset used for the closed-form example above — feature $x$ (house size, in thousands of sq ft) and target $y$ (price, in thousands of rupees), with $m=5$:`,
         },
         {
           type: 'table',
@@ -405,6 +405,55 @@ export const supervised: Module = {
           variant: 'intuition',
           title: 'Discussion — convergence',
           text: r`Starting close to the answer at $(0.5,0.6)$, gradient descent settles quickly: the cost falls from $0.645$ to about $0.36$ in three steps, and $(\theta_0,\theta_1)$ moves to $(0.561,\,0.812)$ — already close to the closed-form optimum $(0.6,\,0.8)$ with minimum cost $J=\frac{3.6}{10}=0.36$. A few more iterations close the gap exactly. Because the feature $x$ is unscaled (it ranges over $1$–$5$), the cost bowl is elongated and the slope $\theta_1$ moves faster than the intercept $\theta_0$; standardizing $x$ first would make both converge together even faster.`,
+        },
+
+        { type: 'heading', text: 'The whole trace in one table' },
+        {
+          type: 'p',
+          text: r`The three iterations above, collected into a single spreadsheet-style trace on the same dataset. Each iteration block shows the five per-point rows, a **SUM** row, and a summary row with the cost $J(\theta^k)$ and the two gradients; the last two columns give the parameters that open the next iteration.`,
+        },
+        {
+          type: 'table',
+          headers: [
+            r`Iter $k$`,
+            r`$\theta_0^{k}$`,
+            r`$\theta_1^{k}$`,
+            r`$x_i$`,
+            r`$y_i$`,
+            r`$\hat y_i$`,
+            r`$e_i$`,
+            r`$e_i^2$`,
+            r`$e_i x_i$`,
+            r`$\theta_0^{k+1}$`,
+            r`$\theta_1^{k+1}$`,
+          ],
+          rows: [
+            // ---- Iteration 0: theta = (0.5, 0.6) -> (0.57, 0.85) ----
+            ['0', '0.5', '0.6', '1', '1', '1.1', '0.1', '0.01', '0.1', '0.57', '0.85'],
+            ['', '', '', '2', '3', '1.7', '−1.3', '1.69', '−2.6', '', ''],
+            ['', '', '', '3', '2', '2.3', '0.3', '0.09', '0.9', '', ''],
+            ['', '', '', '4', '5', '2.9', '−2.1', '4.41', '−8.4', '', ''],
+            ['', '', '', '5', '4', '3.5', '−0.5', '0.25', '−2.5', '', ''],
+            ['', '', '', '', '', 'SUM', '−3.5', '6.45', '−12.5', '', ''],
+            ['', r`$J{=}0.645$`, '', '', '', r`$g_0{=}{-}0.7$`, '', '', r`$g_1{=}{-}2.5$`, '', ''],
+            // ---- Iteration 1: theta = (0.57, 0.85) -> (0.558, 0.804) ----
+            ['1', '0.57', '0.85', '1', '1', '1.42', '0.42', '0.1764', '0.42', '0.558', '0.804'],
+            ['', '', '', '2', '3', '2.27', '−0.73', '0.5329', '−1.46', '', ''],
+            ['', '', '', '3', '2', '3.12', '1.12', '1.2544', '3.36', '', ''],
+            ['', '', '', '4', '5', '3.97', '−1.03', '1.0609', '−4.12', '', ''],
+            ['', '', '', '5', '4', '4.82', '0.82', '0.6724', '4.1', '', ''],
+            ['', '', '', '', '', 'SUM', '0.6', '3.697', '2.3', '', ''],
+            ['', r`$J{=}0.3697$`, '', '', '', r`$g_0{=}0.12$`, '', '', r`$g_1{=}0.46$`, '', ''],
+            // ---- Iteration 2: theta = (0.558, 0.804) -> (0.561, 0.8122) ----
+            ['2', '0.558', '0.804', '1', '1', '1.362', '0.362', '0.131044', '0.362', '0.561', '0.8122'],
+            ['', '', '', '2', '3', '2.166', '−0.834', '0.695556', '−1.668', '', ''],
+            ['', '', '', '3', '2', '2.97', '0.97', '0.9409', '2.91', '', ''],
+            ['', '', '', '4', '5', '3.774', '−1.226', '1.503076', '−4.904', '', ''],
+            ['', '', '', '5', '4', '4.578', '0.578', '0.334084', '2.89', '', ''],
+            ['', '', '', '', '', 'SUM', '−0.15', '3.60466', '−0.41', '', ''],
+            ['', r`$J{=}0.3605$`, '', '', '', r`$g_0{=}{-}0.03$`, '', '', r`$g_1{=}{-}0.082$`, '', ''],
+          ],
+          caption: r`Consolidated batch-gradient-descent trace on the house-price data ($\alpha=0.1$). $\hat y_i=\theta_0^{k}+\theta_1^{k}x_i$; $e_i=\hat y_i-y_i$; the cost is $J(\theta^k)=\frac{1}{2m}\sum_i e_i^2$ with gradients $g_0=\frac{\partial J}{\partial\theta_0}=\frac{1}{m}\sum_i e_i$ and $g_1=\frac{\partial J}{\partial\theta_1}=\frac{1}{m}\sum_i e_i x_i$; the next parameters are $\theta_0^{k+1}=\theta_0^{k}-\alpha g_0$ and $\theta_1^{k+1}=\theta_1^{k}-\alpha g_1$.`,
         },
 
         // ---------------------------------------------------------------
