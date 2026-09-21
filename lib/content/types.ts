@@ -17,7 +17,13 @@ export type Block =
   | { type: 'math'; tex: string; caption?: string }
   | { type: 'list'; ordered?: boolean; items: string[] }
   | { type: 'note'; variant?: 'info' | 'tip' | 'warning' | 'intuition'; title?: string; text: string }
-  | { type: 'table'; headers: string[]; rows: string[][]; caption?: string }
+  | {
+      type: 'table';
+      headers: string[];
+      /** A cell is a string, or `{ c, span }` to span multiple columns. */
+      rows: (string | { c: string; span?: number })[][];
+      caption?: string;
+    }
   | { type: 'code'; language?: string; code: string; caption?: string }
   | { type: 'diagram'; kind: string; caption?: string }
   | { type: 'steps'; items: string[] }
