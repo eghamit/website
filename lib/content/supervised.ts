@@ -407,57 +407,116 @@ export const supervised: Module = {
           text: r`Starting close to the answer at $(0.5,0.6)$, gradient descent settles quickly: the cost falls from $0.645$ to about $0.36$ in three steps, and $(\theta_0,\theta_1)$ moves to $(0.561,\,0.812)$ — already close to the closed-form optimum $(0.6,\,0.8)$ with minimum cost $J=\frac{3.6}{10}=0.36$. A few more iterations close the gap exactly. Because the feature $x$ is unscaled (it ranges over $1$–$5$), the cost bowl is elongated and the slope $\theta_1$ moves faster than the intercept $\theta_0$; standardizing $x$ first would make both converge together even faster.`,
         },
 
-        { type: 'heading', text: 'The whole trace in one table' },
+        {
+          type: 'heading',
+          text: 'The whole trace in one table',
+        },
         {
           type: 'p',
-          text: r`The three iterations above, collected into a single spreadsheet-style trace on the same dataset. Each iteration block shows the five per-point rows, a **SUM** row, and a summary row with the cost $J(\theta^k)$ and the two gradients; the last two columns give the parameters that open the next iteration.`,
+          text: r`The three iterations are collected below into a single spreadsheet-style trace. For each iteration, the five training examples are followed by a **SUM** row and a summary row containing the cost, the gradients, and the updated parameters used to begin the next iteration.`,
         },
         {
           type: 'note',
           variant: 'info',
-          title: 'Consolidated gradient-descent trace on the house-price data (α = 0.1)',
-          text: r`$\hat y_i=\theta_0^{k}+\theta_1^{k}x_i$;$\quad$ $e_i=\hat y_i-y_i$;$\quad$ the cost is $J(\theta^k)=\frac{1}{2m}\sum_i e_i^2$ with gradients $g_0=\frac{\partial J}{\partial\theta_0}=\frac{1}{m}\sum_i e_i$ and $g_1=\frac{\partial J}{\partial\theta_1}=\frac{1}{m}\sum_i e_i x_i$;$\quad$ the next parameters are $\theta_0^{k+1}=\theta_0^{k}-\alpha g_0$ and $\theta_1^{k+1}=\theta_1^{k}-\alpha g_1$.`,
+          title: 'Consolidated gradient-descent trace (α = 0.1)',
+          text: r`
+For each training example,
+
+$\hat y_i=\theta_0^k+\theta_1^k x_i$,
+$\qquad e_i=\hat y_i-y_i$.
+
+The cost function is
+
+$J(\theta^k)=\frac{1}{2m}\sum_{i=1}^{m} e_i^2$,
+
+with gradients
+
+$g_0=\frac{\partial J}{\partial\theta_0}
+=\frac{1}{m}\sum_{i=1}^{m}e_i$,
+
+$\qquad
+g_1=\frac{\partial J}{\partial\theta_1}
+=\frac{1}{m}\sum_{i=1}^{m}e_i x_i$.
+
+The parameters are updated using
+
+$\theta_0^{k+1}=\theta_0^k-\alpha g_0$,
+$\qquad
+\theta_1^{k+1}=\theta_1^k-\alpha g_1$.
+`,
         },
         {
           type: 'table',
+
           headers: [
-            r`Iter $k$`,
-            r`$\theta_0^{k}$`,
-            r`$\theta_1^{k}$`,
+            r`Iteration $k$`,
+            r`Parameters $(\theta_0^k,\theta_1^k)$`,
             r`$x_i$`,
             r`$y_i$`,
-            r`$\hat y_i=\theta_0^{k}+\theta_1^{k}x_i$`,
-            r`$e_i=\hat y_i-y_i$`,
+            r`Prediction $\hat y_i$`,
+            r`Error $e_i$`,
             r`$e_i^2$`,
             r`$e_i x_i$`,
-            r`$\theta_0^{k+1}=\theta_0^{k}-\alpha g_0$`,
-            r`$\theta_1^{k+1}=\theta_1^{k}-\alpha g_1$`,
+            r`Next parameters $(\theta_0^{k+1},\theta_1^{k+1})$`,
           ],
+
           rows: [
-            // ---- Iteration 0: theta = (0.5, 0.6) -> (0.57, 0.85) ----
-            ['0', '0.5', '0.6', '1', '1', '1.1', '0.1', '0.01', '0.1', '0.57', '0.85'],
-            ['', '', '', '2', '3', '1.7', '−1.3', '1.69', '−2.6', '', ''],
-            ['', '', '', '3', '2', '2.3', '0.3', '0.09', '0.9', '', ''],
-            ['', '', '', '4', '5', '2.9', '−2.1', '4.41', '−8.4', '', ''],
-            ['', '', '', '5', '4', '3.5', '−0.5', '0.25', '−2.5', '', ''],
-            ['', '', '', '', '', 'SUM', '−3.5', '6.45', '−12.5', '', ''],
-            ['', r`$J{=}0.645$`, '', '', '', r`$g_0{=}{-}0.7$`, '', '', r`$g_1{=}{-}2.5$`, '', ''],
-            // ---- Iteration 1: theta = (0.57, 0.85) -> (0.558, 0.804) ----
-            ['1', '0.57', '0.85', '1', '1', '1.42', '0.42', '0.1764', '0.42', '0.558', '0.804'],
-            ['', '', '', '2', '3', '2.27', '−0.73', '0.5329', '−1.46', '', ''],
-            ['', '', '', '3', '2', '3.12', '1.12', '1.2544', '3.36', '', ''],
-            ['', '', '', '4', '5', '3.97', '−1.03', '1.0609', '−4.12', '', ''],
-            ['', '', '', '5', '4', '4.82', '0.82', '0.6724', '4.1', '', ''],
-            ['', '', '', '', '', 'SUM', '0.6', '3.697', '2.3', '', ''],
-            ['', r`$J{=}0.3697$`, '', '', '', r`$g_0{=}0.12$`, '', '', r`$g_1{=}0.46$`, '', ''],
-            // ---- Iteration 2: theta = (0.558, 0.804) -> (0.561, 0.8122) ----
-            ['2', '0.558', '0.804', '1', '1', '1.362', '0.362', '0.131044', '0.362', '0.561', '0.8122'],
-            ['', '', '', '2', '3', '2.166', '−0.834', '0.695556', '−1.668', '', ''],
-            ['', '', '', '3', '2', '2.97', '0.97', '0.9409', '2.91', '', ''],
-            ['', '', '', '4', '5', '3.774', '−1.226', '1.503076', '−4.904', '', ''],
-            ['', '', '', '5', '4', '4.578', '0.578', '0.334084', '2.89', '', ''],
-            ['', '', '', '', '', 'SUM', '−0.15', '3.60466', '−0.41', '', ''],
-            ['', r`$J{=}0.3605$`, '', '', '', r`$g_0{=}{-}0.03$`, '', '', r`$g_1{=}{-}0.082$`, '', ''],
+            // ============================================================
+            // Iteration 0
+            // theta = (0.5, 0.6)  -->  (0.57, 0.85)
+            // ============================================================
+
+            ['0', r`$(0.5,\;0.6)$`, '1', '1', '1.1', '0.1', '0.01', '0.1', r`$(0.57,\;0.85)$`],
+
+            ['', '', '2', '3', '1.7', '−1.3', '1.69', '−2.6', ''],
+
+            ['', '', '3', '2', '2.3', '0.3', '0.09', '0.9', ''],
+
+            ['', '', '4', '5', '2.9', '−2.1', '4.41', '−8.4', ''],
+
+            ['', '', '5', '4', '3.5', '−0.5', '0.25', '−2.5', ''],
+
+            ['', '', '', '', '**SUM**', r`$-3.5$`, r`$6.45$`, r`$-12.5$`, ''],
+
+            ['', r`$J(\theta^0)=0.645$`, '', '', '', r`$g_0=-0.7$`, '', r`$g_1=-2.5$`, r`$(0.57,\;0.85)$`],
+
+            // ============================================================
+            // Iteration 1
+            // theta = (0.57, 0.85)  -->  (0.558, 0.804)
+            // ============================================================
+
+            ['1', r`$(0.57,\;0.85)$`, '1', '1', '1.42', '0.42', '0.1764', '0.42', r`$(0.558,\;0.804)$`],
+
+            ['', '', '2', '3', '2.27', '−0.73', '0.5329', '−1.46', ''],
+
+            ['', '', '3', '2', '3.12', '1.12', '1.2544', '3.36', ''],
+
+            ['', '', '4', '5', '3.97', '−1.03', '1.0609', '−4.12', ''],
+
+            ['', '', '5', '4', '4.82', '0.82', '0.6724', '4.1', ''],
+
+            ['', '', '', '', '**SUM**', r`$0.6$`, r`$3.697$`, r`$2.3$`, ''],
+
+            ['', r`$J(\theta^1)=0.3697$`, '', '', '', r`$g_0=0.12$`, '', r`$g_1=0.46$`, r`$(0.558,\;0.804)$`],
+
+            // ============================================================
+            // Iteration 2
+            // theta = (0.558, 0.804)  -->  (0.561, 0.8122)
+            // ============================================================
+
+            ['2', r`$(0.558,\;0.804)$`, '1', '1', '1.362', '0.362', '0.131044', '0.362', r`$(0.561,\;0.8122)$`],
+
+            ['', '', '2', '3', '2.166', '−0.834', '0.695556', '−1.668', ''],
+
+            ['', '', '3', '2', '2.970', '0.970', '0.940900', '2.910', ''],
+
+            ['', '', '4', '5', '3.774', '−1.226', '1.503076', '−4.904', ''],
+
+            ['', '', '5', '4', '4.578', '0.578', '0.334084', '2.890', ''],
+
+            ['', '', '', '', '**SUM**', r`$-0.15$`, r`$3.60466$`, r`$-0.41$`, ''],
+
+            ['', r`$J(\theta^2)=0.3605$`, '', '', '', r`$g_0=-0.03$`, '', r`$g_1=-0.082$`, r`$(0.561,\;0.8122)$`],
           ],
         },
 
