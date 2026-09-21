@@ -605,6 +605,71 @@ const FIGURES: Record<string, () => ReactElement> = {
       </g>    </Svg>
   ),
 
+  'mlp-3-2-2-1': () => {
+    const inp = [
+      { y: 70, l: 'x₁', v: '0.6' },
+      { y: 150, l: 'x₂', v: '−0.2' },
+      { y: 230, l: 'x₃', v: '0.8' },
+    ].map((n) => ({ ...n, x: 96 }));
+    const h1 = [
+      { y: 110, l: 'H₁¹' },
+      { y: 190, l: 'H₂¹' },
+    ].map((n) => ({ ...n, x: 196 }));
+    const h2 = [
+      { y: 110, l: 'H₁²' },
+      { y: 190, l: 'H₂²' },
+    ].map((n) => ({ ...n, x: 296 }));
+    const out = [{ y: 150, l: 'O₁', x: 396 }];
+    const R = 17;
+    const edge = (a: { x: number; y: number }, b: { x: number; y: number }, key: string) => (
+      <line key={key} x1={a.x + R} y1={a.y} x2={b.x - R} y2={b.y} stroke={BRAND} strokeOpacity={0.5} />
+    );
+    const node = (n: { x: number; y: number; l: string }, color: string, key: string) => (
+      <g key={key} fontSize={12} fill="currentColor">
+        <circle cx={n.x} cy={n.y} r={R} fill={color} fillOpacity={0.16} stroke={color} strokeWidth={2} />
+        <text x={n.x} y={n.y + 4} textAnchor="middle" fontSize={11}>{n.l}</text>
+      </g>
+    );
+    return (
+      <Svg vb="0 0 448 292">
+        {/* dashed layer separators */}
+        <g stroke="currentColor" strokeOpacity={0.28} strokeDasharray="4 4">
+          {[146, 246, 346].map((x) => (
+            <line key={x} x1={x} y1={34} x2={x} y2={250} />
+          ))}
+        </g>
+        {/* edges */}
+        <g>
+          {inp.flatMap((a) => h1.map((b, j) => edge(a, b, `ih${a.y}-${j}`)))}
+          {h1.flatMap((a) => h2.map((b, j) => edge(a, b, `hh${a.y}-${j}`)))}
+          {h2.map((a, i) => edge(a, out[0]!, `ho${i}`))}
+        </g>
+        {/* input value arrows */}
+        <g fontSize={12} fill="currentColor">
+          {inp.map((n, i) => (
+            <g key={`v${i}`}>
+              <text x={30} y={n.y + 4} textAnchor="middle">{n.v}</text>
+              <line x1={46} y1={n.y} x2={n.x - R} y2={n.y} stroke="currentColor" strokeOpacity={0.5} markerEnd="url(#ah)" />
+            </g>
+          ))}
+        </g>
+        {/* output arrow */}
+        <line x1={out[0]!.x + R} y1={150} x2={438} y2={150} stroke="currentColor" strokeOpacity={0.5} markerEnd="url(#ah)" />
+        {/* nodes */}
+        {inp.map((n, i) => node(n, AMBER, `i${i}`))}
+        {h1.map((n, i) => node(n, VIOLET, `a${i}`))}
+        {h2.map((n, i) => node(n, VIOLET, `b${i}`))}
+        {out.map((n, i) => node(n, EMER, `o${i}`))}
+        {/* layer labels */}
+        <g fontSize={11} fill="currentColor" fillOpacity={0.75} textAnchor="middle">
+          <text x={196} y={276}>l = 1</text>
+          <text x={296} y={276}>l = 2</text>
+          <text x={396} y={276}>l = L = 3</text>
+        </g>
+      </Svg>
+    );
+  },
+
   'gradient-descent-3d': () => {
     // ---- projection (azimuth/elevation) ----
     const cx = 335;
