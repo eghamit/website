@@ -1,4 +1,4 @@
-/* Neuronode — interactive single-page app (vanilla JS, offline). */
+/* neuronode — interactive single-page app (vanilla JS, offline). */
 (function () {
   'use strict';
   var ML = window.ML || { modules: [], lessons: {}, search: [], home: '', curriculum: '' };
@@ -584,13 +584,13 @@
       } else {
         currentSlug = slug;
         app.innerHTML = layoutWithSidebar(slug, lesson.html);
-        document.title = lesson.title + ' · Neuronode';
+        document.title = lesson.title + ' · neuronode';
         renderComplete(slug);
       }
       window.scrollTo(0, 0);
     } else if (hash === '#/learn') {
       app.innerHTML = layoutWithSidebar('', ML.curriculum);
-      document.title = 'Curriculum · Neuronode';
+      document.title = 'Curriculum · neuronode';
       applyCurriculumState();
       window.scrollTo(0, 0);
     } else if (hash.indexOf('#/search') === 0) {
@@ -601,18 +601,18 @@
       } catch (e) {}
       if (searchInput && document.activeElement !== searchInput) searchInput.value = q;
       app.innerHTML = plain(searchHtml(q));
-      document.title = 'Search · Neuronode';
+      document.title = 'Search · neuronode';
     } else if (hash === '#/login' || hash === '#/signup') {
       app.innerHTML = plain(authPage(hash === '#/signup' ? 'signup' : 'login'));
-      document.title = (hash === '#/signup' ? 'Sign Up' : 'Log In') + ' · Neuronode';
+      document.title = (hash === '#/signup' ? 'Sign Up' : 'Log In') + ' · neuronode';
       window.scrollTo(0, 0);
     } else if (hash === '#/contact') {
       app.innerHTML = plain(contactPage());
-      document.title = 'Contact · Neuronode';
+      document.title = 'Contact · neuronode';
       window.scrollTo(0, 0);
     } else {
       app.innerHTML = plain(ML.home);
-      document.title = 'Neuronode — Learn Machine Learning';
+      document.title = 'neuronode — Learn Machine Learning';
       decorateHome();
       window.scrollTo(0, 0);
     }

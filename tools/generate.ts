@@ -1,5 +1,5 @@
 /**
- * Static-site generator for Neuronode.
+ * Static-site generator for neuronode.
  *
  * Reads the typed content in lib/content, pre-renders every formula with KaTeX
  * and every figure to inline SVG, and writes a single browser bundle
