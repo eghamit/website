@@ -221,27 +221,40 @@
     var eb = document.getElementById('exploreBtn');
     if (eb) eb.classList.toggle('active', active === 'explore');
   }
-  (function wireExploreTouch() {
+  (function wireExplore() {
     var wrap = document.getElementById('exploreWrap');
     var btn = document.getElementById('exploreBtn');
     if (!wrap || !btn) return;
-    btn.addEventListener('click', function (e) {
-      e.preventDefault();
-      wrap.classList.toggle('open');
-      btn.setAttribute('aria-expanded', wrap.classList.contains('open') ? 'true' : 'false');
-    });
-    document.addEventListener('click', function (e) {
-      if (!wrap.contains(e.target)) {
-        wrap.classList.remove('open');
-        btn.setAttribute('aria-expanded', 'false');
-      }
-    });
+    var isTouch = window.matchMedia && window.matchMedia('(hover: none), (pointer: coarse)').matches;
+
+    // Choosing a course closes the menu at once — even while still hovered.
     wrap.addEventListener('click', function (e) {
       if (e.target.closest('.dd-item, .dd-all')) {
         wrap.classList.remove('open');
+        wrap.classList.add('force-closed');
         btn.setAttribute('aria-expanded', 'false');
       }
     });
+    // Re-enable hover once the pointer leaves the menu area.
+    wrap.addEventListener('mouseleave', function () {
+      wrap.classList.remove('force-closed');
+    });
+
+    // Touch devices have no hover, so tap the trigger to open/close.
+    if (isTouch) {
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        wrap.classList.remove('force-closed');
+        var open = wrap.classList.toggle('open');
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+      document.addEventListener('click', function (e) {
+        if (!wrap.contains(e.target)) {
+          wrap.classList.remove('open');
+          btn.setAttribute('aria-expanded', 'false');
+        }
+      });
+    }
   })();
 
   // ---------- auth / contact demo pages ----------
