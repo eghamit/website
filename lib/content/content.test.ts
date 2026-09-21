@@ -60,7 +60,7 @@ describe('content integrity', () => {
       'gradient-descent', 'backprop-flow', 'linear-fit', 'knn', 'bias-variance',
       'fit-trio', 'kmeans', 'confusion-matrix', 'linearly-separable', 'xor',
       'distance-measures', 'pca', 'ml-taxonomy', 'ml-pipeline', 'design-matrix',
-      'bayes-terms',
+      'bayes-terms', 'gradient-descent-3d',
     ]);
     let count = 0;
     for (const { lesson } of allLessons()) {

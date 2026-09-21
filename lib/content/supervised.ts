@@ -1094,8 +1094,14 @@ print("prediction:", knn.predict(q))        # -> [1] = Pass
         { type: 'math', tex: r`\theta_j \leftarrow \theta_j - \eta\,\frac{\partial J}{\partial \theta_j}` },
         {
           type: 'diagram',
+          kind: 'gradient-descent-3d',
+          caption:
+            'The negative gradient −∇f points in the direction of steepest decrease of f(x, y), so each step slides downhill toward the minimum — shown both on the surface and on the contour plot below.',
+        },
+        {
+          type: 'diagram',
           kind: 'gradient-descent',
-          caption: 'Each update steps the parameter downhill on the loss surface toward the minimum.',
+          caption: 'In one dimension: each update steps the parameter downhill on the loss curve toward the minimum.',
         },
         {
           type: 'table',
