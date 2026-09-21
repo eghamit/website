@@ -660,11 +660,11 @@ const FIGURES: Record<string, () => ReactElement> = {
         {h1.map((n, i) => node(n, VIOLET, `a${i}`))}
         {h2.map((n, i) => node(n, VIOLET, `b${i}`))}
         {out.map((n, i) => node(n, EMER, `o${i}`))}
-        {/* layer labels */}
-        <g fontSize={11} fill="currentColor" fillOpacity={0.75} textAnchor="middle">
-          <text x={196} y={276}>l = 1</text>
-          <text x={296} y={276}>l = 2</text>
-          <text x={396} y={276}>l = L = 3</text>
+        {/* layer labels — variables in the KaTeX math font so they match the equations */}
+        <g fontSize={13} fill="currentColor" fillOpacity={0.8} textAnchor="middle">
+          <text x={196} y={277}><tspan fontFamily="KaTeX_Math, serif">l</tspan> = 1</text>
+          <text x={296} y={277}><tspan fontFamily="KaTeX_Math, serif">l</tspan> = 2</text>
+          <text x={396} y={277}><tspan fontFamily="KaTeX_Math, serif">l</tspan> = <tspan fontFamily="KaTeX_Math, serif">L</tspan> = 3</text>
         </g>
       </Svg>
     );

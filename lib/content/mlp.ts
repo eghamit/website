@@ -547,11 +547,15 @@ print("loss:", E)`,
         { type: 'math', tex: r`a=\phi(z)=\frac{1}{1+e^{-z}},\qquad \phi'(z)=\phi(z)\bigl(1-\phi(z)\bigr)=a(1-a)` },
         { type: 'p', text: r`The error for the training example and the learning rate are` },
         { type: 'math', tex: r`E=\frac{1}{2}\sum_j\left(a_j^L-y_j\right)^2,\qquad \eta=0.5` },
+        { type: 'p', text: r`One complete training iteration consists of four steps:` },
         {
-          type: 'note',
-          variant: 'info',
-          title: 'One complete training iteration',
-          text: r`**1. Forward propagation** — $z_j^l=\sum_k w_{jk}^l a_k^{l-1}+b_j^l$, $\ a_j^l=\sigma(z_j^l)$.  **2. Error** — $E=\tfrac12\sum_j(a_j^L-y_j)^2$.  **3. Backpropagation** — output signal $\delta_j^L=(a_j^L-y_j)a_j^L(1-a_j^L)$, hidden signal $\delta_j^l=\bigl(\sum_r w_{rj}^{l+1}\delta_r^{l+1}\bigr)a_j^l(1-a_j^l)$, gradients $\frac{\partial E}{\partial w_{jk}^l}=\delta_j^l a_k^{l-1}$ and $\frac{\partial E}{\partial b_j^l}=\delta_j^l$.  **4. Update** — $\theta^{\mathrm{new}}=\theta^{\mathrm{old}}-\eta\,\frac{\partial E}{\partial\theta}$.`,
+          type: 'steps',
+          items: [
+            r`**Forward propagation** — $z_j^l=\sum_k w_{jk}^l a_k^{l-1}+b_j^l$, then $a_j^l=\sigma(z_j^l)$.`,
+            r`**Error** — $E=\dfrac{1}{2}\sum_j(a_j^L-y_j)^2$.`,
+            r`**Backpropagation** — output signal $\delta_j^L=(a_j^L-y_j)a_j^L(1-a_j^L)$; hidden signal $\delta_j^l=\bigl(\sum_r w_{rj}^{l+1}\delta_r^{l+1}\bigr)a_j^l(1-a_j^l)$; gradients $\dfrac{\partial E}{\partial w_{jk}^l}=\delta_j^l a_k^{l-1}$ and $\dfrac{\partial E}{\partial b_j^l}=\delta_j^l$.`,
+            r`**Parameter update** — $\theta^{\mathrm{new}}=\theta^{\mathrm{old}}-\eta\,\dfrac{\partial E}{\partial\theta}$ for every weight and bias.`,
+          ],
         },
 
         // ---- 1. Forward propagation ----
