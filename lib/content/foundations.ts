@@ -630,14 +630,14 @@ export const foundations: Module = {
             { type: 'p', text: r`**Step 2 — deviations.**` },
             {
               type: 'table',
-              headers: ['xᵢ', 'yᵢ', 'xᵢ−x̄', 'yᵢ−ȳ', '(xᵢ−x̄)²', '(yᵢ−ȳ)²', '(xᵢ−x̄)(yᵢ−ȳ)'],
+              headers: [r`$x_i$`, r`$y_i$`, r`$x_i-\bar x$`, r`$y_i-\bar y$`, r`$(x_i-\bar x)^2$`, r`$(y_i-\bar y)^2$`, r`$(x_i-\bar x)(y_i-\bar y)$`],
               rows: [
                 ['1', '1', '−2', '−2', '4', '4', '4'],
                 ['2', '3', '−1', '0', '1', '0', '0'],
                 ['3', '2', '0', '−1', '0', '1', '0'],
                 ['4', '5', '1', '2', '1', '4', '2'],
                 ['5', '4', '2', '1', '4', '1', '2'],
-                ['', '', '', 'Σ', '10', '10', '8'],
+                ['', '', '', r`$\sum$`, '10', '10', '8'],
               ],
             },
             { type: 'p', text: r`**Step 3 — variance and standard deviation.** $\mathrm{Var}(x)=\dfrac{10}{5}=2$, so $\sigma_x=\sqrt{2}\approx 1.414$; likewise $\sigma_y=\sqrt{2}$.` },
