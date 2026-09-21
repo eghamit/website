@@ -631,6 +631,173 @@
   }
 
   var currentSlug = null;
+  // ---------- interactive labs ----------
+  function initLabs() {
+    var labs = document.querySelectorAll('[data-lab="kmeans"]');
+    for (var i = 0; i < labs.length; i++) {
+      var el = labs[i];
+      if (!el.getAttribute('data-init')) {
+        el.setAttribute('data-init', '1');
+        initKmeansLab(el);
+      }
+    }
+  }
+
+  function initKmeansLab(el) {
+    var W = 480,
+      H = 360,
+      pad = 26;
+    var COLORS = ['#6366f1', '#10b981', '#f59e0b', '#f43f5e', '#0ea5e9', '#8b5cf6'];
+    var pts = [],
+      k = 3,
+      cents = [],
+      assign = [],
+      iter = 0,
+      converged = false;
+
+    el.innerHTML =
+      '<div class="lab-bar">' +
+      '<span class="lab-kctl">k =' +
+      [2, 3, 4, 5, 6].map(function (v) { return '<button type="button" class="lab-kbtn' + (v === 3 ? ' on' : '') + '" data-k="' + v + '">' + v + '</button>'; }).join('') +
+      '</span>' +
+      '<button class="lab-btn lab-new" type="button">↻ New data</button>' +
+      '<button class="lab-btn lab-rand" type="button">🎲 Random centroids</button>' +
+      '<button class="lab-btn lab-iter primary" type="button">▸ Iterate</button>' +
+      '<button class="lab-btn lab-reset" type="button">Reset</button>' +
+      '</div>' +
+      '<div class="lab-status"></div>' +
+      '<svg class="lab-svg" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="k-means playground"></svg>' +
+      '<p class="lab-hint">Each <strong>Iterate</strong> = assign every point to its nearest centroid (colour), then move each centroid to the mean of its points.</p>';
+
+    var svg = el.querySelector('.lab-svg');
+    var statusEl = el.querySelector('.lab-status');
+
+    function sx(x) { return pad + x * (W - 2 * pad); }
+    function sy(y) { return H - pad - y * (H - 2 * pad); }
+
+    function genData() {
+      var nb = 2 + Math.floor(Math.random() * 3); // 2–4 latent blobs
+      var centers = [];
+      for (var i = 0; i < nb; i++) centers.push({ x: 0.18 + 0.64 * Math.random(), y: 0.18 + 0.64 * Math.random() });
+      var n = 12 + Math.floor(Math.random() * 7); // 12–18 points
+      pts = [];
+      for (var j = 0; j < n; j++) {
+        var c = centers[j % nb];
+        var clamp = function (v) { return Math.min(0.97, Math.max(0.03, v)); };
+        pts.push({ x: clamp(c.x + (Math.random() - 0.5) * 0.26), y: clamp(c.y + (Math.random() - 0.5) * 0.26) });
+      }
+    }
+    function resetClusters() {
+      cents = [];
+      assign = pts.map(function () { return -1; });
+      iter = 0;
+      converged = false;
+    }
+    function nearest(p) {
+      var best = 0, bd = Infinity;
+      for (var i = 0; i < cents.length; i++) {
+        var dx = p.x - cents[i].x, dy = p.y - cents[i].y, d = dx * dx + dy * dy;
+        if (d < bd) { bd = d; best = i; }
+      }
+      return best;
+    }
+    function assignAll() { assign = pts.map(nearest); }
+    function updateCents() {
+      var moved = 0;
+      for (var i = 0; i < cents.length; i++) {
+        var mx = 0, my = 0, c = 0;
+        for (var j = 0; j < pts.length; j++) if (assign[j] === i) { mx += pts[j].x; my += pts[j].y; c++; }
+        if (c > 0) {
+          var nx = mx / c, ny = my / c;
+          moved += Math.abs(nx - cents[i].x) + Math.abs(ny - cents[i].y);
+          cents[i] = { x: nx, y: ny };
+        }
+      }
+      return moved;
+    }
+    function iterate() {
+      if (cents.length < k || converged) return;
+      assignAll();
+      var moved = updateCents();
+      iter++;
+      if (moved < 1e-4) converged = true;
+      draw();
+    }
+    function randomCents() {
+      if (!pts.length) genData();
+      var idx = pts.map(function (_, i) { return i; });
+      for (var i = idx.length - 1; i > 0; i--) { var r = Math.floor(Math.random() * (i + 1)); var t = idx[i]; idx[i] = idx[r]; idx[r] = t; }
+      cents = idx.slice(0, k).map(function (i) { return { x: pts[i].x, y: pts[i].y }; });
+      assignAll();
+      iter = 0;
+      converged = false;
+      draw();
+    }
+
+    function draw() {
+      var p = [];
+      p.push('<rect x="' + pad + '" y="' + pad + '" width="' + (W - 2 * pad) + '" height="' + (H - 2 * pad) + '" rx="10" fill="none" stroke="currentColor" stroke-opacity="0.16"/>');
+      if (cents.length) {
+        for (var j = 0; j < pts.length; j++) {
+          var a = assign[j];
+          if (a >= 0) p.push('<line x1="' + sx(pts[j].x).toFixed(1) + '" y1="' + sy(pts[j].y).toFixed(1) + '" x2="' + sx(cents[a].x).toFixed(1) + '" y2="' + sy(cents[a].y).toFixed(1) + '" stroke="' + COLORS[a] + '" stroke-opacity="0.22"/>');
+        }
+      }
+      for (var j2 = 0; j2 < pts.length; j2++) {
+        var a2 = assign[j2];
+        var col = a2 >= 0 ? COLORS[a2] : '#94a3b8';
+        p.push('<circle cx="' + sx(pts[j2].x).toFixed(1) + '" cy="' + sy(pts[j2].y).toFixed(1) + '" r="5.5" fill="' + col + '" fill-opacity="0.9"/>');
+      }
+      for (var i = 0; i < cents.length; i++) {
+        var cx = sx(cents[i].x), cy = sy(cents[i].y), cc = COLORS[i];
+        p.push('<circle cx="' + cx.toFixed(1) + '" cy="' + cy.toFixed(1) + '" r="12" fill="' + cc + '" fill-opacity="0.14" stroke="' + cc + '" stroke-width="1.5"/>' +
+          '<g stroke="' + cc + '" stroke-width="3" stroke-linecap="round"><line x1="' + (cx - 6).toFixed(1) + '" y1="' + (cy - 6).toFixed(1) + '" x2="' + (cx + 6).toFixed(1) + '" y2="' + (cy + 6).toFixed(1) + '"/><line x1="' + (cx - 6).toFixed(1) + '" y1="' + (cy + 6).toFixed(1) + '" x2="' + (cx + 6).toFixed(1) + '" y2="' + (cy - 6).toFixed(1) + '"/></g>');
+      }
+      svg.innerHTML = p.join('');
+
+      if (cents.length < k) statusEl.textContent = 'Click the plot to place centroid ' + (cents.length + 1) + ' of ' + k + '.';
+      else if (converged) statusEl.textContent = '✓ Converged after ' + iter + ' iteration' + (iter === 1 ? '' : 's') + ' — the centroids stopped moving.';
+      else if (iter === 0) statusEl.textContent = 'Centroids placed. Press Iterate to run one k-means step.';
+      else statusEl.textContent = 'Iteration ' + iter + '. Press Iterate again, or keep going until it converges.';
+
+      var ib = el.querySelector('.lab-iter');
+      ib.disabled = cents.length < k || converged;
+    }
+
+    svg.addEventListener('click', function (e) {
+      if (cents.length >= k) return;
+      var rect = svg.getBoundingClientRect();
+      var px = ((e.clientX - rect.left) / rect.width) * W;
+      var py = ((e.clientY - rect.top) / rect.height) * H;
+      var x = (px - pad) / (W - 2 * pad);
+      var y = 1 - (py - pad) / (H - 2 * pad);
+      x = Math.min(1, Math.max(0, x));
+      y = Math.min(1, Math.max(0, y));
+      cents.push({ x: x, y: y });
+      if (cents.length === k) assignAll();
+      draw();
+    });
+
+    var kbtns = el.querySelectorAll('.lab-kbtn');
+    for (var b = 0; b < kbtns.length; b++) {
+      kbtns[b].addEventListener('click', function () {
+        for (var q = 0; q < kbtns.length; q++) kbtns[q].classList.remove('on');
+        this.classList.add('on');
+        k = parseInt(this.getAttribute('data-k'), 10);
+        resetClusters();
+        draw();
+      });
+    }
+    el.querySelector('.lab-new').addEventListener('click', function () { genData(); resetClusters(); draw(); });
+    el.querySelector('.lab-rand').addEventListener('click', function () { randomCents(); });
+    el.querySelector('.lab-iter').addEventListener('click', iterate);
+    el.querySelector('.lab-reset').addEventListener('click', function () { resetClusters(); draw(); });
+
+    genData();
+    resetClusters();
+    draw();
+  }
+
   function render() {
     var hash = location.hash || '#/';
     currentSlug = null;
@@ -644,6 +811,7 @@
         app.innerHTML = layoutWithSidebar(slug, lesson.html);
         document.title = lesson.title + ' · neuronode';
         renderComplete(slug);
+        initLabs();
       }
       window.scrollTo(0, 0);
     } else if (hash === '#/learn') {

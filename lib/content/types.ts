@@ -26,6 +26,7 @@ export type Block =
     }
   | { type: 'code'; language?: string; code: string; caption?: string }
   | { type: 'diagram'; kind: string; caption?: string }
+  | { type: 'widget'; kind: string; caption?: string }
   | { type: 'steps'; items: string[] }
   | {
       type: 'example';

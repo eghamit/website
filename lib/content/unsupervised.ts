@@ -100,6 +100,16 @@ export const unsupervised: Module = {
           kind: 'kmeans',
           caption: 'k-Means assigns each point to its nearest centroid (◆); k = 3 clusters shown.',
         },
+        { type: 'heading', text: 'Play with it' },
+        {
+          type: 'p',
+          text: r`Run the algorithm yourself. Pick $k$, **click on the plot to place your initial centroids**, then press **Iterate** to run one step at a time — each click assigns every point to its nearest centroid (colour) and moves each centroid to the mean of its points. Watch the centroids settle and the clusters form.`,
+        },
+        {
+          type: 'widget',
+          kind: 'kmeans',
+          caption: 'Interactive k-means. Set k, place the centroids, and iterate to convergence. “New data” regenerates the points.',
+        },
         { type: 'heading', text: 'Choosing k' },
         {
           type: 'p',
