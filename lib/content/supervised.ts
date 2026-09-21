@@ -262,8 +262,14 @@ export const supervised: Module = {
         { type: 'math', tex: r`\boxed{\;\theta_j := \theta_j-\alpha\,\frac1m\sum_{i}\bigl(h_{\boldsymbol\theta}(x^{(i)})-y^{(i)}\bigr)x^{(i)}_j\;}` },
         {
           type: 'diagram',
+          kind: 'gradient-descent-3d',
+          caption:
+            'The negative gradient −∇J points in the direction of steepest decrease, so each step slides downhill on the convex cost bowl toward the global minimum — shown both on the surface and on the contour plot below.',
+        },
+        {
+          type: 'diagram',
           kind: 'gradient-descent',
-          caption: 'Gradient descent steps opposite the gradient, sliding down the convex cost surface to its global minimum.',
+          caption: 'In one dimension: gradient descent steps opposite the gradient, sliding down the convex cost curve to its minimum.',
         },
         {
           type: 'list',
