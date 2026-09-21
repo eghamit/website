@@ -478,7 +478,12 @@ $\qquad
 
             ['', '', '', '', r`$\sum$`, r`$-3.5$`, r`$6.45$`, r`$-12.5$`, ''],
 
-            ['', r`$\begin{gathered} J(\theta^0)=\frac{1}{2m}\sum_i e_i^2 \\ =0.645 \end{gathered}$`, '', '', '', r`$\begin{gathered} g_0=\frac{1}{m}\sum_i e_i \\ =-0.7 \end{gathered}$`, '', r`$\begin{gathered} g_1=\frac{1}{m}\sum_i e_i x_i \\ =-2.5 \end{gathered}$`, r`$(0.57,\;0.85)$`],
+            [
+              {
+                span: 9,
+                c: r`$\begin{aligned} J(\theta^0) &= \frac{1}{2m}\sum_i e_i^2 \\ &= 0.645 \\[3pt] g_0 &= \frac{1}{m}\sum_i e_i \\ &= -0.7 \\[3pt] g_1 &= \frac{1}{m}\sum_i e_i x_i \\ &= -2.5 \\[3pt] (\theta_0^{1},\theta_1^{1}) &= (0.57,\ 0.85) \end{aligned}$`,
+              },
+            ],
 
             // ============================================================
             // Iteration 1
@@ -497,7 +502,12 @@ $\qquad
 
             ['', '', '', '', r`$\sum$`, r`$0.6$`, r`$3.697$`, r`$2.3$`, ''],
 
-            ['', r`$\begin{gathered} J(\theta^1)=\frac{1}{2m}\sum_i e_i^2 \\ =0.3697 \end{gathered}$`, '', '', '', r`$\begin{gathered} g_0=\frac{1}{m}\sum_i e_i \\ =0.12 \end{gathered}$`, '', r`$\begin{gathered} g_1=\frac{1}{m}\sum_i e_i x_i \\ =0.46 \end{gathered}$`, r`$(0.558,\;0.804)$`],
+            [
+              {
+                span: 9,
+                c: r`$\begin{aligned} J(\theta^1) &= \frac{1}{2m}\sum_i e_i^2 \\ &= 0.3697 \\[3pt] g_0 &= \frac{1}{m}\sum_i e_i \\ &= 0.12 \\[3pt] g_1 &= \frac{1}{m}\sum_i e_i x_i \\ &= 0.46 \\[3pt] (\theta_0^{2},\theta_1^{2}) &= (0.558,\ 0.804) \end{aligned}$`,
+              },
+            ],
 
             // ============================================================
             // Iteration 2
@@ -516,7 +526,12 @@ $\qquad
 
             ['', '', '', '', r`$\sum$`, r`$-0.15$`, r`$3.60466$`, r`$-0.41$`, ''],
 
-            ['', r`$\begin{gathered} J(\theta^2)=\frac{1}{2m}\sum_i e_i^2 \\ =0.3605 \end{gathered}$`, '', '', '', r`$\begin{gathered} g_0=\frac{1}{m}\sum_i e_i \\ =-0.03 \end{gathered}$`, '', r`$\begin{gathered} g_1=\frac{1}{m}\sum_i e_i x_i \\ =-0.082 \end{gathered}$`, r`$(0.561,\;0.8122)$`],
+            [
+              {
+                span: 9,
+                c: r`$\begin{aligned} J(\theta^2) &= \frac{1}{2m}\sum_i e_i^2 \\ &= 0.3605 \\[3pt] g_0 &= \frac{1}{m}\sum_i e_i \\ &= -0.03 \\[3pt] g_1 &= \frac{1}{m}\sum_i e_i x_i \\ &= -0.082 \\[3pt] (\theta_0^{3},\theta_1^{3}) &= (0.561,\ 0.8122) \end{aligned}$`,
+              },
+            ],
           ],
         },
 

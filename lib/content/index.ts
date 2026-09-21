@@ -82,7 +82,7 @@ function blockText(block: Block): string {
     case 'note':
       return `${block.title ?? ''} ${block.text}`;
     case 'table':
-      return [...block.headers, ...block.rows.flat()].join(' ');
+      return [...block.headers, ...block.rows.flat().map((c) => (typeof c === 'string' ? c : c.c))].join(' ');
     case 'example':
       return `${block.title} ${block.problem} ${block.solution.map(blockText).join(' ')}`;
     default:

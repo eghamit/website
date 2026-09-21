@@ -98,7 +98,7 @@ function countWords(blocks: Block[]): number {
         break;
       case 'table':
         b.headers.forEach(add);
-        b.rows.forEach((r) => r.forEach(add));
+        b.rows.forEach((r) => r.forEach((c) => add(typeof c === 'string' ? c : c.c)));
         break;
       case 'example':
         add(b.title);
@@ -156,7 +156,16 @@ function renderBlock(b: Block): string {
     case 'table': {
       const head = `<tr>${b.headers.map((h) => `<th>${inline(h)}</th>`).join('')}</tr>`;
       const body = b.rows
-        .map((row) => `<tr>${row.map((c) => `<td>${inline(c)}</td>`).join('')}</tr>`)
+        .map(
+          (row) =>
+            `<tr>${row
+              .map((c) =>
+                typeof c === 'string'
+                  ? `<td>${inline(c)}</td>`
+                  : `<td colspan="${c.span ?? 1}">${inline(c.c)}</td>`,
+              )
+              .join('')}</tr>`,
+        )
         .join('');
       // Many-column tables size to their content (tighter inter-column gaps)
       // and scroll instead of stretching each column to fill the width.
