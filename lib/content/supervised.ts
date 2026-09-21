@@ -350,7 +350,7 @@ export const supervised: Module = {
           type: 'note',
           variant: 'intuition',
           title: 'Why the intercept lags',
-          text: r`In one step the cost collapses from $5.5$ to $0.54$ and the slope $\theta_1$ locks onto $\approx 0.89$ within a few iterations, but the intercept $\theta_0$ drifts only slowly toward $0.6$. That is the classic symptom of **unscaled features**: because $x$ ranges over $1$–$5$ the cost bowl is elongated and gradient descent zig-zags. Standardizing $x$ first lets both parameters converge together. Given enough iterations the trajectory reaches the closed-form optimum $(0.6, 0.8)$ with minimum cost $J=3.6/10=0.36$.`,
+          text: r`In one step the cost collapses from $5.5$ to $0.54$ and the slope $\theta_1$ locks onto $\approx 0.89$ within a few iterations, but the intercept $\theta_0$ drifts only slowly toward $0.6$. That is the classic symptom of **unscaled features**: because $x$ ranges over $1$–$5$ the cost bowl is elongated and gradient descent zig-zags. Standardizing $x$ first lets both parameters converge together. Given enough iterations the trajectory reaches the closed-form optimum $(0.6, 0.8)$ with minimum cost $J=\frac{3.6}{10}=0.36$.`,
         },
 
         // ---------------------------------------------------------------
@@ -441,6 +441,30 @@ print("R^2 =", model.score(x, y))               # 0.64`,
             { type: 'p', text: r`The point $(4,50)$ has a huge positive deviation $y_4-\bar y$, injecting a large positive term into $S_{xy}$ and pulling the slope sharply upward. Squared-error loss is highly sensitive to outliers — a robust loss such as Huber would resist this.` },
           ],
           answer: 'The slope is pulled sharply up; OLS is not robust to outliers.',
+        },
+        {
+          type: 'example',
+          title: 'Another fit by hand',
+          problem: r`Fit $\hat y=\theta_0+\theta_1 x$ to the points $(1,2),(2,3),(3,5),(4,4),(5,6)$, then predict $\hat y$ at $x=6$.`,
+          solution: [
+            { type: 'p', text: r`**Step 1 — means.** $\bar x=\dfrac{1+2+3+4+5}{5}=3$, $\;\bar y=\dfrac{2+3+5+4+6}{5}=4$.` },
+            { type: 'p', text: r`**Step 2 — deviations and products.**` },
+            {
+              type: 'table',
+              headers: ['xᵢ', 'yᵢ', 'xᵢ−x̄', 'yᵢ−ȳ', '(xᵢ−x̄)(yᵢ−ȳ)', '(xᵢ−x̄)²'],
+              rows: [
+                ['1', '2', '−2', '−2', '4', '4'],
+                ['2', '3', '−1', '−1', '1', '1'],
+                ['3', '5', '0', '1', '0', '0'],
+                ['4', '4', '1', '0', '0', '1'],
+                ['5', '6', '2', '2', '4', '4'],
+                ['', '', '', 'Σ', 'Sₓᵧ = 9', 'Sₓₓ = 10'],
+              ],
+            },
+            { type: 'p', text: r`**Step 3 — slope and intercept.** $\theta_1=\dfrac{S_{xy}}{S_{xx}}=\dfrac{9}{10}=0.9$ and $\theta_0=\bar y-\theta_1\bar x=4-0.9\times 3=1.3$.` },
+            { type: 'p', text: r`**Step 4 — model and prediction.** $\hat y=1.3+0.9x$; at $x=6$, $\hat y=1.3+5.4=6.7$.` },
+          ],
+          answer: 'ŷ = 1.3 + 0.9x, prediction at x=6 is 6.7',
         },
         {
           type: 'list',
