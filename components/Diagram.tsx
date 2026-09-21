@@ -605,6 +605,52 @@ const FIGURES: Record<string, () => ReactElement> = {
       </g>    </Svg>
   ),
 
+  'bayes-terms': () => {
+    const box = (
+      x: number,
+      y: number,
+      w: number,
+      title: string,
+      formula: string,
+      color: string,
+    ) => (
+      <g>
+        <rect x={x} y={y} width={w} height={46} rx={9} fill={color} fillOpacity={0.12} stroke={color} strokeWidth={1.8} />
+        <text x={x + w / 2} y={y + 19} textAnchor="middle" fontSize={11} fontWeight={600} fill={color}>{title}</text>
+        <text x={x + w / 2} y={y + 36} textAnchor="middle" fontSize={12} fill="currentColor">{formula}</text>
+      </g>
+    );
+    const op = (cx: number, cy: number, s: string) => (
+      <g>
+        <circle cx={cx} cy={cy} r={17} fill="none" stroke={ROSE} strokeWidth={1.8} />
+        <text x={cx} y={cy + 5} textAnchor="middle" fontSize={15} fill={ROSE}>{s}</text>
+      </g>
+    );
+    return (
+      <Svg vb="0 0 520 250">
+        {/* feed-in nodes */}
+        {box(16, 30, 116, 'Prior', 'P(A)', EMER)}
+        {box(16, 150, 116, 'Likelihood', 'P(B|A)', BRAND)}
+        {box(250, 186, 130, 'Evidence', 'P(B)', AMBER)}
+        {box(388, 88, 118, 'Posterior', 'P(A|B)', VIOLET)}
+        {/* operators */}
+        {op(210, 111, '×')}
+        {op(310, 111, '÷')}
+        {/* arrows */}
+        <g stroke="currentColor" strokeOpacity={0.5} fill="none">
+          <path d="M132 53 C 170 60, 175 95, 193 106" markerEnd="url(#ah)" />
+          <path d="M132 173 C 170 166, 175 128, 193 116" markerEnd="url(#ah)" />
+          <path d="M227 111 L 293 111" markerEnd="url(#ah)" />
+          <path d="M315 186 L 311 130" markerEnd="url(#ah)" />
+          <path d="M327 111 L 384 106" markerEnd="url(#ah)" />
+        </g>
+        <text x={260} y={97} textAnchor="middle" fontSize={10} fillOpacity={0.6}>combine</text>
+        <text x={355} y={150} textAnchor="middle" fontSize={10} fillOpacity={0.6}>normalise</text>
+        <text x={447} y={150} textAnchor="middle" fontSize={10} fill={VIOLET} fillOpacity={0.85}>updated belief</text>
+      </Svg>
+    );
+  },
+
   'design-matrix': () => (
     <Svg vb="0 0 340 200">
       <g fontSize={12} fill="currentColor">
