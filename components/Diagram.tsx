@@ -758,14 +758,14 @@ const FIGURES: Record<string, () => ReactElement> = {
           <text x={last[0] + 14} y={last[1] + 4} fill={BRAND}>Minimum (x*, y*)</text>
         </g>
         {/* legend */}
-        <g fontSize={11} fill="currentColor" transform="translate(430, 18)">
-          <rect x={0} y={0} width={224} height={54} rx={8} fill="var(--surface)" stroke="currentColor" strokeOpacity={0.25} />
-          <line x1={12} y1={18} x2={40} y2={18} stroke={ROSE} strokeWidth={2.4} markerEnd="url(#ar)" />
-          <text x={48} y={22}>−∇f  (steepest descent)</text>
-          <line x1={12} y1={40} x2={40} y2={40} stroke="#111827" strokeWidth={2} />
-          <circle cx={16} cy={40} r={3} fill="#111827" />
-          <circle cx={36} cy={40} r={3} fill="#111827" />
-          <text x={48} y={44}>path of gradient descent</text>
+        <g fontSize={13.5} fill="currentColor" transform="translate(392, 14)">
+          <rect x={0} y={0} width={276} height={68} rx={9} fill="var(--surface)" stroke="currentColor" strokeOpacity={0.25} />
+          <line x1={14} y1={23} x2={46} y2={23} stroke={ROSE} strokeWidth={2.6} markerEnd="url(#ar)" />
+          <text x={56} y={28}>−∇f  (steepest descent)</text>
+          <line x1={14} y1={50} x2={46} y2={50} stroke="#111827" strokeWidth={2.2} />
+          <circle cx={18} cy={50} r={3.4} fill="#111827" />
+          <circle cx={42} cy={50} r={3.4} fill="#111827" />
+          <text x={56} y={55}>path of gradient descent</text>
         </g>
       </Svg>
     );
