@@ -547,16 +547,27 @@ print("loss:", E)`,
         { type: 'math', tex: r`a=\phi(z)=\frac{1}{1+e^{-z}},\qquad \phi'(z)=\phi(z)\bigl(1-\phi(z)\bigr)=a(1-a)` },
         { type: 'p', text: r`The error for the training example and the learning rate are` },
         { type: 'math', tex: r`E=\frac{1}{2}\sum_j\left(a_j^L-y_j\right)^2,\qquad \eta=0.5` },
-        { type: 'p', text: r`One complete training iteration consists of four steps:` },
-        {
-          type: 'steps',
-          items: [
-            r`**Forward propagation** — $z_j^l=\sum_k w_{jk}^l a_k^{l-1}+b_j^l$, then $a_j^l=\sigma(z_j^l)$.`,
-            r`**Error** — $E=\dfrac{1}{2}\sum_j(a_j^L-y_j)^2$.`,
-            r`**Backpropagation** — output signal $\delta_j^L=(a_j^L-y_j)a_j^L(1-a_j^L)$; hidden signal $\delta_j^l=\bigl(\sum_r w_{rj}^{l+1}\delta_r^{l+1}\bigr)a_j^l(1-a_j^l)$; gradients $\dfrac{\partial E}{\partial w_{jk}^l}=\delta_j^l a_k^{l-1}$ and $\dfrac{\partial E}{\partial b_j^l}=\delta_j^l$.`,
-            r`**Parameter update** — $\theta^{\mathrm{new}}=\theta^{\mathrm{old}}-\eta\,\dfrac{\partial E}{\partial\theta}$ for every weight and bias.`,
-          ],
-        },
+        { type: 'p', text: r`Perform one complete training iteration of the network as follows.` },
+
+        { type: 'p', text: r`**1. Forward propagation.** Compute the net input and activation for every neuron in the first hidden layer, second hidden layer, and output layer using` },
+        { type: 'math', tex: r`z_j^l=\sum_k w_{jk}^l a_k^{l-1}+b_j^l, \qquad a_j^l=\sigma(z_j^l)` },
+
+        { type: 'p', text: r`**2. Error calculation.** Using the network output and the target value, calculate` },
+        { type: 'math', tex: r`E=\frac{1}{2}\sum_j\left(a_j^L-y_j\right)^2` },
+
+        { type: 'p', text: r`**3. Back propagation.**` },
+        { type: 'p', text: r`**(a) Output layer.** Compute the local error signal for the output layer using` },
+        { type: 'math', tex: r`\delta_j^L=(a_j^L-y_j)\phi'(z_j^L)=(a_j^L-y_j)a_j^L(1-a_j^L)` },
+        { type: 'p', text: r`Then calculate the gradients` },
+        { type: 'math', tex: r`\frac{\partial E}{\partial w_{jk}^L}=\delta_j^L a_k^{L-1} \qquad\qquad \frac{\partial E}{\partial b_j^L}=\delta_j^L` },
+        { type: 'p', text: r`**(b) Hidden layers.** For each hidden layer, compute the local error signal by propagating the error backward from the next layer:` },
+        { type: 'math', tex: r`\delta_j^l=\left(\sum_r w_{rj}^{l+1}\delta_r^{l+1}\right)\phi'(z_j^l)=\left(\sum_r w_{rj}^{l+1}\delta_r^{l+1}\right)a_j^l(1-a_j^l)` },
+        { type: 'p', text: r`Calculate the corresponding gradients for each hidden layer using` },
+        { type: 'math', tex: r`\frac{\partial E}{\partial w_{jk}^l}=\delta_j^l a_k^{l-1} \qquad\qquad \frac{\partial E}{\partial b_j^l}=\delta_j^l` },
+        { type: 'p', text: r`Carry out this calculation successively for the second hidden layer $(l=2)$ and the first hidden layer $(l=1)$.` },
+
+        { type: 'p', text: r`**4. Parameter update.** Update every weight and bias using gradient descent:` },
+        { type: 'math', tex: r`\begin{aligned} w_{jk}^{l,\mathrm{new}} &= w_{jk}^{l,\mathrm{old}} - \eta\,\frac{\partial E}{\partial w_{jk}^l}\\[6pt] b_j^{l,\mathrm{new}} &= b_j^{l,\mathrm{old}} - \eta\,\frac{\partial E}{\partial b_j^l} \end{aligned}` },
 
         // ---- 1. Forward propagation ----
         { type: 'heading', text: '1. Forward propagation' },
