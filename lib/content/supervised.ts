@@ -413,6 +413,12 @@ export const supervised: Module = {
           text: r`The three iterations above, collected into a single spreadsheet-style trace on the same dataset. Each iteration block shows the five per-point rows, a **SUM** row, and a summary row with the cost $J(\theta^k)$ and the two gradients; the last two columns give the parameters that open the next iteration.`,
         },
         {
+          type: 'note',
+          variant: 'info',
+          title: 'Consolidated gradient-descent trace on the house-price data (α = 0.1)',
+          text: r`$\hat y_i=\theta_0^{k}+\theta_1^{k}x_i$;$\quad$ $e_i=\hat y_i-y_i$;$\quad$ the cost is $J(\theta^k)=\frac{1}{2m}\sum_i e_i^2$ with gradients $g_0=\frac{\partial J}{\partial\theta_0}=\frac{1}{m}\sum_i e_i$ and $g_1=\frac{\partial J}{\partial\theta_1}=\frac{1}{m}\sum_i e_i x_i$;$\quad$ the next parameters are $\theta_0^{k+1}=\theta_0^{k}-\alpha g_0$ and $\theta_1^{k+1}=\theta_1^{k}-\alpha g_1$.`,
+        },
+        {
           type: 'table',
           headers: [
             r`Iter $k$`,
@@ -420,12 +426,12 @@ export const supervised: Module = {
             r`$\theta_1^{k}$`,
             r`$x_i$`,
             r`$y_i$`,
-            r`$\hat y_i$`,
-            r`$e_i$`,
+            r`$\hat y_i=\theta_0^{k}+\theta_1^{k}x_i$`,
+            r`$e_i=\hat y_i-y_i$`,
             r`$e_i^2$`,
             r`$e_i x_i$`,
-            r`$\theta_0^{k+1}$`,
-            r`$\theta_1^{k+1}$`,
+            r`$\theta_0^{k+1}=\theta_0^{k}-\alpha g_0$`,
+            r`$\theta_1^{k+1}=\theta_1^{k}-\alpha g_1$`,
           ],
           rows: [
             // ---- Iteration 0: theta = (0.5, 0.6) -> (0.57, 0.85) ----
@@ -453,7 +459,6 @@ export const supervised: Module = {
             ['', '', '', '', '', 'SUM', '−0.15', '3.60466', '−0.41', '', ''],
             ['', r`$J{=}0.3605$`, '', '', '', r`$g_0{=}{-}0.03$`, '', '', r`$g_1{=}{-}0.082$`, '', ''],
           ],
-          caption: r`Consolidated batch-gradient-descent trace on the house-price data ($\alpha=0.1$). $\hat y_i=\theta_0^{k}+\theta_1^{k}x_i$; $e_i=\hat y_i-y_i$; the cost is $J(\theta^k)=\frac{1}{2m}\sum_i e_i^2$ with gradients $g_0=\frac{\partial J}{\partial\theta_0}=\frac{1}{m}\sum_i e_i$ and $g_1=\frac{\partial J}{\partial\theta_1}=\frac{1}{m}\sum_i e_i x_i$; the next parameters are $\theta_0^{k+1}=\theta_0^{k}-\alpha g_0$ and $\theta_1^{k+1}=\theta_1^{k}-\alpha g_1$.`,
         },
 
         // ---------------------------------------------------------------
