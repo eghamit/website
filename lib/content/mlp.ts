@@ -531,7 +531,7 @@ print("loss:", E)`,
         {
           type: 'diagram',
           kind: 'mlp-3-2-2-1',
-          caption: 'The 3–2–2–1 network. Layers l = 1 and l = 2 are hidden; l = L = 3 is the output.',
+          caption: r`The 3–2–2–1 network. Layers $l=1$ and $l=2$ are hidden; $l=L=3$ is the output.`,
         },
         { type: 'p', text: r`For a single training example, the input vector and desired output are` },
         { type: 'math', tex: r`\mathbf{x}=\begin{bmatrix}0.6\\ -0.2\\ 0.8\end{bmatrix},\qquad y=1.` },
