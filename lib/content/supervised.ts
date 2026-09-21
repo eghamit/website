@@ -200,12 +200,12 @@ export const supervised: Module = {
           type: 'p',
           text: r`For one feature we can solve for $\theta_0,\theta_1$ exactly. Minimize the sum of squared errors $S(\theta_0,\theta_1)=\sum_i\bigl(y_i-\theta_0-\theta_1 x_i\bigr)^2$ (this is $2mJ$; the constant does not move the minimizer). At a minimum both partial derivatives vanish:`,
         },
-        { type: 'math', tex: r`\frac{\partial S}{\partial\theta_0}=-2\sum_i\bigl(y_i-\theta_0-\theta_1 x_i\bigr)=0, \qquad \frac{\partial S}{\partial\theta_1}=-2\sum_i x_i\bigl(y_i-\theta_0-\theta_1 x_i\bigr)=0` },
+        { type: 'math', tex: r`\begin{aligned} \frac{\partial S}{\partial\theta_0} &= -2\sum_i\bigl(y_i-\theta_0-\theta_1 x_i\bigr)=0 \\ \frac{\partial S}{\partial\theta_1} &= -2\sum_i x_i\bigl(y_i-\theta_0-\theta_1 x_i\bigr)=0 \end{aligned}` },
         {
           type: 'p',
           text: r`Dividing by $-2$ gives the **two normal equations** for simple linear regression:`,
         },
-        { type: 'math', tex: r`\sum_i y_i = m\,\theta_0+\theta_1\sum_i x_i, \qquad \sum_i x_i y_i = \theta_0\sum_i x_i+\theta_1\sum_i x_i^2` },
+        { type: 'math', tex: r`\begin{aligned} \sum_i y_i &= m\,\theta_0+\theta_1\sum_i x_i \\ \sum_i x_i y_i &= \theta_0\sum_i x_i+\theta_1\sum_i x_i^2 \end{aligned}` },
         {
           type: 'p',
           text: r`The first, divided by $m$, gives $\bar y=\theta_0+\theta_1\bar x$, so the fitted line always passes through the centroid $(\bar x,\bar y)$:`,
@@ -254,7 +254,7 @@ export const supervised: Module = {
           type: 'p',
           text: r`The closed form needs the inverse of the $(n+1)\times(n+1)$ matrix $\mathbf{X}^\top\mathbf{X}$, which costs $\mathcal{O}(n^3)$ and holds the whole matrix in memory. When $n$ or $m$ is very large that is impractical. **Gradient descent** avoids the inverse by repeatedly stepping downhill on the cost bowl.`,
         },
-        { type: 'math', tex: r`\frac{\partial J}{\partial\theta_0}=\frac1m\sum_{i}\bigl(h_{\boldsymbol\theta}(x^{(i)})-y^{(i)}\bigr), \qquad \frac{\partial J}{\partial\theta_1}=\frac1m\sum_{i}\bigl(h_{\boldsymbol\theta}(x^{(i)})-y^{(i)}\bigr)x^{(i)}` },
+        { type: 'math', tex: r`\begin{aligned} \frac{\partial J}{\partial\theta_0} &= \frac1m\sum_{i}\bigl(h_{\boldsymbol\theta}(x^{(i)})-y^{(i)}\bigr) \\ \frac{\partial J}{\partial\theta_1} &= \frac1m\sum_{i}\bigl(h_{\boldsymbol\theta}(x^{(i)})-y^{(i)}\bigr)x^{(i)} \end{aligned}` },
         {
           type: 'p',
           text: r`In compact vector form $\nabla J(\boldsymbol\theta)=\frac1m\mathbf{X}^\top(\mathbf{X}\boldsymbol\theta-\mathbf{y})$. Repeat until convergence, updating **all parameters simultaneously**:`,
@@ -292,14 +292,14 @@ export const supervised: Module = {
             { type: 'p', text: r`**Step 2 — deviations, covariance and variance.**` },
             {
               type: 'table',
-              headers: ['xᵢ', 'yᵢ', 'xᵢ−x̄', 'yᵢ−ȳ', '(xᵢ−x̄)(yᵢ−ȳ)', '(xᵢ−x̄)²'],
+              headers: [r`$x_i$`, r`$y_i$`, r`$x_i-\bar x$`, r`$y_i-\bar y$`, r`$(x_i-\bar x)(y_i-\bar y)$`, r`$(x_i-\bar x)^2$`],
               rows: [
                 ['1', '1', '−2', '−2', '4', '4'],
                 ['2', '3', '−1', '0', '0', '1'],
                 ['3', '2', '0', '−1', '0', '0'],
                 ['4', '5', '1', '2', '2', '1'],
                 ['5', '4', '2', '1', '2', '4'],
-                ['', '', '', 'Σ', 'Sₓᵧ = 8', 'Sₓₓ = 10'],
+                ['', '', '', r`$\sum$`, r`$S_{xy}=8$`, r`$S_{xx}=10$`],
               ],
             },
             { type: 'p', text: r`Also $S_{yy}=\sum(y_i-\bar y)^2=4+0+1+4+1=10$, so $\mathrm{Cov}(x,y)=\frac{8}{5}=1.6$ and $\mathrm{Var}(x)=\frac{10}{5}=2$.` },
@@ -307,14 +307,14 @@ export const supervised: Module = {
             { type: 'p', text: r`**Step 4 — the fitted model and residuals.** $\hat y=0.6+0.8x$:` },
             {
               type: 'table',
-              headers: ['xᵢ', 'ŷᵢ = 0.6+0.8xᵢ', 'eᵢ = yᵢ−ŷᵢ', 'eᵢ²'],
+              headers: [r`$x_i$`, r`$\hat y_i=0.6+0.8x_i$`, r`$e_i=y_i-\hat y_i$`, r`$e_i^2$`],
               rows: [
                 ['1', '1.4', '−0.4', '0.16'],
                 ['2', '2.2', '0.8', '0.64'],
                 ['3', '3.0', '−1.0', '1.00'],
                 ['4', '3.8', '1.2', '1.44'],
                 ['5', '4.6', '−0.6', '0.36'],
-                ['', '', 'Σeᵢ = 0', 'SSE = 3.60'],
+                ['', '', r`$\sum e_i=0$`, r`$\text{SSE}=3.60$`],
               ],
             },
             { type: 'p', text: r`The residuals sum to zero — a general property of the least-squares fit (the first normal equation). The coefficient of determination is $R^2=1-\dfrac{\text{SSE}}{S_{yy}}=1-\dfrac{3.6}{10}=0.64=r^2$, confirming $R^2=r^2$ for simple linear regression.` },
@@ -332,7 +332,8 @@ export const supervised: Module = {
           type: 'p',
           text: r`**Setup.** Model $h_{\boldsymbol\theta}(x)=\theta_0+\theta_1 x$, cost $J=\frac{1}{2m}\sum(h_{\boldsymbol\theta}(x_i)-y_i)^2$ with $m=5$. Initialize $\theta_0=\theta_1=0$ and use learning rate $\alpha=0.1$. The gradients are`,
         },
-        { type: 'math', tex: r`g_0=\frac1m\sum_i\bigl(h_{\boldsymbol\theta}(x_i)-y_i\bigr),\qquad g_1=\frac1m\sum_i\bigl(h_{\boldsymbol\theta}(x_i)-y_i\bigr)\,x_i .` },
+        { type: 'math', tex: r`g_0=\frac1m\sum_i\bigl(h_{\boldsymbol\theta}(x_i)-y_i\bigr)` },
+        { type: 'math', tex: r`g_1=\frac1m\sum_i\bigl(h_{\boldsymbol\theta}(x_i)-y_i\bigr)\,x_i` },
         {
           type: 'p',
           text: r`**The complete iteration table.** Each block below lists all five data points with their prediction $\hat y_i=\theta_0+\theta_1 x_i$, error $e_i=\hat y_i-y_i$, squared error $e_i^2$, and the product $e_i x_i$ used by the slope gradient. The summary line closing each iteration accumulates the column sums and turns them into the cost and gradients $J=\frac{\sum e_i^2}{10}$, $g_0=\frac{\sum e_i}{5}$, $g_1=\frac{\sum e_i x_i}{5}$, then applies $\theta_j:=\theta_j-\alpha\,g_j$ to produce the $(\theta_0,\theta_1)$ that opens the next iteration. Reading top to bottom reproduces the entire optimisation by hand.`,
@@ -342,81 +343,81 @@ export const supervised: Module = {
         { type: 'p', text: r`**Iteration 0** — $\theta_0=0.0000,\ \theta_1=0.0000$.` },
         {
           type: 'table',
-          headers: ['xᵢ', 'yᵢ', 'ŷᵢ = θ₀+θ₁xᵢ', 'eᵢ = ŷᵢ−yᵢ', 'eᵢ²', 'eᵢxᵢ'],
+          headers: [r`$x_i$`, r`$y_i$`, r`$\hat y_i=\theta_0+\theta_1 x_i$`, r`$e_i=\hat y_i-y_i$`, r`$e_i^2$`, r`$e_i x_i$`],
           rows: [
             ['1', '1', '0.0000', '−1.0000', '1.0000', '−1.0000'],
             ['2', '3', '0.0000', '−3.0000', '9.0000', '−6.0000'],
             ['3', '2', '0.0000', '−2.0000', '4.0000', '−6.0000'],
             ['4', '5', '0.0000', '−5.0000', '25.0000', '−20.0000'],
             ['5', '4', '0.0000', '−4.0000', '16.0000', '−20.0000'],
-            ['', '', 'Σ =', '−15.0000', '55.0000', '−53.0000'],
+            ['', '', r`$\sum=$`, '−15.0000', '55.0000', '−53.0000'],
           ],
         },
-        { type: 'p', text: r`$J=\frac{55.0000}{10}=5.5000$,  $g_0=\frac{-15.0000}{5}=-3.0000$,  $g_1=\frac{-53.0000}{5}=-10.6000$  ⟹  $\theta_0:=0.3000$,  $\theta_1:=1.0600$.` },
+        { type: 'math', tex: r`\begin{aligned} J &= \frac{55.0000}{10} = 5.5000 \\ g_0 &= \frac{-15.0000}{5} = -3.0000 \\ g_1 &= \frac{-53.0000}{5} = -10.6000 \\ (\theta_0,\theta_1) &:= (0.3000,\ 1.0600) \end{aligned}` },
 
         // Iteration 1
         { type: 'p', text: r`**Iteration 1** — $\theta_0=0.3000,\ \theta_1=1.0600$.` },
         {
           type: 'table',
-          headers: ['xᵢ', 'yᵢ', 'ŷᵢ = θ₀+θ₁xᵢ', 'eᵢ = ŷᵢ−yᵢ', 'eᵢ²', 'eᵢxᵢ'],
+          headers: [r`$x_i$`, r`$y_i$`, r`$\hat y_i=\theta_0+\theta_1 x_i$`, r`$e_i=\hat y_i-y_i$`, r`$e_i^2$`, r`$e_i x_i$`],
           rows: [
             ['1', '1', '1.3600', '0.3600', '0.1296', '0.3600'],
             ['2', '3', '2.4200', '−0.5800', '0.3364', '−1.1600'],
             ['3', '2', '3.4800', '1.4800', '2.1904', '4.4400'],
             ['4', '5', '4.5400', '−0.4600', '0.2116', '−1.8400'],
             ['5', '4', '5.6000', '1.6000', '2.5600', '8.0000'],
-            ['', '', 'Σ =', '2.4000', '5.4280', '9.8000'],
+            ['', '', r`$\sum=$`, '2.4000', '5.4280', '9.8000'],
           ],
         },
-        { type: 'p', text: r`$J=\frac{5.4280}{10}=0.5428$,  $g_0=\frac{2.4000}{5}=0.4800$,  $g_1=\frac{9.8000}{5}=1.9600$  ⟹  $\theta_0:=0.2520$,  $\theta_1:=0.8640$.` },
+        { type: 'math', tex: r`\begin{aligned} J &= \frac{5.4280}{10} = 0.5428 \\ g_0 &= \frac{2.4000}{5} = 0.4800 \\ g_1 &= \frac{9.8000}{5} = 1.9600 \\ (\theta_0,\theta_1) &:= (0.2520,\ 0.8640) \end{aligned}` },
 
         // Iteration 2
         { type: 'p', text: r`**Iteration 2** — $\theta_0=0.2520,\ \theta_1=0.8640$.` },
         {
           type: 'table',
-          headers: ['xᵢ', 'yᵢ', 'ŷᵢ = θ₀+θ₁xᵢ', 'eᵢ = ŷᵢ−yᵢ', 'eᵢ²', 'eᵢxᵢ'],
+          headers: [r`$x_i$`, r`$y_i$`, r`$\hat y_i=\theta_0+\theta_1 x_i$`, r`$e_i=\hat y_i-y_i$`, r`$e_i^2$`, r`$e_i x_i$`],
           rows: [
             ['1', '1', '1.1160', '0.1160', '0.0135', '0.1160'],
             ['2', '3', '1.9800', '−1.0200', '1.0404', '−2.0400'],
             ['3', '2', '2.8440', '0.8440', '0.7123', '2.5320'],
             ['4', '5', '3.7080', '−1.2920', '1.6693', '−5.1680'],
             ['5', '4', '4.5720', '0.5720', '0.3272', '2.8600'],
-            ['', '', 'Σ =', '−0.7800', '3.7626', '−1.7000'],
+            ['', '', r`$\sum=$`, '−0.7800', '3.7626', '−1.7000'],
           ],
         },
-        { type: 'p', text: r`$J=\frac{3.7626}{10}=0.3763$,  $g_0=\frac{-0.7800}{5}=-0.1560$,  $g_1=\frac{-1.7000}{5}=-0.3400$  ⟹  $\theta_0:=0.2676$,  $\theta_1:=0.8980$.` },
+        { type: 'math', tex: r`\begin{aligned} J &= \frac{3.7626}{10} = 0.3763 \\ g_0 &= \frac{-0.7800}{5} = -0.1560 \\ g_1 &= \frac{-1.7000}{5} = -0.3400 \\ (\theta_0,\theta_1) &:= (0.2676,\ 0.8980) \end{aligned}` },
 
         // Iteration 3
         { type: 'p', text: r`**Iteration 3** — $\theta_0=0.2676,\ \theta_1=0.8980$.` },
         {
           type: 'table',
-          headers: ['xᵢ', 'yᵢ', 'ŷᵢ = θ₀+θ₁xᵢ', 'eᵢ = ŷᵢ−yᵢ', 'eᵢ²', 'eᵢxᵢ'],
+          headers: [r`$x_i$`, r`$y_i$`, r`$\hat y_i=\theta_0+\theta_1 x_i$`, r`$e_i=\hat y_i-y_i$`, r`$e_i^2$`, r`$e_i x_i$`],
           rows: [
             ['1', '1', '1.1656', '0.1656', '0.0274', '0.1656'],
             ['2', '3', '2.0636', '−0.9364', '0.8768', '−1.8728'],
             ['3', '2', '2.9616', '0.9616', '0.9247', '2.8848'],
             ['4', '5', '3.8596', '−1.1404', '1.3005', '−4.5616'],
             ['5', '4', '4.7576', '0.7576', '0.5740', '3.7880'],
-            ['', '', 'Σ =', '−0.1920', '3.7034', '0.4040'],
+            ['', '', r`$\sum=$`, '−0.1920', '3.7034', '0.4040'],
           ],
         },
-        { type: 'p', text: r`$J=\frac{3.7034}{10}=0.3703$,  $g_0=\frac{-0.1920}{5}=-0.0384$,  $g_1=\frac{0.4040}{5}=0.0808$  ⟹  $\theta_0:=0.2714$,  $\theta_1:=0.8899$.` },
+        { type: 'math', tex: r`\begin{aligned} J &= \frac{3.7034}{10} = 0.3703 \\ g_0 &= \frac{-0.1920}{5} = -0.0384 \\ g_1 &= \frac{0.4040}{5} = 0.0808 \\ (\theta_0,\theta_1) &:= (0.2714,\ 0.8899) \end{aligned}` },
 
         // Iteration 4
         { type: 'p', text: r`**Iteration 4** — $\theta_0=0.2714,\ \theta_1=0.8899$.` },
         {
           type: 'table',
-          headers: ['xᵢ', 'yᵢ', 'ŷᵢ = θ₀+θ₁xᵢ', 'eᵢ = ŷᵢ−yᵢ', 'eᵢ²', 'eᵢxᵢ'],
+          headers: [r`$x_i$`, r`$y_i$`, r`$\hat y_i=\theta_0+\theta_1 x_i$`, r`$e_i=\hat y_i-y_i$`, r`$e_i^2$`, r`$e_i x_i$`],
           rows: [
             ['1', '1', '1.1614', '0.1614', '0.0260', '0.1614'],
             ['2', '3', '2.0513', '−0.9487', '0.9001', '−1.8974'],
             ['3', '2', '2.9412', '0.9412', '0.8859', '2.8236'],
             ['4', '5', '3.8311', '−1.1689', '1.3663', '−4.6755'],
             ['5', '4', '4.7210', '0.7210', '0.5199', '3.6052'],
-            ['', '', 'Σ =', '−0.2940', '3.6981', '0.0172'],
+            ['', '', r`$\sum=$`, '−0.2940', '3.6981', '0.0172'],
           ],
         },
-        { type: 'p', text: r`$J=\frac{3.6981}{10}=0.3698$,  $g_0=\frac{-0.2940}{5}=-0.0588$,  $g_1=\frac{0.0172}{5}=0.0034$  ⟹  $\theta_0:=0.2773$,  $\theta_1:=0.8896$.` },
+        { type: 'math', tex: r`\begin{aligned} J &= \frac{3.6981}{10} = 0.3698 \\ g_0 &= \frac{-0.2940}{5} = -0.0588 \\ g_1 &= \frac{0.0172}{5} = 0.0034 \\ (\theta_0,\theta_1) &:= (0.2773,\ 0.8896) \end{aligned}` },
 
         {
           type: 'note',
@@ -529,14 +530,14 @@ print("R^2 =", model.score(x, y))               # 0.64`,
             { type: 'p', text: r`**Step 2 — deviations and products.**` },
             {
               type: 'table',
-              headers: ['xᵢ', 'yᵢ', 'xᵢ−x̄', 'yᵢ−ȳ', '(xᵢ−x̄)(yᵢ−ȳ)', '(xᵢ−x̄)²'],
+              headers: [r`$x_i$`, r`$y_i$`, r`$x_i-\bar x$`, r`$y_i-\bar y$`, r`$(x_i-\bar x)(y_i-\bar y)$`, r`$(x_i-\bar x)^2$`],
               rows: [
                 ['1', '2', '−2', '−2', '4', '4'],
                 ['2', '3', '−1', '−1', '1', '1'],
                 ['3', '5', '0', '1', '0', '0'],
                 ['4', '4', '1', '0', '0', '1'],
                 ['5', '6', '2', '2', '4', '4'],
-                ['', '', '', 'Σ', 'Sₓᵧ = 9', 'Sₓₓ = 10'],
+                ['', '', '', r`$\sum$`, r`$S_{xy}=9$`, r`$S_{xx}=10$`],
               ],
             },
             { type: 'p', text: r`**Step 3 — slope and intercept.** $\theta_1=\dfrac{S_{xy}}{S_{xx}}=\dfrac{9}{10}=0.9$ and $\theta_0=\bar y-\theta_1\bar x=4-0.9\times 3=1.3$.` },
