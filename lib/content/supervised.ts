@@ -86,79 +86,372 @@ export const supervised: Module = {
       slug: 'linear-regression',
       title: 'Linear & Multiple Linear Regression',
       summary:
-        'Fit a straight line (or hyperplane) to data, with the normal equations, least squares, and a fully worked numeric example.',
+        'The canonical supervised regression algorithm — from the linear model and squared-error loss to the closed-form normal equation, gradient descent, and two full hand-worked examples on the same dataset.',
       objectives: [
-        'Write the linear regression model and its cost function',
-        'Derive the closed-form least-squares solution',
-        'Fit a line to data by hand',
+        'Formulate the linear model for one and many features using θ-notation',
+        'Explain the mean-squared-error cost, why we square, and why it is convex',
+        'Derive the closed-form solution both by scalar calculus and in matrix form',
+        'Connect the slope to covariance, variance and correlation',
+        'Run gradient descent by hand and compare it to the normal equation',
       ],
       blocks: [
+        // ---------------------------------------------------------------
+        { type: 'heading', text: 'Where linear regression fits' },
         {
           type: 'p',
-          text: r`**Linear regression** models the target as a linear combination of the features. For a single feature this is a straight line; for many features it is a hyperplane.`,
+          text: r`**Linear regression** is **supervised**, solves a **regression** task (continuous target), and uses a **parametric linear** model. Despite its simplicity it is the foundation for a huge part of statistics and machine learning: logistic regression, generalized linear models, ridge/lasso regularization, and even the final layer of many neural networks are direct descendants.`,
         },
-        { type: 'heading', text: 'The model' },
-        { type: 'math', tex: r`\hat{y} = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \cdots + \beta_n x_n = \boldsymbol{\beta}^\top \mathbf{x}`, caption: 'With a leading 1 in x for the intercept β₀.' },
         {
           type: 'p',
-          text: r`Here $\beta_0$ is the **intercept** (bias) and each $\beta_j$ is the **slope** (weight) telling us how much $\hat{y}$ changes per unit of feature $x_j$.`,
+          text: r`In Mitchell's terms — *a program learns from experience $E$ at task $T$ measured by $P$* — the ingredients here are: $T$: predict a real-valued output from input features; $E$: a dataset of past $(\text{input},\text{output})$ pairs; $P$: a loss such as the mean squared error.`,
+        },
+        {
+          type: 'table',
+          headers: ['Regression', 'Classification'],
+          rows: [
+            ['Output is continuous ($y\\in\\mathbb{R}$)', 'Output is a discrete class label'],
+            ['Example: price, temperature', 'Example: spam / not-spam'],
+            ['Typical loss: squared error', 'Typical loss: cross-entropy'],
+            ['Metric: RMSE, R²', 'Metric: accuracy, F1'],
+          ],
+          caption: 'Linear regression lives in the left column.',
+        },
+
+        // ---------------------------------------------------------------
+        { type: 'heading', text: 'Problem formulation' },
+        {
+          type: 'p',
+          text: r`Given training data $\{(\mathbf{x}^{(i)}, y^{(i)})\}_{i=1}^{m}$ we seek a function that predicts $y$ from $\mathbf{x}$ as accurately as possible **on unseen data**. The superscript $(i)$ indexes the $m$ examples and the subscript $j$ indexes the $n$ features, so $x^{(i)}_j$ is the $j$-th feature of the $i$-th example.`,
+        },
+        {
+          type: 'list',
+          items: [
+            r`**Features** — the inputs $\mathbf{x}^{(i)}\in\mathbb{R}^{n}$ (also predictors, covariates, independent variables).`,
+            r`**Target** — the output $y^{(i)}\in\mathbb{R}$ (also response or dependent variable).`,
+            r`**Training data** — the $m$ observed pairs used to fit the model.`,
+          ],
+        },
+
+        // ---------------------------------------------------------------
+        { type: 'heading', text: 'The linear model' },
+        {
+          type: 'p',
+          text: r`Linear regression assumes the target is (approximately) a linear function of the features plus an intercept. Writing the parameters as $\boldsymbol{\theta}$:`,
+        },
+        { type: 'math', tex: r`h_{\boldsymbol\theta}(\mathbf{x}) = \theta_0 + \theta_1 x_1 + \theta_2 x_2 + \cdots + \theta_n x_n` },
+        {
+          type: 'p',
+          text: r`Introducing a dummy feature $x_0\equiv 1$ turns this into a compact **dot product** — one formula that works for any number of features:`,
+        },
+        { type: 'math', tex: r`h_{\boldsymbol\theta}(\mathbf{x}) = \sum_{j=0}^{n}\theta_j x_j = \boldsymbol{\theta}^\top \mathbf{x}, \qquad \boldsymbol\theta = \begin{bmatrix}\theta_0\\\vdots\\\theta_n\end{bmatrix},\;\; \mathbf{x}=\begin{bmatrix}1\\x_1\\\vdots\\x_n\end{bmatrix}` },
+        {
+          type: 'p',
+          text: r`The single-feature case $n=1$ is **simple linear regression**, a straight line:`,
+        },
+        { type: 'math', tex: r`\boxed{\;\hat{y} = h_{\boldsymbol\theta}(x) = \theta_0 + \theta_1 x\;}` },
+        {
+          type: 'p',
+          text: r`Here $\theta_0$ is the **intercept** (the value of $\hat y$ when $x=0$) and $\theta_1$ is the **slope** (the change in $\hat y$ per unit change in $x$). The function $h_{\boldsymbol\theta}$ is the **hypothesis**; evaluating it at a new input $x_\star$ gives the prediction $\hat y_\star=\theta_0+\theta_1 x_\star$. Learning means choosing $\boldsymbol\theta$ so predictions match the targets.`,
         },
         {
           type: 'diagram',
           kind: 'linear-fit',
-          caption: 'Linear regression fits the line minimising the squared residuals (dashed).',
+          caption: 'Simple linear regression fits the line minimising the squared residuals (dashed) — the very dataset worked by hand below.',
         },
-        { type: 'heading', text: 'Cost function: least squares' },
+
+        // ---------------------------------------------------------------
+        { type: 'heading', text: 'The loss function' },
         {
           type: 'p',
-          text: r`We choose the coefficients that minimise the **residual sum of squares** — the total squared gap between predictions and truth. The mean version is the Mean Squared Error (MSE):`,
+          text: r`To choose $\boldsymbol\theta$ we need a measure of how wrong the predictions are. The error (residual) of example $i$ is $h_{\boldsymbol\theta}(x^{(i)})-y^{(i)}$. The **mean squared error** cost function averages the squared residuals:`,
         },
-        { type: 'math', tex: r`J(\boldsymbol{\beta}) = \frac{1}{2m}\sum_{i=1}^{m}\left(\hat{y}^{(i)} - y^{(i)}\right)^2 = \frac{1}{2m}\sum_{i=1}^{m}\left(\boldsymbol{\beta}^\top \mathbf{x}^{(i)} - y^{(i)}\right)^2` },
-        { type: 'heading', text: 'Closed-form solution (normal equations)' },
+        { type: 'math', tex: r`\boxed{\;J(\boldsymbol\theta)=\frac{1}{2m}\sum_{i=1}^{m}\bigl(h_{\boldsymbol\theta}(x^{(i)})-y^{(i)}\bigr)^2\;}` },
+        { type: 'heading', text: 'Why square the error?' },
+        {
+          type: 'list',
+          items: [
+            r`**Sign removal.** Squaring makes positive and negative errors both count as "bad" and stops them cancelling.`,
+            r`**Smoothness.** $(\cdot)^2$ is differentiable everywhere, unlike $|\cdot|$, so we can use calculus and gradient descent.`,
+            r`**Penalizing large errors.** Big mistakes are penalized disproportionately, discouraging gross outliers.`,
+            r`**Statistical justification.** Under Gaussian noise, minimizing squared error is exactly maximum-likelihood estimation.`,
+          ],
+        },
+        {
+          type: 'note',
+          variant: 'info',
+          title: 'Why divide by m (and by 2)?',
+          text: r`Dividing by $m$ turns the *sum* of squared errors into a *mean*, so the cost — and a good learning rate — transfer across datasets of different sizes. The extra $\tfrac12$ is a convenience: differentiating the square brings down a factor of $2$ that cancels it, giving a cleaner gradient. Neither constant moves the minimizer: $\argmin_{\boldsymbol\theta}\tfrac{1}{2m}\sum_i(\cdot)^2 = \argmin_{\boldsymbol\theta}\sum_i(\cdot)^2.$`,
+        },
+        { type: 'heading', text: 'Convexity of the cost' },
         {
           type: 'p',
-          text: r`Stacking all examples into a design matrix $\mathbf{X} \in \mathbb{R}^{m\times(n+1)}$ and targets $\mathbf{y}$, setting the gradient to zero gives the **normal equations**:`,
+          text: r`As a function of $\boldsymbol\theta$, $J$ is a sum of squares of *affine* functions — a quadratic form. Its Hessian is $\nabla^2 J(\boldsymbol\theta)=\frac1m\mathbf{X}^\top\mathbf{X}$, which is positive semi-definite because $\mathbf{v}^\top\mathbf{X}^\top\mathbf{X}\mathbf{v}=\lVert\mathbf{X}\mathbf{v}\rVert^2\ge 0$ for every $\mathbf{v}$. So $J$ is **convex**: any stationary point is a *global* minimum with no spurious local minima. If $\mathbf{X}$ has full column rank the Hessian is positive definite and the minimizer is unique.`,
         },
-        { type: 'math', tex: r`\boldsymbol{\beta} = \left(\mathbf{X}^\top \mathbf{X}\right)^{-1}\mathbf{X}^\top \mathbf{y}` },
+        {
+          type: 'note',
+          variant: 'intuition',
+          title: 'The cost is a bowl',
+          text: r`Picture $J(\theta_0,\theta_1)$ as a convex paraboloid — a bowl — sitting over parameter space. Every optimisation method in this lesson is just a different way of reaching the single lowest point of that bowl.`,
+        },
+
+        // ---------------------------------------------------------------
+        { type: 'heading', text: 'Closed form — simple linear regression' },
+        {
+          type: 'p',
+          text: r`For one feature we can solve for $\theta_0,\theta_1$ exactly. Minimize the sum of squared errors $S(\theta_0,\theta_1)=\sum_i\bigl(y_i-\theta_0-\theta_1 x_i\bigr)^2$ (this is $2mJ$; the constant does not move the minimizer). At a minimum both partial derivatives vanish:`,
+        },
+        { type: 'math', tex: r`\frac{\partial S}{\partial\theta_0}=-2\sum_i\bigl(y_i-\theta_0-\theta_1 x_i\bigr)=0, \qquad \frac{\partial S}{\partial\theta_1}=-2\sum_i x_i\bigl(y_i-\theta_0-\theta_1 x_i\bigr)=0` },
+        {
+          type: 'p',
+          text: r`Dividing by $-2$ gives the **two normal equations** for simple linear regression:`,
+        },
+        { type: 'math', tex: r`\sum_i y_i = m\,\theta_0+\theta_1\sum_i x_i, \qquad \sum_i x_i y_i = \theta_0\sum_i x_i+\theta_1\sum_i x_i^2` },
+        {
+          type: 'p',
+          text: r`The first, divided by $m$, gives $\bar y=\theta_0+\theta_1\bar x$, so the fitted line always passes through the centroid $(\bar x,\bar y)$:`,
+        },
+        { type: 'math', tex: r`\boxed{\;\theta_0=\bar y-\theta_1\bar x\;}` },
+        {
+          type: 'p',
+          text: r`Substituting back and using the identities $\sum_i x_i y_i-\bar y\sum_i x_i=\sum_i(x_i-\bar x)(y_i-\bar y)$ and $\sum_i x_i^2-\bar x\sum_i x_i=\sum_i(x_i-\bar x)^2$ yields the standard slope formula:`,
+        },
+        { type: 'math', tex: r`\boxed{\;\theta_1=\frac{\sum_i(x_i-\bar x)(y_i-\bar y)}{\sum_i(x_i-\bar x)^2}=\frac{S_{xy}}{S_{xx}}\;}` },
         {
           type: 'note',
           variant: 'tip',
-          title: 'For one feature',
-          text: r`The slope and intercept reduce to the tidy formulas $\;\beta_1 = \dfrac{\sum (x_i-\bar x)(y_i-\bar y)}{\sum (x_i-\bar x)^2}\;$ and $\;\beta_0 = \bar y - \beta_1 \bar x.$`,
+          title: 'Slope = covariance ÷ variance = r · σ_y/σ_x',
+          text: r`Dividing top and bottom of the slope by $m$ turns the sums into statistics: $\theta_1=\dfrac{\mathrm{Cov}(x,y)}{\mathrm{Var}(x)}$. And since $r=\dfrac{\mathrm{Cov}(x,y)}{\sigma_x\sigma_y}$, we get $\theta_1=r\,\dfrac{\sigma_y}{\sigma_x}$ — the slope is the correlation coefficient scaled by the ratio of standard deviations.`,
+        },
+
+        // ---------------------------------------------------------------
+        { type: 'heading', text: 'Matrix formulation (any number of features)' },
+        {
+          type: 'p',
+          text: r`Stack the examples as rows and prepend a column of ones (for the intercept) to form the **design matrix** $\mathbf{X}\in\mathbb{R}^{m\times(n+1)}$, and collect the targets into $\mathbf{y}$. Then all $m$ predictions at once are a single matrix–vector product:`,
+        },
+        { type: 'math', tex: r`\hat{\mathbf{y}}=\mathbf{X}\boldsymbol\theta, \qquad \mathbf{X}=\begin{bmatrix}1&x^{(1)}_1&\cdots&x^{(1)}_n\\ \vdots&\vdots&&\vdots\\ 1&x^{(m)}_1&\cdots&x^{(m)}_n\end{bmatrix}` },
+        {
+          type: 'p',
+          text: r`The **residual vector** $\mathbf{r}=\mathbf{X}\boldsymbol\theta-\mathbf{y}$ collects all errors, and the sum of squared errors is exactly its dot product with itself, $\mathbf{r}^\top\mathbf{r}=\sum_i e_i^2$. So the cost in matrix form is`,
+        },
+        { type: 'math', tex: r`\boxed{\;J(\boldsymbol\theta)=\frac{1}{2m}(\mathbf{X}\boldsymbol\theta-\mathbf{y})^\top(\mathbf{X}\boldsymbol\theta-\mathbf{y})\;}` },
+        { type: 'heading', text: 'Deriving the normal equation' },
+        {
+          type: 'p',
+          text: r`Dropping the constant $\tfrac1m$, expand $2J=\boldsymbol\theta^\top\mathbf{X}^\top\mathbf{X}\boldsymbol\theta-2\,\boldsymbol\theta^\top\mathbf{X}^\top\mathbf{y}+\mathbf{y}^\top\mathbf{y}$ (the two cross terms are equal $1\times1$ scalars). Using the vector-calculus rules $\frac{\partial}{\partial\boldsymbol\theta}(\boldsymbol\theta^\top\mathbf{b})=\mathbf{b}$ and $\frac{\partial}{\partial\boldsymbol\theta}(\boldsymbol\theta^\top\mathbf{A}\boldsymbol\theta)=2\mathbf{A}\boldsymbol\theta$ for symmetric $\mathbf{A}=\mathbf{X}^\top\mathbf{X}$, the gradient is $2\mathbf{X}^\top\mathbf{X}\boldsymbol\theta-2\mathbf{X}^\top\mathbf{y}$. Setting it to zero gives the celebrated **normal equation**:`,
+        },
+        { type: 'math', tex: r`\mathbf{X}^\top\mathbf{X}\,\boldsymbol\theta = \mathbf{X}^\top\mathbf{y} \;\;\Longrightarrow\;\; \boxed{\;\boldsymbol\theta=(\mathbf{X}^\top\mathbf{X})^{-1}\mathbf{X}^\top\mathbf{y}\;}` },
+        {
+          type: 'note',
+          variant: 'info',
+          title: 'It reproduces the scalar equations',
+          text: r`For the single-feature design matrix, $\mathbf{X}^\top\mathbf{X}=\begin{bmatrix}m&\sum x_i\\ \sum x_i&\sum x_i^2\end{bmatrix}$ and $\mathbf{X}^\top\mathbf{y}=\begin{bmatrix}\sum y_i\\ \sum x_i y_i\end{bmatrix}$ — exactly the two normal equations derived above. Because $J$ is convex, this stationary point is the unique global minimizer.`,
+        },
+
+        // ---------------------------------------------------------------
+        { type: 'heading', text: 'Gradient descent' },
+        {
+          type: 'p',
+          text: r`The closed form needs the inverse of the $(n+1)\times(n+1)$ matrix $\mathbf{X}^\top\mathbf{X}$, which costs $\mathcal{O}(n^3)$ and holds the whole matrix in memory. When $n$ or $m$ is very large that is impractical. **Gradient descent** avoids the inverse by repeatedly stepping downhill on the cost bowl.`,
+        },
+        { type: 'math', tex: r`\frac{\partial J}{\partial\theta_0}=\frac1m\sum_{i}\bigl(h_{\boldsymbol\theta}(x^{(i)})-y^{(i)}\bigr), \qquad \frac{\partial J}{\partial\theta_1}=\frac1m\sum_{i}\bigl(h_{\boldsymbol\theta}(x^{(i)})-y^{(i)}\bigr)x^{(i)}` },
+        {
+          type: 'p',
+          text: r`In compact vector form $\nabla J(\boldsymbol\theta)=\frac1m\mathbf{X}^\top(\mathbf{X}\boldsymbol\theta-\mathbf{y})$. Repeat until convergence, updating **all parameters simultaneously**:`,
+        },
+        { type: 'math', tex: r`\boxed{\;\theta_j := \theta_j-\alpha\,\frac1m\sum_{i}\bigl(h_{\boldsymbol\theta}(x^{(i)})-y^{(i)}\bigr)x^{(i)}_j\;}` },
+        {
+          type: 'diagram',
+          kind: 'gradient-descent',
+          caption: 'Gradient descent steps opposite the gradient, sliding down the convex cost surface to its global minimum.',
         },
         {
+          type: 'list',
+          items: [
+            r`The scalar $\alpha>0$ is the **learning rate**. Too **small** → very slow convergence; too **large** → the updates overshoot and $J$ oscillates or diverges.`,
+            r`A good check is to plot $J$ versus iteration — it should fall smoothly and monotonically.`,
+            r`**Feature scaling** (standardizing each feature to zero mean, unit variance) makes the bowl more circular and dramatically speeds convergence.`,
+            r`Because $J$ is convex, gradient descent with a small enough $\alpha$ is guaranteed to reach the **same** global optimum as the normal equation.`,
+          ],
+        },
+
+        // ---------------------------------------------------------------
+        { type: 'heading', text: 'Worked example — closed form' },
+        {
           type: 'example',
-          title: 'Fit a line by hand',
-          problem: r`Fit $\hat{y}=\beta_0+\beta_1 x$ to the points $(1,2),\,(2,3),\,(3,5),\,(4,4),\,(5,6)$.`,
+          title: 'Fit a line by hand (house-price data)',
+          problem: r`A tiny house-price dataset has size $x$ (thousands of sq ft) and price $y$: $(1,1),(2,3),(3,2),(4,5),(5,4)$, with $m=5$. Fit $\hat y=\theta_0+\theta_1 x$ by least squares, then report the SSE and $R^2$.`,
           solution: [
-            { type: 'p', text: r`**Step 1 — means.** $\bar x = \frac{1+2+3+4+5}{5}=3$, $\;\bar y = \frac{2+3+5+4+6}{5}=4$.` },
-            {
-              type: 'p',
-              text: r`**Step 2 — deviations and products.** Compute $(x_i-\bar x)$ and $(y_i-\bar y)$:`,
-            },
+            { type: 'p', text: r`**Step 1 — means.** $\bar x=\frac{1+2+3+4+5}{5}=3$, $\;\bar y=\frac{1+3+2+5+4}{5}=3$.` },
+            { type: 'p', text: r`**Step 2 — deviations, covariance and variance.**` },
             {
               type: 'table',
               headers: ['xᵢ', 'yᵢ', 'xᵢ−x̄', 'yᵢ−ȳ', '(xᵢ−x̄)(yᵢ−ȳ)', '(xᵢ−x̄)²'],
               rows: [
-                ['1', '2', '−2', '−2', '4', '4'],
-                ['2', '3', '−1', '−1', '1', '1'],
-                ['3', '5', '0', '1', '0', '0'],
-                ['4', '4', '1', '0', '0', '1'],
-                ['5', '6', '2', '2', '4', '4'],
-                ['', '', '', 'Σ', '9', '10'],
+                ['1', '1', '−2', '−2', '4', '4'],
+                ['2', '3', '−1', '0', '0', '1'],
+                ['3', '2', '0', '−1', '0', '0'],
+                ['4', '5', '1', '2', '2', '1'],
+                ['5', '4', '2', '1', '2', '4'],
+                ['', '', '', 'Σ', 'Sₓᵧ = 8', 'Sₓₓ = 10'],
               ],
             },
-            { type: 'p', text: r`**Step 3 — slope.** $\beta_1 = \dfrac{9}{10} = 0.9.$` },
-            { type: 'p', text: r`**Step 4 — intercept.** $\beta_0 = \bar y - \beta_1\bar x = 4 - 0.9\times 3 = 1.3.$` },
-            { type: 'p', text: r`**Step 5 — model.** $\hat{y} = 1.3 + 0.9x$. For $x=6$ it predicts $\hat{y}=1.3+5.4=6.7$.` },
+            { type: 'p', text: r`Also $S_{yy}=\sum(y_i-\bar y)^2=4+0+1+4+1=10$, so $\mathrm{Cov}(x,y)=\frac{8}{5}=1.6$ and $\mathrm{Var}(x)=\frac{10}{5}=2$.` },
+            { type: 'p', text: r`**Step 3 — slope and intercept.** $\theta_1=\dfrac{S_{xy}}{S_{xx}}=\dfrac{8}{10}=0.8=\dfrac{\mathrm{Cov}(x,y)}{\mathrm{Var}(x)}=\dfrac{1.6}{2}.$ Cross-check via correlation: $r=\dfrac{8}{\sqrt{10\cdot 10}}=0.8$, so $\theta_1=r\dfrac{\sigma_y}{\sigma_x}=0.8\cdot 1=0.8.$ Then $\theta_0=\bar y-\theta_1\bar x=3-0.8\times 3=0.6.$` },
+            { type: 'p', text: r`**Step 4 — the fitted model and residuals.** $\hat y=0.6+0.8x$:` },
+            {
+              type: 'table',
+              headers: ['xᵢ', 'ŷᵢ = 0.6+0.8xᵢ', 'eᵢ = yᵢ−ŷᵢ', 'eᵢ²'],
+              rows: [
+                ['1', '1.4', '−0.4', '0.16'],
+                ['2', '2.2', '0.8', '0.64'],
+                ['3', '3.0', '−1.0', '1.00'],
+                ['4', '3.8', '1.2', '1.44'],
+                ['5', '4.6', '−0.6', '0.36'],
+                ['', '', 'Σeᵢ = 0', 'SSE = 3.60'],
+              ],
+            },
+            { type: 'p', text: r`The residuals sum to zero — a general property of the least-squares fit (the first normal equation). The coefficient of determination is $R^2=1-\dfrac{\text{SSE}}{S_{yy}}=1-\dfrac{3.6}{10}=0.64=r^2$, confirming $R^2=r^2$ for simple linear regression.` },
           ],
-          answer: 'ŷ = 1.3 + 0.9x',
+          answer: 'ŷ = 0.6 + 0.8x, SSE = 3.6, R² = 0.64',
+        },
+
+        // ---------------------------------------------------------------
+        { type: 'heading', text: 'Worked example — gradient descent' },
+        {
+          type: 'p',
+          text: r`Now fit the **same** dataset iteratively so we can watch it approach the exact answer $(\theta_0,\theta_1)=(0.6,0.8)$. Start at $\theta_0=\theta_1=0$ with learning rate $\alpha=0.1$. Each iteration computes the cost $J=\frac{\sum e_i^2}{10}$ and gradients $g_0=\frac{\sum e_i}{5}$, $g_1=\frac{\sum e_i x_i}{5}$ (with $e_i=\hat y_i-y_i$), then updates $\theta_j:=\theta_j-\alpha g_j$.`,
+        },
+        {
+          type: 'table',
+          headers: ['Iter', 'θ₀', 'θ₁', 'J', 'g₀', 'g₁', 'θ₀ next', 'θ₁ next'],
+          rows: [
+            ['0', '0.0000', '0.0000', '5.5000', '−3.0000', '−10.6000', '0.3000', '1.0600'],
+            ['1', '0.3000', '1.0600', '0.5428', '0.4800', '1.9600', '0.2520', '0.8640'],
+            ['2', '0.2520', '0.8640', '0.3763', '−0.1560', '−0.3400', '0.2676', '0.8980'],
+            ['3', '0.2676', '0.8980', '0.3703', '−0.0384', '0.0808', '0.2714', '0.8899'],
+            ['4', '0.2714', '0.8899', '0.3698', '−0.0588', '0.0034', '0.2773', '0.8896'],
+          ],
+          caption: 'Batch gradient descent, α = 0.1. Reading top to bottom reproduces the whole optimisation by hand.',
+        },
+        {
+          type: 'example',
+          title: 'Read one iteration (iteration 0)',
+          problem: r`With $\theta_0=\theta_1=0$, verify the cost, both gradients and the first update by hand.`,
+          solution: [
+            { type: 'p', text: r`All parameters start at zero, so every prediction $\hat y_i=0$ and each error is $e_i=\hat y_i-y_i=-y_i$: $\;(-1,-3,-2,-5,-4)$.` },
+            { type: 'p', text: r`**Cost.** $\sum e_i^2=1+9+4+25+16=55$, so $J=\frac{55}{10}=5.5.$` },
+            { type: 'p', text: r`**Gradients.** $g_0=\frac{\sum e_i}{5}=\frac{-15}{5}=-3.$ For $g_1$, $\sum e_i x_i=-1-6-6-20-20=-53$, so $g_1=\frac{-53}{5}=-10.6.$` },
+            { type: 'p', text: r`**Update.** $\theta_0=0-0.1(-3)=0.3$ and $\theta_1=0-0.1(-10.6)=1.06$ — exactly the values heading iteration 1.` },
+          ],
+          answer: 'J = 5.5, g₀ = −3, g₁ = −10.6 → θ = (0.3, 1.06)',
         },
         {
           type: 'note',
+          variant: 'intuition',
+          title: 'Why the intercept lags',
+          text: r`In one step the cost collapses from $5.5$ to $0.54$ and the slope $\theta_1$ locks onto $\approx 0.89$ within a few iterations, but the intercept $\theta_0$ drifts only slowly toward $0.6$. That is the classic symptom of **unscaled features**: because $x$ ranges over $1$–$5$ the cost bowl is elongated and gradient descent zig-zags. Standardizing $x$ first lets both parameters converge together. Given enough iterations the trajectory reaches the closed-form optimum $(0.6, 0.8)$ with minimum cost $J=3.6/10=0.36$.`,
+        },
+
+        // ---------------------------------------------------------------
+        { type: 'heading', text: 'In code' },
+        {
+          type: 'code',
+          language: 'python',
+          caption: 'Closed form and gradient descent with NumPy.',
+          code: `import numpy as np
+
+# ----- Data -----
+x = np.array([1, 2, 3, 4, 5], dtype=float)
+y = np.array([1, 3, 2, 5, 4], dtype=float)
+m = len(y)
+X = np.column_stack([np.ones(m), x])          # design matrix with intercept column
+
+# ----- 1) Closed form (normal equation) -----
+theta_cf = np.linalg.solve(X.T @ X, X.T @ y)  # stable, avoids explicit inverse
+print(f"Closed form:  theta0={theta_cf[0]:.4f}, theta1={theta_cf[1]:.4f}")  # 0.6000, 0.8000
+
+# ----- 2) Gradient descent -----
+theta = np.zeros(2)
+alpha, iters = 0.1, 50
+for _ in range(iters):
+    err  = X @ theta - y                      # residual vector
+    grad = (X.T @ err) / m                    # gradient
+    theta -= alpha * grad                     # simultaneous update
+print(f"Grad descent: theta0={theta[0]:.4f}, theta1={theta[1]:.4f}")`,
+        },
+        {
+          type: 'code',
+          language: 'python',
+          caption: 'The same fit in three lines with scikit-learn.',
+          code: `from sklearn.linear_model import LinearRegression
+import numpy as np
+
+x = np.array([1, 2, 3, 4, 5]).reshape(-1, 1)   # column of features
+y = np.array([1, 3, 2, 5, 4])
+
+model = LinearRegression().fit(x, y)
+print("intercept theta0 =", model.intercept_)  # ~0.6
+print("slope     theta1 =", model.coef_[0])     # ~0.8
+print("R^2 =", model.score(x, y))               # 0.64`,
+        },
+
+        // ---------------------------------------------------------------
+        { type: 'heading', text: 'Closed form vs gradient descent' },
+        {
+          type: 'table',
+          headers: ['Closed form (normal equation)', 'Gradient descent'],
+          rows: [
+            ['Exact solution in one shot', 'Iterative approximation'],
+            ['No learning rate to tune', 'Must choose a learning rate α'],
+            ['Needs the inverse (XᵀX)⁻¹', 'No matrix inversion needed'],
+            ['Cost O(n³) in the number of features', 'Cost O(k·mn) for k iterations; scales well'],
+            ['Ideal for small feature sets', 'Suitable for very large / streaming data'],
+            ['Fails if XᵀX is singular', 'Still works via variants and regularization'],
+          ],
+          caption: 'Rule of thumb: use the normal equation when features are few (n ≲ 10⁴); switch to (stochastic) gradient descent for high-dimensional or streaming data.',
+        },
+
+        // ---------------------------------------------------------------
+        { type: 'heading', text: 'Assumptions & applications' },
+        {
+          type: 'note',
           variant: 'warning',
-          title: 'Assumptions & caveats',
-          text: r`Linear regression assumes a roughly linear relationship, independent errors with constant variance, and few extreme outliers (squared error is sensitive to them). When $\mathbf{X}^\top\mathbf{X}$ is not invertible (collinear features), use gradient descent or add regularization.`,
+          title: 'Assumptions of ordinary least squares',
+          text: r`**Linearity** — $\mathbb{E}[y]$ is linear in the parameters. **Independence** — the errors are independent. **Homoscedasticity** — errors have constant variance. **Normality** — for inference, errors are approximately normal with zero mean. **No perfect multicollinearity** — $\mathbf{X}$ has full column rank, so $\mathbf{X}^\top\mathbf{X}$ is invertible. Squared error is sensitive to outliers; a robust loss (e.g. Huber) resists them.`,
+        },
+        {
+          type: 'list',
+          items: [
+            r`Predicting house prices from size, location and number of rooms.`,
+            r`Forecasting sales or demand from advertising spend.`,
+            r`Estimating expenditure from income.`,
+            r`Modelling temperature vs energy consumption.`,
+            r`Calibrating sensors (mapping raw readings to physical quantities).`,
+          ],
+        },
+
+        // ---------------------------------------------------------------
+        { type: 'heading', text: 'Practice' },
+        {
+          type: 'example',
+          title: 'Effect of an outlier',
+          problem: r`Take the dataset above but change $y_4$ from $5$ to $50$. Qualitatively, what happens to the slope?`,
+          solution: [
+            { type: 'p', text: r`The point $(4,50)$ has a huge positive deviation $y_4-\bar y$, injecting a large positive term into $S_{xy}$ and pulling the slope sharply upward. Squared-error loss is highly sensitive to outliers — a robust loss such as Huber would resist this.` },
+          ],
+          answer: 'The slope is pulled sharply up; OLS is not robust to outliers.',
+        },
+        {
+          type: 'list',
+          ordered: true,
+          items: [
+            r`**Manual fit.** Fit $\hat y=\theta_0+\theta_1 x$ to $x=(2,4,6,8)$, $y=(3,7,5,10)$ using the covariance/variance formulas; report $\theta_0,\theta_1$ and $R^2$.`,
+            r`**Prediction.** Using $\hat y=0.6+0.8x$, predict the price for size $x=6$ and give one reason such extrapolation may be unreliable.`,
+            r`**Learning rate.** Run gradient descent with $\alpha\in\{0.01,0.1,0.4\}$; for which value does the cost diverge, and why?`,
+            r`**Feature scaling.** Standardize $x$ to zero mean, unit variance, re-run five iterations, and compare how fast $\theta_0$ and $\theta_1$ converge against the unscaled case.`,
+            r`**Ridge regression.** Modify the normal equation to $\boldsymbol\theta=(\mathbf{X}^\top\mathbf{X}+\lambda\mathbf{I})^{-1}\mathbf{X}^\top\mathbf{y}$ (do not penalize the intercept) and study the effect of $\lambda$ on the fitted slope.`,
+          ],
         },
       ],
     },

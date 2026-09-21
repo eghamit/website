@@ -281,25 +281,25 @@ const FIGURES: Record<string, () => ReactElement> = {
 
   'linear-fit': () => {
     const pts = [
-      [1, 2],
+      [1, 1],
       [2, 3],
-      [3, 5],
-      [4, 4],
-      [5, 6],
+      [3, 2],
+      [4, 5],
+      [5, 4],
     ];
-    const line = (x: number) => 1.3 + 0.9 * x;
+    const line = (x: number) => 0.6 + 0.8 * x;
     return (
       <Svg>
-        <Axes xmin={0} xmax={6} ymin={0} ymax={7} xlabel="x" ylabel="y" />
-        <path d={`M${sx(0, 0, 6)} ${sy(line(0), 0, 7)} L${sx(6, 0, 6)} ${sy(line(6), 0, 7)}`} stroke={BRAND} strokeWidth={2.5} />
+        <Axes xmin={0} xmax={6} ymin={0} ymax={6} xlabel="x" ylabel="y" />
+        <path d={`M${sx(0, 0, 6)} ${sy(line(0), 0, 6)} L${sx(6, 0, 6)} ${sy(line(6), 0, 6)}`} stroke={BRAND} strokeWidth={2.5} />
         {pts.map(([x, y], i) => (
           <g key={i}>
-            <line x1={sx(x!, 0, 6)} y1={sy(y!, 0, 7)} x2={sx(x!, 0, 6)} y2={sy(line(x!), 0, 7)} stroke={ROSE} strokeOpacity={0.5} strokeDasharray="3 2" />
-            <circle cx={sx(x!, 0, 6)} cy={sy(y!, 0, 7)} r={4.5} fill={EMER} />
+            <line x1={sx(x!, 0, 6)} y1={sy(y!, 0, 6)} x2={sx(x!, 0, 6)} y2={sy(line(x!), 0, 6)} stroke={ROSE} strokeOpacity={0.5} strokeDasharray="3 2" />
+            <circle cx={sx(x!, 0, 6)} cy={sy(y!, 0, 6)} r={4.5} fill={EMER} />
           </g>
         ))}
-        <text x={sx(4.6, 0, 6)} y={sy(line(4.6), 0, 7) - 8} fontSize={11} fill={BRAND}>ŷ = 1.3 + 0.9x</text>
-        <text x={sx(2, 0, 6) + 6} y={sy(3, 0, 7) - 6} fontSize={10} fill={ROSE} fillOpacity={0.8}>residual</text>
+        <text x={sx(4.5, 0, 6)} y={sy(line(4.5), 0, 6) - 8} fontSize={11} fill={BRAND}>ŷ = 0.6 + 0.8x</text>
+        <text x={sx(4, 0, 6) + 6} y={sy(4.4, 0, 6)} fontSize={10} fill={ROSE} fillOpacity={0.8}>residual</text>
       </Svg>
     );
   },
