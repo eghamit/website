@@ -340,8 +340,7 @@ export const supervised: Module = {
           type: 'p',
           text: r`**Setup.** The cost is $J=\frac{1}{2m}\sum_i(h_{\boldsymbol\theta}(x_i)-y_i)^2$. We start from $\theta_0=0.5,\ \theta_1=0.6$ with learning rate $\alpha=0.1$, and watch the parameters approach the exact closed-form optimum $(\theta_0,\theta_1)=(0.6,0.8)$. The gradients are`,
         },
-        { type: 'math', tex: r`g_0=\frac1m\sum_i\bigl(h_{\boldsymbol\theta}(x_i)-y_i\bigr)` },
-        { type: 'math', tex: r`g_1=\frac1m\sum_i\bigl(h_{\boldsymbol\theta}(x_i)-y_i\bigr)\,x_i` },
+        { type: 'math', tex: r`g_0=\frac1m\sum_i\bigl(h_{\boldsymbol\theta}(x_i)-y_i\bigr), \qquad g_1=\frac1m\sum_i\bigl(h_{\boldsymbol\theta}(x_i)-y_i\bigr)\,x_i` },
         {
           type: 'p',
           text: r`**The iteration table.** Each block lists all five data points with their prediction $\hat y_i=\theta_0+\theta_1 x_i$, error $e_i=\hat y_i-y_i$, squared error $e_i^2$, and the product $e_i x_i$. The summary line accumulates the column sums into the cost and gradients $J=\frac{\sum e_i^2}{10}$, $g_0=\frac{\sum e_i}{5}$, $g_1=\frac{\sum e_i x_i}{5}$, then applies $\theta_j:=\theta_j-\alpha\,g_j$ to produce the $(\theta_0,\theta_1)$ that opens the next iteration.`,
@@ -361,7 +360,7 @@ export const supervised: Module = {
             ['', '', r`$\sum=$`, '−3.5000', '6.4500', '−12.5000'],
           ],
         },
-        { type: 'math', tex: r`\begin{aligned} J &= \frac{6.4500}{10} = 0.6450 \\ g_0 &= \frac{-3.5000}{5} = -0.7000 \\ g_1 &= \frac{-12.5000}{5} = -2.5000 \\ (\theta_0,\theta_1) &:= (0.5700,\ 0.8500) \end{aligned}` },
+        { type: 'p', text: r`$J=\frac{6.4500}{10}=0.6450$,  $g_0=\frac{-3.5000}{5}=-0.7000$,  $g_1=\frac{-12.5000}{5}=-2.5000$  ⟹  $(\theta_0,\theta_1):=(0.5700,\ 0.8500)$.` },
 
         // Iteration 1
         { type: 'p', text: r`**Iteration 1** — $\theta_0=0.5700,\ \theta_1=0.8500$.` },
@@ -377,7 +376,7 @@ export const supervised: Module = {
             ['', '', r`$\sum=$`, '0.6000', '3.6970', '2.3000'],
           ],
         },
-        { type: 'math', tex: r`\begin{aligned} J &= \frac{3.6970}{10} = 0.3697 \\ g_0 &= \frac{0.6000}{5} = 0.1200 \\ g_1 &= \frac{2.3000}{5} = 0.4600 \\ (\theta_0,\theta_1) &:= (0.5580,\ 0.8040) \end{aligned}` },
+        { type: 'p', text: r`$J=\frac{3.6970}{10}=0.3697$,  $g_0=\frac{0.6000}{5}=0.1200$,  $g_1=\frac{2.3000}{5}=0.4600$  ⟹  $(\theta_0,\theta_1):=(0.5580,\ 0.8040)$.` },
 
         // Iteration 2
         { type: 'p', text: r`**Iteration 2** — $\theta_0=0.5580,\ \theta_1=0.8040$.` },
@@ -393,7 +392,7 @@ export const supervised: Module = {
             ['', '', r`$\sum=$`, '−0.1500', '3.6047', '−0.4100'],
           ],
         },
-        { type: 'math', tex: r`\begin{aligned} J &= \frac{3.6047}{10} = 0.3605 \\ g_0 &= \frac{-0.1500}{5} = -0.0300 \\ g_1 &= \frac{-0.4100}{5} = -0.0820 \\ (\theta_0,\theta_1) &:= (0.5610,\ 0.8122) \end{aligned}` },
+        { type: 'p', text: r`$J=\frac{3.6047}{10}=0.3605$,  $g_0=\frac{-0.1500}{5}=-0.0300$,  $g_1=\frac{-0.4100}{5}=-0.0820$  ⟹  $(\theta_0,\theta_1):=(0.5610,\ 0.8122)$.` },
 
         {
           type: 'note',
