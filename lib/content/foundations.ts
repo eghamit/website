@@ -537,38 +537,144 @@ export const foundations: Module = {
 
     // ================================================================
     {
-      slug: 'probability-and-statistics-for-ml',
-      title: 'Probability & Statistics for ML',
+      slug: 'statistics',
+      title: 'Statistics',
       summary:
-        'Descriptive statistics, random variables and distributions, conditional probability and Bayes’ theorem — the tools for uncertainty, Naive Bayes and evaluation.',
+        'Descriptive statistics for a sample — mean, variance, standard deviation, covariance and the correlation coefficient — the five quantities that reappear directly in the closed-form solution of linear regression.',
       intro: {
         definition:
-          'Probability quantifies uncertainty and statistics summarises data; together they let ML models reason about likelihoods, describe datasets, and be evaluated rigorously.',
+          'Descriptive statistics summarise a sample with a few numbers: where it is centred (mean), how spread out it is (variance, standard deviation), and how two variables move together (covariance, correlation).',
         whyItMatters:
-          'Mean/variance drive feature scaling, distributions underlie many models, and Bayes’ theorem is the whole basis of the Naive Bayes classifier and probabilistic reasoning.',
+          'Mean and variance drive feature scaling; covariance, variance and correlation are exactly the ingredients of the least-squares slope, and they underpin PCA, evaluation and much of statistical ML.',
         whenToUse: [
-          'Summarising and standardising features (mean, variance)',
-          'Reasoning about likelihoods and Bayes (Naive Bayes)',
-          'Interpreting evaluation metrics and uncertainty',
+          'Summarising or standardising features before modelling',
+          'Measuring how strongly two variables move together',
+          'Deriving the closed-form slope of simple linear regression',
         ],
       },
       objectives: [
-        'Compute mean, variance and standard deviation',
-        'Use conditional probability and Bayes’ theorem',
-        'Recognise the normal distribution and its parameters',
+        'Compute the mean, variance and standard deviation of a sample',
+        'Compute the covariance of paired data and interpret its sign',
+        'Compute the Pearson correlation coefficient and read its scale',
       ],
       blocks: [
-        { type: 'heading', text: 'Describing data' },
         {
           type: 'p',
-          text: r`The **mean** is the average; the **variance** measures spread (average squared deviation from the mean); the **standard deviation** is its square root, in the original units:`,
+          text: r`Let $x_1,\dots,x_m$ be a **sample** — a list of $m$ observed numbers. Descriptive statistics compress that list into a few meaningful quantities. The five below are all we need to describe one variable, a pair of variables, and — later — to solve linear regression in closed form.`,
         },
-        { type: 'math', tex: r`\mu = \frac{1}{m}\sum_{i=1}^{m} x_i, \qquad \sigma^2 = \frac{1}{m}\sum_{i=1}^{m}(x_i - \mu)^2, \qquad \sigma = \sqrt{\sigma^2}` },
+        { type: 'heading', text: 'Mean' },
+        {
+          type: 'p',
+          text: r`The **mean** (average) is the balance point of the sample:`,
+        },
+        { type: 'math', tex: r`\bar{x} = \frac{1}{m}\sum_{i=1}^{m} x_i` },
+        { type: 'heading', text: 'Variance' },
+        {
+          type: 'p',
+          text: r`The (population) **variance** measures spread about the mean — the average squared deviation:`,
+        },
+        { type: 'math', tex: r`\mathrm{Var}(x) = \frac{1}{m}\sum_{i=1}^{m} (x_i - \bar{x})^2` },
+        {
+          type: 'note',
+          variant: 'info',
+          title: 'Population vs sample variance',
+          text: r`The **unbiased sample variance** divides by $m-1$ instead of $m$. Dividing by $m$ gives the *population* variance used throughout these notes; the $m-1$ version corrects the slight underestimate you get when the mean is itself estimated from the same data.`,
+        },
+        { type: 'heading', text: 'Standard deviation' },
+        {
+          type: 'p',
+          text: r`The **standard deviation** is the square root of the variance, back in the original units of $x$:`,
+        },
+        { type: 'math', tex: r`\sigma_x = \sqrt{\mathrm{Var}(x)}` },
         {
           type: 'note',
           variant: 'tip',
-          title: 'Direct link to scaling',
-          text: r`These are exactly the quantities in **z-score standardization** $z = \frac{x-\mu}{\sigma}$, which puts every feature on a comparable scale for distance-based models.`,
+          title: 'Direct link to feature scaling',
+          text: r`The mean and standard deviation are exactly the quantities in **z-score standardization** $z = \dfrac{x-\bar x}{\sigma_x}$, which puts every feature on a comparable scale for distance-based models and speeds up gradient descent.`,
+        },
+        { type: 'heading', text: 'Covariance' },
+        {
+          type: 'p',
+          text: r`For **paired data** $(x_i, y_i)$, the **covariance** measures how the two variables vary together:`,
+        },
+        { type: 'math', tex: r`\mathrm{Cov}(x,y) = \frac{1}{m}\sum_{i=1}^{m} (x_i - \bar{x})(y_i - \bar{y})` },
+        {
+          type: 'p',
+          text: r`Covariance is **positive** when the two variables tend to increase together, **negative** when one rises as the other falls, and near **zero** when there is no linear relationship. Its size depends on the units of $x$ and $y$, which is why we normalise it next.`,
+        },
+        { type: 'heading', text: 'Correlation coefficient' },
+        {
+          type: 'p',
+          text: r`The **Pearson correlation coefficient** normalises covariance to the range $[-1, 1]$, giving a unit-free measure of linear association:`,
+        },
+        {
+          type: 'math',
+          tex: r`r = \frac{\mathrm{Cov}(x,y)}{\sigma_x\,\sigma_y} = \frac{\sum_{i}(x_i-\bar{x})(y_i-\bar{y})}{\sqrt{\sum_{i}(x_i-\bar{x})^2}\,\sqrt{\sum_{i}(y_i-\bar{y})^2}}`,
+        },
+        {
+          type: 'p',
+          text: r`Here $r = +1$ is a perfect increasing line, $r = -1$ a perfect decreasing line, and $r = 0$ no linear relationship.`,
+        },
+        {
+          type: 'note',
+          variant: 'intuition',
+          title: 'Why these five matter',
+          text: r`These five quantities reappear **directly** in the closed-form solution of simple linear regression: the least-squares slope is $\theta_1 = \dfrac{\mathrm{Cov}(x,y)}{\mathrm{Var}(x)} = r\,\dfrac{\sigma_y}{\sigma_x}$, and the intercept is $\theta_0 = \bar y - \theta_1\bar x$.`,
+        },
+        {
+          type: 'example',
+          title: 'Compute all five by hand',
+          problem: r`For the paired data $x=(1,2,3,4,5)$ and $y=(1,3,2,5,4)$, find $\bar x,\bar y$, $\mathrm{Var}(x)$, $\sigma_x$, $\mathrm{Cov}(x,y)$ and the correlation $r$.`,
+          solution: [
+            { type: 'p', text: r`**Step 1 — means.** $\bar x = \dfrac{1+2+3+4+5}{5}=3$, $\;\bar y = \dfrac{1+3+2+5+4}{5}=3$.` },
+            { type: 'p', text: r`**Step 2 — deviations.**` },
+            {
+              type: 'table',
+              headers: ['xᵢ', 'yᵢ', 'xᵢ−x̄', 'yᵢ−ȳ', '(xᵢ−x̄)²', '(yᵢ−ȳ)²', '(xᵢ−x̄)(yᵢ−ȳ)'],
+              rows: [
+                ['1', '1', '−2', '−2', '4', '4', '4'],
+                ['2', '3', '−1', '0', '1', '0', '0'],
+                ['3', '2', '0', '−1', '0', '1', '0'],
+                ['4', '5', '1', '2', '1', '4', '2'],
+                ['5', '4', '2', '1', '4', '1', '2'],
+                ['', '', '', 'Σ', '10', '10', '8'],
+              ],
+            },
+            { type: 'p', text: r`**Step 3 — variance and standard deviation.** $\mathrm{Var}(x)=\dfrac{10}{5}=2$, so $\sigma_x=\sqrt{2}\approx 1.414$; likewise $\sigma_y=\sqrt{2}$.` },
+            { type: 'p', text: r`**Step 4 — covariance.** $\mathrm{Cov}(x,y)=\dfrac{8}{5}=1.6$ (positive → $x$ and $y$ rise together).` },
+            { type: 'p', text: r`**Step 5 — correlation.** $r=\dfrac{\mathrm{Cov}(x,y)}{\sigma_x\sigma_y}=\dfrac{1.6}{\sqrt{2}\cdot\sqrt{2}}=\dfrac{1.6}{2}=0.8$ — a strong positive linear association.` },
+          ],
+          answer: 'x̄=ȳ=3, Var(x)=2, σₓ=√2, Cov(x,y)=1.6, r=0.8',
+        },
+      ],
+    },
+
+    // ================================================================
+    {
+      slug: 'probability-and-statistics-for-ml',
+      title: 'Probability for ML',
+      summary:
+        'Random events and probabilities, conditional probability and Bayes’ theorem, and the normal distribution — the tools for reasoning about uncertainty, Naive Bayes and evaluation.',
+      intro: {
+        definition:
+          'Probability quantifies uncertainty: it lets ML models reason about how likely events are, update beliefs from evidence, and describe noise with distributions.',
+        whyItMatters:
+          'Conditional probability and Bayes’ theorem are the whole basis of the Naive Bayes classifier and probabilistic reasoning, and the normal distribution underlies many models and outlier rules.',
+        whenToUse: [
+          'Reasoning about likelihoods and updating beliefs (Bayes)',
+          'Building probabilistic classifiers such as Naive Bayes',
+          'Modelling noise and interpreting uncertainty in evaluation',
+        ],
+      },
+      objectives: [
+        'Use conditional probability and independence',
+        'Apply Bayes’ theorem to update a prior into a posterior',
+        'Recognise the normal distribution and its parameters',
+      ],
+      blocks: [
+        {
+          type: 'p',
+          text: r`**Probability** quantifies uncertainty — how likely an event is. It is the language ML uses to reason about noisy data, likelihoods and beliefs. *(For summarising data with means, variances and correlation, see the [Statistics](#/learn/statistics) lesson.)*`,
         },
         { type: 'heading', text: 'Probability basics' },
         {
@@ -593,15 +699,14 @@ export const foundations: Module = {
         { type: 'math', tex: r`f(x) = \frac{1}{\sqrt{2\pi\sigma^2}}\,\exp\!\left(-\frac{(x-\mu)^2}{2\sigma^2}\right)` },
         {
           type: 'example',
-          title: 'Statistics and a Bayes update',
-          problem: r`(a) Find the mean and standard deviation of $2, 4, 6$. (b) A test is 90% accurate for a disease affecting 1% of people; it returns positive. Roughly how worried should you be? (Assume $P(+\mid\text{sick})=0.9$, $P(+\mid\text{well})=0.1$.)`,
+          title: 'A Bayes update',
+          problem: r`A test is 90% accurate for a disease affecting 1% of people; it returns positive. Roughly how worried should you be? (Assume $P(+\mid\text{sick})=0.9$, $P(+\mid\text{well})=0.1$.)`,
           solution: [
-            { type: 'p', text: r`**(a) Mean.** $\mu = \frac{2+4+6}{3} = 4$. **Variance.** $\frac{(2-4)^2+(4-4)^2+(6-4)^2}{3} = \frac{4+0+4}{3} \approx 2.67$, so $\sigma \approx 1.63$.` },
-            { type: 'p', text: r`**(b) Bayes.** Prior $P(\text{sick})=0.01$. Evidence $P(+) = 0.9(0.01) + 0.1(0.99) = 0.009 + 0.099 = 0.108$.` },
+            { type: 'p', text: r`**Prior.** $P(\text{sick})=0.01$. **Evidence.** $P(+) = 0.9(0.01) + 0.1(0.99) = 0.009 + 0.099 = 0.108$.` },
             { type: 'math', tex: r`P(\text{sick}\mid +) = \frac{0.9 \times 0.01}{0.108} = \frac{0.009}{0.108} \approx 0.083` },
             { type: 'p', text: r`Only about **8.3%** — because the disease is rare, most positives are false alarms. This *base-rate* effect is why Bayesian reasoning matters.` },
           ],
-          answer: '(a) μ=4, σ≈1.63  (b) P(sick|+) ≈ 8.3%',
+          answer: 'P(sick|+) ≈ 8.3%',
         },
       ],
     },
